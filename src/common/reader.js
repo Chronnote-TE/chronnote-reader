@@ -1558,7 +1558,7 @@ class Reader {
 			let formatted = '';
 			if (annotation.text) {
 				let text = annotation.text.trim();
-				formatted = fromText ? text : '“' + text + '”';
+				formatted = fromText ? text : '"' + text + '"';
 			}
 			let comment = annotation.comment?.trim();
 			if (comment) {
@@ -1777,6 +1777,10 @@ class Reader {
 	set flowMode(value) {
 		this._ensureType('epub');
 		this._lastView.setFlowMode(value);
+	}
+
+	get annotationManager() {
+		return this._annotationManager;
 	}
 }
 
