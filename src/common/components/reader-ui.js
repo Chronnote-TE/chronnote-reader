@@ -149,6 +149,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 					onToggleAppearancePopup={props.onToggleAppearancePopup}
 					onToggleFind={props.onToggleFind}
 					onToggleContextPane={props.onToggleContextPane}
+					onMenuButtonClick={props.onMenuButtonClick}
 				/>
 				<div>
 					{state.sidebarOpen === true &&

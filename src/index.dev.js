@@ -87,6 +87,9 @@ async function createReader() {
 		onToggleContextPane() {
 			console.log('Toggle context pane');
 		},
+		onMenuButtonClick() {
+			console.log('Menu button clicked');
+		},
 		onTextSelectionAnnotationModeChange(mode) {
 			console.log(`Change text selection annotation mode to '${mode}'`);
 		},

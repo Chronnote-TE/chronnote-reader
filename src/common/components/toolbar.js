@@ -4,6 +4,7 @@ import cx from 'classnames';
 import CustomSections from './common/custom-sections';
 import { ReaderContext } from '../reader';
 import { IconColor20 } from './common/icons';
+import { PanelLeft } from 'lucide-react';
 
 import IconSidebar from '../../../res/icons/20/sidebar.svg';
 import IconSidebarBottom from '../../../res/icons/20/sidebar-bottom.svg';
@@ -70,9 +71,23 @@ function Toolbar(props) {
 		}
 	}
 
+	function handleMenuButtonClick(event) {
+		if (props.onMenuButtonClick) {
+			props.onMenuButtonClick(event);
+		}
+	}
+
 	return (
 		<div className="toolbar" data-tabstop={1} role="application">
 			<div className="start">
+				<button
+					id="menuButton"
+					className="toolbar-button menu-button"
+					title={intl.formatMessage({ id: 'pdfReader.menuButton' }, { defaultMessage: 'Toggle Panel' })}
+					tabIndex={-1}
+					onClick={handleMenuButtonClick}
+				><PanelLeft size={18} strokeWidth={1.5} /></button>
+				<div className="divider"/>
 				<button
 					id="sidebarToggle"
 					className="toolbar-button sidebar-toggle"

@@ -71,6 +71,7 @@ class Reader {
 		// Only used on Zotero client, sets text/plain and text/html values from Note Markdown and Note HTML translators
 		this._onSetDataTransferAnnotations = options.onSetDataTransferAnnotations;
 		this._onSetZoom = options.onSetZoom;
+		this._onMenuButtonClick = options.onMenuButtonClick;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -357,21 +358,21 @@ class Reader {
 							onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
 							onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
 							onChangeSplitType={(type) => {
-								if (type === 'horizontal') {
+								if (!type) {
+									this.disableSplitView();
+								}
+								else if (type === 'horizontal') {
 									this.toggleHorizontalSplit(true);
 								}
 								else if (type === 'vertical') {
 									this.toggleVerticalSplit(true);
-								}
-								else {
-									this.disableSplitView();
 								}
 							}}
 							onChangeScrollMode={(mode) => this.scrollMode = mode}
 							onChangeSpreadMode={(mode) => this.spreadMode = mode}
 							onChangeFlowMode={(mode) => this.flowMode = mode}
 							onAddTheme={() => this._updateState({ themePopup: {} })}
-							onOpenThemeContextMenu={params => this._onOpenContextMenu(createThemeContextMenu(this, params))}
+							onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
 							onCloseThemePopup={() => this._updateState({ themePopup: null })}
 							onSaveCustomThemes={(customThemes) => {
 								this._onSaveCustomThemes(customThemes);
@@ -386,6 +387,7 @@ class Reader {
 								}
 								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
 							}}
+							onMenuButtonClick={this._handleMenuButtonClick}
 						/>
 					</ReaderContext.Provider>
 				</IntlProvider>
@@ -1781,6 +1783,12 @@ class Reader {
 
 	get annotationManager() {
 		return this._annotationManager;
+	}
+
+	_handleMenuButtonClick = (event) => {
+		if (this._onMenuButtonClick) {
+			this._onMenuButtonClick(event);
+		}
 	}
 }
 
