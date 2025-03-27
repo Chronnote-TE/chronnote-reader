@@ -33,6 +33,7 @@ import darkReaderJS from '!!raw-loader!darkreader/darkreader';
 import type { DynamicThemeFix } from "darkreader";
 import { isPageRectVisible } from "../common/lib/rect";
 import { debounceUntilScrollFinishes } from "../../common/lib/utilities";
+import { DEFAULT_THEMES } from "../../common/defines";
 
 class SnapshotView extends DOMView<SnapshotViewState, SnapshotViewData> {
 	protected _find: DefaultFindProcessor | null = null;
@@ -102,9 +103,29 @@ class SnapshotView extends DOMView<SnapshotViewState, SnapshotViewData> {
 
 	protected override _handleIFrameLoaded() {
 		let sheetLengthTotal = 0;
+
+		let foundSFImg = false;
+		let foundFontFace = false;
 		for (let sheet of this._iframeDocument.styleSheets) {
+			// Ignore SingleFile embedded image stylesheet
+			// https://github.com/gildas-lormeau/single-file-core/blob/1b6cecbe0/core/index.js#L1548-L1560
+			if (!foundSFImg && sheet.ownerNode?.textContent?.startsWith(':root{--sf-img-')) {
+				foundSFImg = true;
+				continue;
+			}
+			// Ignore SingleFile font-face stylesheet
+			// https://github.com/gildas-lormeau/single-file-core/blob/1b6cecbe0/core/index.js#L1047-L1055
+			if (!foundFontFace && sheet.ownerNode?.textContent?.startsWith('@font-face{')
+				&& Array.prototype.every.call(
+					sheet.cssRules,
+					rule => rule.constructor.name === 'CSSFontFaceRule'
+				)
+			) {
+				foundFontFace = true;
+				continue;
+			}
 			sheetLengthTotal += sheet.ownerNode?.textContent?.length ?? 0;
-			if (sheetLengthTotal > 50_000) {
+			if (sheetLengthTotal > 100_000) {
 				this._isThemingSupported = false;
 				break;
 			}
@@ -430,6 +451,10 @@ class SnapshotView extends DOMView<SnapshotViewState, SnapshotViewData> {
 					this._colorScheme = null;
 					break;
 			}
+			// Reset themes to their default values in case the user forced a dark theme
+			// in light mode, or vice versa
+			this._lightTheme = null;
+			this._darkTheme = DEFAULT_THEMES.find(t => t.id === 'dark')!;
 			super._updateColorScheme();
 		}
 	}
