@@ -1,29 +1,29 @@
-import React, { useEffect, useRef, useContext, Fragment } from 'react';
-import { useIntl } from 'react-intl';
 import cx from 'classnames';
-import CustomSections from './common/custom-sections';
+import {
+	ChevronDown,
+	ChevronLeft,
+	ChevronUp,
+	FileText,
+	Highlighter,
+	ImagePlus,
+	Maximize,
+	PanelLeft,
+	PanelRightClose,
+	Pencil,
+	StickyNote,
+	Type,
+	Underline,
+	ZoomIn,
+	ZoomOut,
+	Eraser,
+	Search,
+	ChevronDown as ChevronDownSmall
+} from 'lucide-react';
+import React, { Fragment, useContext, useEffect, useRef } from 'react';
+import { useIntl } from 'react-intl';
 import { ReaderContext } from '../reader';
+import CustomSections from './common/custom-sections';
 import { IconColor20 } from './common/icons';
-import { PanelLeft } from 'lucide-react';
-
-import IconSidebar from '../../../res/icons/20/sidebar.svg';
-import IconSidebarBottom from '../../../res/icons/20/sidebar-bottom.svg';
-import IconZoomIn from '../../../res/icons/20/zoom-in.svg';
-import IconZoomOut from '../../../res/icons/20/zoom-out.svg';
-import IconAutoWidth from '../../../res/icons/20/auto-width.svg';
-import IconChevronLeft from '../../../res/icons/20/chevron-left.svg';
-import IconChevronUp from '../../../res/icons/20/chevron-up.svg';
-import IconChevronDown from '../../../res/icons/20/chevron-down.svg';
-import IconFormatText from '../../../res/icons/20/format-text.svg';
-import IconHighlight from '../../../res/icons/20/annotate-highlight.svg';
-import IconUnderline from '../../../res/icons/20/annotate-underline.svg';
-import IconNote from '../../../res/icons/20/annotate-note.svg';
-import IconText from '../../../res/icons/20/annotate-text.svg';
-import IconImage from '../../../res/icons/20/annotate-area.svg';
-import IconInk from '../../../res/icons/20/annotate-ink.svg';
-import IconEraser from '../../../res/icons/20/annotate-eraser.svg';
-import IconFind from '../../../res/icons/20/magnifier.svg';
-import IconChevronDown8 from '../../../res/icons/8/chevron-8.svg';
 
 function Toolbar(props) {
 	const intl = useIntl();
@@ -94,7 +94,7 @@ function Toolbar(props) {
 					title={intl.formatMessage({ id: 'pdfReader.toggleSidebar' })}
 					tabIndex={-1}
 					onClick={handleSidebarButtonClick}
-				><IconSidebar/></button>
+				><PanelRightClose size={18} strokeWidth={1.5} /></button>
 				<div className="divider"/>
 				<button
 					id="zoomOut"
@@ -103,7 +103,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					disabled={!props.enableZoomOut}
 					onClick={props.onZoomOut}
-				><IconZoomOut/></button>
+				><ZoomOut size={18} strokeWidth={1.5} /></button>
 				<button
 					id="zoomIn"
 					className="toolbar-button zoomIn"
@@ -111,7 +111,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					disabled={!props.enableZoomIn}
 					onClick={props.onZoomIn}
-				><IconZoomIn/></button>
+				><ZoomIn size={18} strokeWidth={1.5} /></button>
 				<button
 					id="zoomAuto"
 					className="toolbar-button zoomAuto"
@@ -119,14 +119,14 @@ function Toolbar(props) {
 					tabIndex={-1}
 					disabled={!props.enableZoomReset}
 					onClick={props.onZoomReset}
-				><IconAutoWidth/></button>
+				><Maximize size={18} strokeWidth={1.5} /></button>
 				<button
 					id="appearance"
 					className={cx('toolbar-button', { active: props.appearancePopup })}
 					title={intl.formatMessage({ id: 'pdfReader.appearance' })}
 					tabIndex={-1}
 					onClick={props.onToggleAppearancePopup}
-				><IconFormatText/></button>
+				><Type size={18} strokeWidth={1.5} /></button>
 				<div className="divider"/>
 				<button
 					id="navigateBack"
@@ -135,7 +135,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					disabled={!props.enableNavigateBack}
 					onClick={props.onNavigateBack}
-				><IconChevronLeft/></button>
+				><ChevronLeft size={18} strokeWidth={1.5} /></button>
 				<div className="divider"/>
 				{['pdf', 'epub'].includes(props.type) && (
 					<React.Fragment>
@@ -147,7 +147,7 @@ function Toolbar(props) {
 							disabled={!props.enableNavigateToPreviousPage}
 							onClick={props.onNavigateToPreviousPage}
 							aria-describedby="numPages"
-						><IconChevronUp/></button>
+						><ChevronUp size={18} strokeWidth={1.5} /></button>
 						<button
 							className="toolbar-button pageDown"
 							title={intl.formatMessage({ id: 'pdfReader.nextPage' })}
@@ -156,7 +156,7 @@ function Toolbar(props) {
 							disabled={!props.enableNavigateToNextPage}
 							onClick={props.onNavigateToNextPage}
 							aria-describedby="numPages"
-						><IconChevronDown/></button>
+						><ChevronDown size={18} strokeWidth={1.5} /></button>
 					</React.Fragment>
 				)}
 				{['pdf', 'epub'].includes(props.type) && (
@@ -191,7 +191,7 @@ function Toolbar(props) {
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('highlight')}
 					data-l10n-id="pdfReader-toolbar-highlight"
-				><IconHighlight/></button>
+				><Highlighter size={18} strokeWidth={1.5} /></button>
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
@@ -199,7 +199,7 @@ function Toolbar(props) {
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('underline')}
 					data-l10n-id="pdfReader-toolbar-underline"
-				><IconUnderline/></button>
+				><Underline size={18} strokeWidth={1.5} /></button>
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button note', {
@@ -209,7 +209,7 @@ function Toolbar(props) {
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('note')}
 					data-l10n-id="pdfReader-toolbar-note"
-				><IconNote/></button>
+				><StickyNote size={18} strokeWidth={1.5} /></button>
 				{props.type === 'pdf' && (
 					<button
 						tabIndex={-1}
@@ -218,7 +218,7 @@ function Toolbar(props) {
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('text')}
 						data-l10n-id="pdfReader-toolbar-text"
-					><IconText/></button>
+					><FileText size={18} strokeWidth={1.5} /></button>
 				)}
 				{props.type === 'pdf' && (
 					<button
@@ -228,7 +228,7 @@ function Toolbar(props) {
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('image')}
 						data-l10n-id="pdfReader-toolbar-area"
-					><IconImage/></button>
+					><ImagePlus size={18} strokeWidth={1.5} /></button>
 				)}
 				{props.type === 'pdf' && (
 					<button
@@ -238,7 +238,7 @@ function Toolbar(props) {
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('ink')}
 						data-l10n-id="pdfReader-toolbar-draw"
-					><IconInk/></button>
+					><Pencil size={18} strokeWidth={1.5} /></button>
 				)}
 				<div className="divider"/>
 				<button
@@ -250,29 +250,48 @@ function Toolbar(props) {
 				>
 					{
 						props.tool.type === 'eraser'
-						? <IconEraser/>
+						? <Eraser size={18} strokeWidth={1.5} />
 						: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'}/>
 					}
-					<IconChevronDown8/>
+					<ChevronDownSmall size={12} strokeWidth={1.5} />
 				</button>
+				<div className="divider"/>
+				<button
+					tabIndex={-1}
+					className={cx('toolbar-button find', { active: props.findPopupOpen })}
+					title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
+					onClick={handleFindClick}
+				><Search size={18} strokeWidth={1.5} /></button>
+				{props.type === 'pdf' && props.tool.type === 'ink' && (
+					<button
+						tabIndex={-1}
+						className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
+						title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+						disabled={props.readOnly}
+						onClick={() => handleToolClick('eraser')}
+						data-l10n-id="pdfReader-toolbar-eraser"
+					><Eraser size={18} strokeWidth={1.5} /></button>
+				)}
 			</div>
 			<div className="end">
 				<CustomSections type="Toolbar"/>
-				<button
-					className={cx('toolbar-button find', { active: props.findPopupOpen })}
-					title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
-					tabIndex={-1}
-					onClick={handleFindClick}
-				><IconFind/></button>
 				{platform === 'zotero' && props.showContextPaneToggle && (
 					<Fragment>
 						<div className="divider"/>
 						<button
-							className="toolbar-button context-pane-toggle"
-							title={intl.formatMessage({ id: 'pdfReader.toggleContextPane' })}
+							className={cx('toolbar-button context-pane-toggle',
+							{ 'active-pseudo-class-fix': props.contextPaneOpen })}
+							title={intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
 							tabIndex={-1}
-							onClick={props.onToggleContextPane}
-						>{props.stackedView ? <IconSidebarBottom/> : <IconSidebar className="standard-view"/>}</button>
+							onClick={event => props.onToggleContextPane(!props.contextPaneOpen)}
+						>
+							<div className={cx(
+							{ 'standard-view': props.contextPaneType === 'note-editor' },
+							{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
+							)}>
+								<PanelRightClose size={18} strokeWidth={1.5} />
+							</div>
+						</button>
 					</Fragment>
 				)}
 			</div>
