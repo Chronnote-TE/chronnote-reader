@@ -95,6 +95,14 @@ async function createReader() {
 		},
 		onSaveCustomThemes(customThemes) {
 			console.log('Save custom themes', customThemes);
+		},
+		onTranslate: function (text) {
+			// 这是一个修改过的非异步函数版本，尝试修复可能的 Promise 问题
+			console.log('===== onTranslate 被调用！=====');
+			console.log('传入的文本:', text);
+
+			// 立即返回一个字符串而不是使用异步
+			return `Translation:\n${text}\n\n这是选中文本的模拟翻译效果，在实际应用中应替换为真实翻译API。`;
 		}
 	});
 	reader.enableAddToNote(true);

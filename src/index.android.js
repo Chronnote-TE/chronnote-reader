@@ -39,6 +39,16 @@ window.createView = (options) => {
 		},
 		onChangeViewStats: (stats) => {
 			postMessage('onChangeViewStats', { stats });
+		},
+		onTranslate: async (text) => {
+			// 发送翻译请求给Android原生应用处理
+			postMessage('onTranslateRequest', { text });
+
+			// 等待Android原生应用返回翻译结果
+			// 在实际应用中，应通过JavaScript接口接收Android返回的翻译结果
+			// 这里仅作为示例，返回固定结果
+			await new Promise(resolve => setTimeout(resolve, 800));
+			return `[Android Translation]\n${text}\n\n中文翻译示例`;
 		}
 	});
 };

@@ -72,6 +72,7 @@ class Reader {
 		this._onSetDataTransferAnnotations = options.onSetDataTransferAnnotations;
 		this._onSetZoom = options.onSetZoom;
 		this._onMenuButtonClick = options.onMenuButtonClick;
+		this._onTranslate = options.onTranslate;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -317,7 +318,7 @@ class Reader {
 									// Temporary until web library supports fluent
 									if (!document.l10n) return;
 									let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-									let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type : annotationType } );
+									let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
 									this.setA11yMessage(msg);
 								}, 100);
 								if (select) {
@@ -388,6 +389,7 @@ class Reader {
 								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
 							}}
 							onMenuButtonClick={this._handleMenuButtonClick}
+							onTranslate={this._onTranslate}
 						/>
 					</ReaderContext.Provider>
 				</IntlProvider>
@@ -875,7 +877,7 @@ class Reader {
 				// Temporary until web library supports fluent
 				if (!document.l10n) return;
 				let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-				let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type : annotationType } );
+				let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
 				this.setA11yMessage(msg);
 			}, 100);
 			if (select) {
@@ -985,6 +987,20 @@ class Reader {
 
 		let getLocalizedString = (name) => this._getString(name);
 
+		// 添加翻译回调函数
+		let onTranslate = this._onTranslate
+			? (text) => {
+				console.log('Reader中的onTranslate被调用，text:', text);
+				return this._onTranslate(text);
+			}
+			: null;
+
+		// 打印检查onTranslate
+		console.log('Reader中准备传递的onTranslate:', onTranslate);
+		if (onTranslate) {
+			console.log('onTranslate是函数:', typeof onTranslate === 'function');
+		}
+
 		let data;
 		if (this._type === 'pdf') {
 			data = this._data;
@@ -1035,7 +1051,8 @@ class Reader {
 			onKeyDown,
 			onKeyUp,
 			onFocusAnnotation,
-			getLocalizedString
+			getLocalizedString,
+			onTranslate
 		};
 
 		if (this._type === 'pdf') {
@@ -1359,7 +1376,7 @@ class Reader {
 					setTimeout(async () => {
 						// Temporary until web library supports fluent
 						if (!document.l10n) return;
-						let annotationType =  await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
+						let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
 						let a11yAnnouncement = await document.l10n.formatValue('pdfReader-a11yAnnotationSelected', { type: annotationType });
 						// Announce if there is a popup.
 						if (document.querySelector('.annotation-popup')) {

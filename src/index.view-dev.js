@@ -64,6 +64,23 @@ window.createView = (options) => {
 		onChangeViewStats: (stats) => {
 			// Provides useful information about the view
 			console.log('View stats changed', stats);
+		},
+		onTranslate: async (text) => {
+			// 这是一个演示翻译API调用的示例
+			console.log('翻译请求文本:', text);
+
+			// 模拟API调用延迟
+			await new Promise(resolve => setTimeout(resolve, 1000));
+
+			// 在实际应用中，这里应该调用真实的翻译API
+			// 例如: const response = await fetch('https://translation-api.example.com', {
+			//   method: 'POST',
+			//   body: JSON.stringify({ text, targetLang: 'zh-CN' })
+			// });
+			// return await response.json();
+
+			// 返回模拟的翻译结果
+			return `Translated from API:\n${text}\n\n这是从翻译API返回的示例文本。\n实际应用中应替换为真实翻译API的结果。`;
 		}
 	});
 
@@ -91,12 +108,13 @@ async function main() {
 			buf: new Uint8Array(await res.arrayBuffer()),
 		},
 		annotations: demo.annotations,
-		// location: {
-		// 	annotationID: 123
-		// },
-		// viewState: {
-		// 	scale: 2
-		// },
+		// 添加翻译功能
+		onTranslate: async (text) => {
+			console.log('Main翻译请求文本:', text);
+			// 模拟API调用延迟
+			await new Promise(resolve => setTimeout(resolve, 800));
+			return `原文:\n${text}\n\n翻译:\n这是在main函数中配置的模拟翻译结果，实际应用中应替换为真实翻译API的结果。`;
+		}
 	});
 
 	// It seems EPUB view isn't fully functioning for 10 or more seconds. TODO: Fix

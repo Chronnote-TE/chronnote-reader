@@ -1,7 +1,7 @@
 import View from './common/view';
 
 function postMessage(event, params = {}) {
-	window.webkit.messageHandlers.textHandler.postMessage({event, params});
+	window.webkit.messageHandlers.textHandler.postMessage({ event, params });
 }
 
 function log(data) {
@@ -9,21 +9,21 @@ function log(data) {
 }
 
 function decodeBase64(base64) {
-    const text = atob(base64);
-    const length = text.length;
-    const bytes = new Uint8Array(length);
-    for (let i = 0; i < length; i++) {
-        bytes[i] = text.charCodeAt(i);
-    }
-    const decoder = new TextDecoder();
-    return decoder.decode(bytes);
+	const text = atob(base64);
+	const length = text.length;
+	const bytes = new Uint8Array(length);
+	for (let i = 0; i < length; i++) {
+		bytes[i] = text.charCodeAt(i);
+	}
+	const decoder = new TextDecoder();
+	return decoder.decode(bytes);
 }
 
 window.createView = options => {
-    log("Create " + options.type + " view");
+	log("Create " + options.type + " view");
 	const annotations = JSON.parse(decodeBase64(options.annotations));
-    log("Loaded " + annotations.length + " annotations");
-    window._view = new View({
+	log("Loaded " + annotations.length + " annotations");
+	window._view = new View({
 		type: options.type,
 		annotations: annotations,
 		viewState: options.viewState,
@@ -32,17 +32,17 @@ window.createView = options => {
 			url: new URL(options.url)
 		},
 		onSaveAnnotations: annotations => {
-			postMessage('onSaveAnnotations', {annotations});
+			postMessage('onSaveAnnotations', { annotations });
 
 			if (annotations[0].type == "note") {
 				window._view.selectAnnotations([annotations[0].id]);
 			}
 		},
 		onSetOutline: outline => {
-			postMessage('onSetOutline', {outline});
+			postMessage('onSetOutline', { outline });
 		},
 		onSelectAnnotations: ids => {
-			postMessage('onSelectAnnotations', {ids});
+			postMessage('onSelectAnnotations', { ids });
 			window._view.selectAnnotations(ids);
 		},
 		onSetSelectionPopup: params => {
@@ -52,16 +52,26 @@ window.createView = options => {
 			postMessage('onSetAnnotationPopup', params);
 		},
 		onOpenLink: url => {
-			postMessage('onOpenLink', {url});
+			postMessage('onOpenLink', { url });
 		},
 		onFindResult: result => {
 			postMessage('onFindResult', result);
 		},
 		onChangeViewState: state => {
-			postMessage('onChangeViewState', {state});
+			postMessage('onChangeViewState', { state });
 		},
 		onChangeViewStats: stats => {
-			postMessage('onChangeViewStats', {stats});
+			postMessage('onChangeViewStats', { stats });
+		},
+		onTranslate: async text => {
+			// 发送翻译请求给iOS原生应用处理
+			postMessage('onTranslateRequest', { text });
+
+			// 模拟等待原生应用返回翻译结果
+			// 在实际应用中，应通过JS bridge接收原生应用的翻译结果
+			// 这里仅作为示例，返回固定结果
+			await new Promise(resolve => setTimeout(resolve, 800));
+			return `[iOS Translation]\n${text}\n\n中文翻译示例`;
 		}
 	});
 }
@@ -94,14 +104,14 @@ window.updateAnnotations = (options) => {
 
 window.search = options => {
 	const term = decodeBase64(options.term);
-    log("Search document: " + term);
-    window._view.find({ query: term, highlightAll: true, caseSensitive: false, entireWord: false });
+	log("Search document: " + term);
+	window._view.find({ query: term, highlightAll: true, caseSensitive: false, entireWord: false });
 }
 
 window.select = options => {
 	log("Select: " + options.key);
 	window._view.selectAnnotations([options.key])
-	window._view.navigate({annotationID: options.key});
+	window._view.navigate({ annotationID: options.key });
 }
 
 // Notify when iframe is loaded

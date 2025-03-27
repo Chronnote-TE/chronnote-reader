@@ -96,7 +96,8 @@ class View {
 			onSetOverlayPopup: nop,
 			onSetOutline: this._options.onSetOutline,
 			onTabOut: nop,
-			onKeyDown: nop
+			onKeyDown: nop,
+			onTranslate: this._options.onTranslate
 		};
 
 		if (this._type === 'epub') {

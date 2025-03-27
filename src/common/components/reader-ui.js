@@ -56,6 +56,7 @@ function View(props) {
 					onAddToNote={props.onAddToNote}
 					onAddAnnotation={props.onAddAnnotation}
 					onChangeTextSelectionAnnotationMode={props.onChangeTextSelectionAnnotationMode}
+					onTranslate={props.onTranslate}
 				/>
 			}
 			{state[name + 'ViewAnnotationPopup']
@@ -69,7 +70,7 @@ function View(props) {
 					params={state[name + 'ViewAnnotationPopup']}
 					annotation={state.annotations.find(x => x.id === state[name + 'ViewAnnotationPopup'].annotation.id)}
 					onChange={(annotation) => props.onUpdateAnnotations([annotation])}
-					onDragStart={() => {}}
+					onDragStart={() => { }}
 					onOpenTagsPopup={props.onOpenTagsPopup}
 					onOpenPageLabelPopup={props.onOpenPageLabelPopup}
 					onOpenAnnotationContextMenu={props.onOpenAnnotationContextMenu}
@@ -205,17 +206,17 @@ const ReaderUI = React.forwardRef((props, ref) => {
 					}
 
 				</div>
-				{state.sidebarOpen === true && <SidebarResizer onResize={props.onResizeSidebar}/>}
+				{state.sidebarOpen === true && <SidebarResizer onResize={props.onResizeSidebar} />}
 			</div>
 			<div className="split-view">
-				<View {...props} primary={true} state={state}/>
-				<SplitViewResizer onResize={props.onResizeSplitView}/>
+				<View {...props} primary={true} state={state} />
+				<SplitViewResizer onResize={props.onResizeSplitView} />
 				{state.splitType && <View {...props} primary={false} state={state} />}
 			</div>
-			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu}/>}
-			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup}/>}
-			{state.passwordPopup && <PasswordPopup params={state.passwordPopup} onEnterPassword={props.onEnterPassword}/>}
-			{state.printPopup && <PrintPopup params={state.printPopup}/>}
+			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
+			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}
+			{state.passwordPopup && <PasswordPopup params={state.passwordPopup} onEnterPassword={props.onEnterPassword} />}
+			{state.printPopup && <PrintPopup params={state.printPopup} />}
 			{state.errorMessage && <div className="error-bar" tabIndex={-1}>{state.errorMessage}</div>}
 			{state.appearancePopup && (
 				// We always read the primaryViewState, but we write both view states
