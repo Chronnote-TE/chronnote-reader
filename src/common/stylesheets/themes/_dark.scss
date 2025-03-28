@@ -77,7 +77,8 @@ $-colors: (
     --material-menu: var(--color-menu);
     --material-sidepane: var(--color-sidepane);
     --material-tabbar: var(--color-tabbar);
-    --material-toolbar: var(--color-toolbar);
+    // --material-toolbar: var(--color-toolbar);
+    --material-toolbar: oklch(0.2533 0.016 252.42);
     --material-mix-quinary: var(--color-quinary-on-background);
     --material-mix-quarternary: var(--color-quarternary-on-background);
 

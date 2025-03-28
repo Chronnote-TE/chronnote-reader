@@ -1803,6 +1803,17 @@ class Reader {
 		return this._annotationManager;
 	}
 
+	/**
+	 * Jump to a specific annotation by its ID
+	 * @param {string} annotationId The ID of the annotation to jump to
+	 */
+	jumpToAnnotation(annotationId) {
+		let annotation = this._annotationManager._annotations.find(x => x.id === annotationId);
+		if (annotation) {
+			this._lastView.navigate({ annotationID: annotation.id });
+		}
+	}
+
 	_handleMenuButtonClick = (event) => {
 		if (this._onMenuButtonClick) {
 			this._onMenuButtonClick(event);
