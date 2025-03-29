@@ -17,10 +17,13 @@ import {
 	ZoomOut,
 	Eraser,
 	Search,
-	ChevronDown as ChevronDownSmall
+	ChevronDown as ChevronDownSmall,
+	X,
+	Columns2
 } from 'lucide-react';
 import React, { Fragment, useContext, useEffect, useRef } from 'react';
 import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import { ReaderContext } from '../reader';
 import CustomSections from './common/custom-sections';
 import { IconColor20 } from './common/icons';
@@ -36,7 +39,7 @@ function Toolbar(props) {
 		}
 	}, [props.pageLabel, props.pageIndex]);
 
-	function handleSidebarButtonClick(event) {
+	function handleSidebarButtonClick(_event) {
 		props.onToggleSidebar(!props.sidebarOpen);
 	}
 
@@ -45,7 +48,7 @@ function Toolbar(props) {
 		props.onOpenColorContextMenu({ x: br.left, y: br.bottom });
 	}
 
-	function handleFindClick(event) {
+	function handleFindClick(_event) {
 		props.onToggleFind();
 	}
 
@@ -77,6 +80,18 @@ function Toolbar(props) {
 		}
 	}
 
+	function handleCloseClick(_event) {
+		if (props.onClickClose) {
+			props.onClickClose();
+		}
+	}
+
+	function handleSplitClick(_event) {
+		if (props.onClickSplit) {
+			props.onClickSplit();
+		}
+	}
+
 	return (
 		<div className="toolbar" data-tabstop={1} role="application">
 			<div className="start">
@@ -87,7 +102,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					onClick={handleMenuButtonClick}
 				><PanelLeft size={18} strokeWidth={1.5} /></button>
-				<div className="divider"/>
+				<div className="divider" />
 				<button
 					id="sidebarToggle"
 					className="toolbar-button sidebar-toggle"
@@ -95,7 +110,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					onClick={handleSidebarButtonClick}
 				><PanelRightClose size={18} strokeWidth={1.5} /></button>
-				<div className="divider"/>
+				<div className="divider" />
 				<button
 					id="zoomOut"
 					className="toolbar-button zoomOut"
@@ -127,7 +142,7 @@ function Toolbar(props) {
 					tabIndex={-1}
 					onClick={props.onToggleAppearancePopup}
 				><Type size={18} strokeWidth={1.5} /></button>
-				<div className="divider"/>
+				<div className="divider" />
 				<button
 					id="navigateBack"
 					className="toolbar-button navigateBack"
@@ -136,7 +151,7 @@ function Toolbar(props) {
 					disabled={!props.enableNavigateBack}
 					onClick={props.onNavigateBack}
 				><ChevronLeft size={18} strokeWidth={1.5} /></button>
-				<div className="divider"/>
+				<div className="divider" />
 				{['pdf', 'epub'].includes(props.type) && (
 					<React.Fragment>
 						<button
@@ -240,7 +255,7 @@ function Toolbar(props) {
 						data-l10n-id="pdfReader-toolbar-draw"
 					><Pencil size={18} strokeWidth={1.5} /></button>
 				)}
-				<div className="divider"/>
+				<div className="divider" />
 				<button
 					tabIndex={-1}
 					className="toolbar-button toolbar-dropdown-button"
@@ -250,12 +265,12 @@ function Toolbar(props) {
 				>
 					{
 						props.tool.type === 'eraser'
-						? <Eraser size={18} strokeWidth={1.5} />
-						: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'}/>
+							? <Eraser size={18} strokeWidth={1.5} />
+							: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
 					}
 					<ChevronDownSmall size={12} strokeWidth={1.5} />
 				</button>
-				<div className="divider"/>
+				<div className="divider" />
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button find', { active: props.findPopupOpen })}
@@ -274,20 +289,36 @@ function Toolbar(props) {
 				)}
 			</div>
 			<div className="end">
-				<CustomSections type="Toolbar"/>
+				<CustomSections type="Toolbar" />
+
+				<div className="divider" />
+				<button
+					className="toolbar-button split"
+					title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Split View' })}
+					tabIndex={-1}
+					onClick={handleSplitClick}
+				><Columns2 size={18} strokeWidth={1.5} /></button>
+
+				<button
+					className="toolbar-button close"
+					title={intl.formatMessage({ id: 'pdfReader.close' }, { defaultMessage: 'Close' })}
+					tabIndex={-1}
+					onClick={handleCloseClick}
+				><X size={18} strokeWidth={1.5} /></button>
+
 				{platform === 'zotero' && props.showContextPaneToggle && (
 					<Fragment>
-						<div className="divider"/>
+						<div className="divider" />
 						<button
 							className={cx('toolbar-button context-pane-toggle',
-							{ 'active-pseudo-class-fix': props.contextPaneOpen })}
+								{ 'active-pseudo-class-fix': props.contextPaneOpen })}
 							title={intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
 							tabIndex={-1}
-							onClick={event => props.onToggleContextPane(!props.contextPaneOpen)}
+							onClick={_event => props.onToggleContextPane(!props.contextPaneOpen)}
 						>
 							<div className={cx(
-							{ 'standard-view': props.contextPaneType === 'note-editor' },
-							{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
+								{ 'standard-view': props.contextPaneType === 'note-editor' },
+								{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
 							)}>
 								<PanelRightClose size={18} strokeWidth={1.5} />
 							</div>
@@ -298,5 +329,46 @@ function Toolbar(props) {
 		</div>
 	);
 }
+
+Toolbar.propTypes = {
+	type: PropTypes.string,
+	pageLabel: PropTypes.string,
+	pageIndex: PropTypes.number,
+	sidebarOpen: PropTypes.bool,
+	onToggleSidebar: PropTypes.func,
+	onOpenColorContextMenu: PropTypes.func,
+	onToggleFind: PropTypes.func,
+	tool: PropTypes.shape({
+		type: PropTypes.string,
+		color: PropTypes.string
+	}),
+	onChangeTool: PropTypes.func,
+	onChangePageNumber: PropTypes.func,
+	onMenuButtonClick: PropTypes.func,
+	enableZoomOut: PropTypes.bool,
+	onZoomOut: PropTypes.func,
+	enableZoomIn: PropTypes.bool,
+	onZoomIn: PropTypes.func,
+	enableZoomReset: PropTypes.bool,
+	onZoomReset: PropTypes.func,
+	appearancePopup: PropTypes.bool,
+	onToggleAppearancePopup: PropTypes.func,
+	enableNavigateBack: PropTypes.bool,
+	onNavigateBack: PropTypes.func,
+	enableNavigateToPreviousPage: PropTypes.bool,
+	onNavigateToPreviousPage: PropTypes.func,
+	enableNavigateToNextPage: PropTypes.bool,
+	onNavigateToNextPage: PropTypes.func,
+	usePhysicalPageNumbers: PropTypes.bool,
+	pagesCount: PropTypes.number,
+	readOnly: PropTypes.bool,
+	findPopupOpen: PropTypes.bool,
+	showContextPaneToggle: PropTypes.bool,
+	contextPaneOpen: PropTypes.bool,
+	onToggleContextPane: PropTypes.func,
+	contextPaneType: PropTypes.string,
+	onClickClose: PropTypes.func,
+	onClickSplit: PropTypes.func
+};
 
 export default Toolbar;
