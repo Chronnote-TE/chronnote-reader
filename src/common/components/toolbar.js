@@ -7,7 +7,6 @@ import {
 	Highlighter,
 	ImagePlus,
 	Maximize,
-	PanelLeft,
 	PanelRightClose,
 	Pencil,
 	StickyNote,
@@ -104,21 +103,15 @@ function Toolbar(props) {
 		}
 	}
 
-	function handleMenuButtonClick(event) {
-		if (props.onMenuButtonClick) {
-			props.onMenuButtonClick(event);
+	function handleSplitClick(_event) {
+		if (props.onClickSplit) {
+			props.onClickSplit();
 		}
 	}
 
 	function handleCloseClick(_event) {
 		if (props.onClickClose) {
 			props.onClickClose();
-		}
-	}
-
-	function handleSplitClick(_event) {
-		if (props.onClickSplit) {
-			props.onClickSplit();
 		}
 	}
 
@@ -133,13 +126,6 @@ function Toolbar(props) {
 	return (
 		<div className="toolbar" data-tabstop={1} role="application" ref={toolbarRef}>
 			<div className="start">
-				<button
-					id="menuButton"
-					className="toolbar-button menu-button"
-					title={intl.formatMessage({ id: 'pdfReader.menuButton' }, { defaultMessage: 'Toggle Panel' })}
-					tabIndex={-1}
-					onClick={handleMenuButtonClick}
-				><PanelLeft size={18} strokeWidth={1.5} /></button>
 				<div className="divider" />
 				<button
 					id="sidebarToggle"
@@ -245,208 +231,209 @@ function Toolbar(props) {
 				)}
 			</div>
 			<div className="center tools">
-				{isSmallScreen || isMediumScreen ? (
-					<>
-						<div className="toolbar-dropdown-container">
+				{isSmallScreen || isMediumScreen
+					? (
+						<>
+							<div className="toolbar-dropdown-container">
+								<button
+									tabIndex={-1}
+									className="toolbar-button more-button"
+									title={intl.formatMessage({ id: 'pdfReader.moreTools' }, { defaultMessage: 'More Tools' })}
+									onClick={toggleMoreMenu}
+								><MoreHorizontal size={18} strokeWidth={1.5} /></button>
+								{showMoreMenu && (
+									<div className="more-tools-menu">
+										<button
+											tabIndex={-1}
+											className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
+											title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+											disabled={props.readOnly}
+											onClick={() => handleToolClick('highlight')}
+										><Highlighter size={16} strokeWidth={1.5} /><span>高亮</span></button>
+										<button
+											tabIndex={-1}
+											className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+											title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+											disabled={props.readOnly}
+											onClick={() => handleToolClick('underline')}
+										><Underline size={16} strokeWidth={1.5} /><span>下划线</span></button>
+										<button
+											tabIndex={-1}
+											className={cx('toolbar-button note', {
+												active: props.tool.type === 'note'
+											})}
+											title={intl.formatMessage({ id: 'pdfReader.addNote' })}
+											disabled={props.readOnly}
+											onClick={() => handleToolClick('note')}
+										><StickyNote size={16} strokeWidth={1.5} /><span>笔记</span></button>
+										{props.type === 'pdf' && (
+											<button
+												tabIndex={-1}
+												className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
+												title={intl.formatMessage({ id: 'pdfReader.addText' })}
+												disabled={props.readOnly}
+												onClick={() => handleToolClick('text')}
+											><FileText size={16} strokeWidth={1.5} /><span>文本</span></button>
+										)}
+										{props.type === 'pdf' && (
+											<button
+												tabIndex={-1}
+												className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
+												title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
+												disabled={props.readOnly}
+												onClick={() => handleToolClick('image')}
+											><ImagePlus size={16} strokeWidth={1.5} /><span>区域</span></button>
+										)}
+										{props.type === 'pdf' && (
+											<button
+												tabIndex={-1}
+												className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+												title={intl.formatMessage({ id: 'pdfReader.draw' })}
+												disabled={props.readOnly}
+												onClick={() => handleToolClick('ink')}
+											><Pencil size={16} strokeWidth={1.5} /><span>绘图</span></button>
+										)}
+										<button
+											tabIndex={-1}
+											className="toolbar-button toolbar-dropdown-button"
+											disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
+											title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
+											onClick={handleToolColorClick}
+										>
+											{
+												props.tool.type === 'eraser'
+													? <Eraser size={16} strokeWidth={1.5} />
+													: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
+											}
+											<span>颜色</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className={cx('toolbar-button find', { active: props.findPopupOpen })}
+											title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
+											onClick={handleFindClick}
+										><Search size={16} strokeWidth={1.5} /><span>查找</span></button>
+										{props.type === 'pdf' && props.tool.type === 'ink' && (
+											<button
+												tabIndex={-1}
+												className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
+												title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+												disabled={props.readOnly}
+												onClick={() => handleToolClick('eraser')}
+											><Eraser size={16} strokeWidth={1.5} /><span>橡皮擦</span></button>
+										)}
+									</div>
+								)}
+							</div>
+						</>
+					)
+					: (
+						<>
 							<button
 								tabIndex={-1}
-								className="toolbar-button more-button"
-								title={intl.formatMessage({ id: 'pdfReader.moreTools' }, { defaultMessage: 'More Tools' })}
-								onClick={toggleMoreMenu}
-							><MoreHorizontal size={18} strokeWidth={1.5} /></button>
-							{showMoreMenu && (
-								<div className="more-tools-menu">
-									<button
-										tabIndex={-1}
-										className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-										title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-										disabled={props.readOnly}
-										onClick={() => handleToolClick('highlight')}
-									><Highlighter size={16} strokeWidth={1.5} /><span>高亮</span></button>
-									<button
-										tabIndex={-1}
-										className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-										title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-										disabled={props.readOnly}
-										onClick={() => handleToolClick('underline')}
-									><Underline size={16} strokeWidth={1.5} /><span>下划线</span></button>
-									<button
-										tabIndex={-1}
-										className={cx('toolbar-button note', {
-											active: props.tool.type === 'note'
-										})}
-										title={intl.formatMessage({ id: 'pdfReader.addNote' })}
-										disabled={props.readOnly}
-										onClick={() => handleToolClick('note')}
-									><StickyNote size={16} strokeWidth={1.5} /><span>笔记</span></button>
-									{props.type === 'pdf' && (
-										<button
-											tabIndex={-1}
-											className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
-											title={intl.formatMessage({ id: 'pdfReader.addText' })}
-											disabled={props.readOnly}
-											onClick={() => handleToolClick('text')}
-										><FileText size={16} strokeWidth={1.5} /><span>文本</span></button>
-									)}
-									{props.type === 'pdf' && (
-										<button
-											tabIndex={-1}
-											className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
-											title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
-											disabled={props.readOnly}
-											onClick={() => handleToolClick('image')}
-										><ImagePlus size={16} strokeWidth={1.5} /><span>区域</span></button>
-									)}
-									{props.type === 'pdf' && (
-										<button
-											tabIndex={-1}
-											className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
-											title={intl.formatMessage({ id: 'pdfReader.draw' })}
-											disabled={props.readOnly}
-											onClick={() => handleToolClick('ink')}
-										><Pencil size={16} strokeWidth={1.5} /><span>绘图</span></button>
-									)}
-									<button
-										tabIndex={-1}
-										className="toolbar-button toolbar-dropdown-button"
-										disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
-										title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
-										onClick={handleToolColorClick}
-									>
-										{
-											props.tool.type === 'eraser'
-												? <Eraser size={16} strokeWidth={1.5} />
-												: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
-										}
-										<span>颜色</span>
-									</button>
-									<button
-										tabIndex={-1}
-										className={cx('toolbar-button find', { active: props.findPopupOpen })}
-										title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
-										onClick={handleFindClick}
-									><Search size={16} strokeWidth={1.5} /><span>查找</span></button>
-									{props.type === 'pdf' && props.tool.type === 'ink' && (
-										<button
-											tabIndex={-1}
-											className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
-											title={intl.formatMessage({ id: 'pdfReader.eraser' })}
-											disabled={props.readOnly}
-											onClick={() => handleToolClick('eraser')}
-										><Eraser size={16} strokeWidth={1.5} /><span>橡皮擦</span></button>
-									)}
-								</div>
+								className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
+								title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+								disabled={props.readOnly}
+								onClick={() => handleToolClick('highlight')}
+								data-l10n-id="pdfReader-toolbar-highlight"
+							><Highlighter size={18} strokeWidth={1.5} /></button>
+							<button
+								tabIndex={-1}
+								className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+								title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+								disabled={props.readOnly}
+								onClick={() => handleToolClick('underline')}
+								data-l10n-id="pdfReader-toolbar-underline"
+							><Underline size={18} strokeWidth={1.5} /></button>
+							<button
+								tabIndex={-1}
+								className={cx('toolbar-button note', {
+									active: props.tool.type === 'note'
+								})}
+								title={intl.formatMessage({ id: 'pdfReader.addNote' })}
+								disabled={props.readOnly}
+								onClick={() => handleToolClick('note')}
+								data-l10n-id="pdfReader-toolbar-note"
+							><StickyNote size={18} strokeWidth={1.5} /></button>
+							{props.type === 'pdf' && (
+								<button
+									tabIndex={-1}
+									className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
+									title={intl.formatMessage({ id: 'pdfReader.addText' })}
+									disabled={props.readOnly}
+									onClick={() => handleToolClick('text')}
+									data-l10n-id="pdfReader-toolbar-text"
+								><FileText size={18} strokeWidth={1.5} /></button>
 							)}
-						</div>
-					</>
-				) : (
-					<>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-							title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('highlight')}
-							data-l10n-id="pdfReader-toolbar-highlight"
-						><Highlighter size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-							title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('underline')}
-							data-l10n-id="pdfReader-toolbar-underline"
-						><Underline size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button note', {
-								active: props.tool.type === 'note'
-							})}
-							title={intl.formatMessage({ id: 'pdfReader.addNote' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('note')}
-							data-l10n-id="pdfReader-toolbar-note"
-						><StickyNote size={18} strokeWidth={1.5} /></button>
-						{props.type === 'pdf' && (
+							{props.type === 'pdf' && (
+								<button
+									tabIndex={-1}
+									className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
+									title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
+									disabled={props.readOnly}
+									onClick={() => handleToolClick('image')}
+									data-l10n-id="pdfReader-toolbar-area"
+								><ImagePlus size={18} strokeWidth={1.5} /></button>
+							)}
+							{props.type === 'pdf' && (
+								<button
+									tabIndex={-1}
+									className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+									title={intl.formatMessage({ id: 'pdfReader.draw' })}
+									disabled={props.readOnly}
+									onClick={() => handleToolClick('ink')}
+									data-l10n-id="pdfReader-toolbar-draw"
+								><Pencil size={18} strokeWidth={1.5} /></button>
+							)}
+							<div className="divider" />
 							<button
 								tabIndex={-1}
-								className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
-								title={intl.formatMessage({ id: 'pdfReader.addText' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('text')}
-								data-l10n-id="pdfReader-toolbar-text"
-							><FileText size={18} strokeWidth={1.5} /></button>
-						)}
-						{props.type === 'pdf' && (
+								className="toolbar-button toolbar-dropdown-button"
+								disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
+								title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
+								onClick={handleToolColorClick}
+							>
+								{
+									props.tool.type === 'eraser'
+										? <Eraser size={18} strokeWidth={1.5} />
+										: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
+								}
+								<ChevronDownSmall size={12} strokeWidth={1.5} />
+							</button>
+							<div className="divider" />
 							<button
 								tabIndex={-1}
-								className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
-								title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('image')}
-								data-l10n-id="pdfReader-toolbar-area"
-							><ImagePlus size={18} strokeWidth={1.5} /></button>
-						)}
-						{props.type === 'pdf' && (
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
-								title={intl.formatMessage({ id: 'pdfReader.draw' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('ink')}
-								data-l10n-id="pdfReader-toolbar-draw"
-							><Pencil size={18} strokeWidth={1.5} /></button>
-						)}
-						<div className="divider" />
-						<button
-							tabIndex={-1}
-							className="toolbar-button toolbar-dropdown-button"
-							disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
-							title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
-							onClick={handleToolColorClick}
-						>
-							{
-								props.tool.type === 'eraser'
-									? <Eraser size={18} strokeWidth={1.5} />
-									: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
-							}
-							<ChevronDownSmall size={12} strokeWidth={1.5} />
-						</button>
-						<div className="divider" />
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button find', { active: props.findPopupOpen })}
-							title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
-							onClick={handleFindClick}
-						><Search size={18} strokeWidth={1.5} /></button>
-						{props.type === 'pdf' && props.tool.type === 'ink' && (
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
-								title={intl.formatMessage({ id: 'pdfReader.eraser' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('eraser')}
-								data-l10n-id="pdfReader-toolbar-eraser"
-							><Eraser size={18} strokeWidth={1.5} /></button>
-						)}
-					</>
-				)}
+								className={cx('toolbar-button find', { active: props.findPopupOpen })}
+								title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
+								onClick={handleFindClick}
+							><Search size={18} strokeWidth={1.5} /></button>
+							{props.type === 'pdf' && props.tool.type === 'ink' && (
+								<button
+									tabIndex={-1}
+									className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
+									title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+									disabled={props.readOnly}
+									onClick={() => handleToolClick('eraser')}
+									data-l10n-id="pdfReader-toolbar-eraser"
+								><Eraser size={18} strokeWidth={1.5} /></button>
+							)}
+						</>
+					)
+				}
 			</div>
 			<div className="end">
 				<CustomSections type="Toolbar" />
 
-				{!isSmallScreen && !isMediumScreen && (
-					<>
-						<div className="divider" />
-						<button
-							className="toolbar-button split"
-							title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Split View' })}
-							tabIndex={-1}
-							onClick={handleSplitClick}
-						><Columns2 size={18} strokeWidth={1.5} /></button>
-					</>
-				)}
+				<div className="divider" />
+				{/* Pass-through button for split view - only triggers parent callback */}
+				<button
+					className="toolbar-button split"
+					title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Split View' })}
+					tabIndex={-1}
+					onClick={handleSplitClick}
+				><Columns2 size={18} strokeWidth={1.5} /></button>
 
+				{/* Pass-through button for close - only triggers parent callback */}
 				<button
 					className="toolbar-button close"
 					title={intl.formatMessage({ id: 'pdfReader.close' }, { defaultMessage: 'Close' })}

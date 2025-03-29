@@ -75,7 +75,7 @@ async function createReader() {
 		onSetDataTransferAnnotations(dataTransfer, annotations, fromText) {
 			console.log('Set formatted dataTransfer annotations', dataTransfer, annotations, fromText);
 		},
-		onConfirm(title, text, confirmationButtonTitle) {
+		onConfirm(title, text, _confirmationButtonTitle) {
 			return window.confirm(text);
 		},
 		onRotatePages(pageIndexes, degrees) {
@@ -103,6 +103,18 @@ async function createReader() {
 
 			// 立即返回一个字符串而不是使用异步
 			return `Translation:\n${text}\n\n这是选中文本的模拟翻译效果，在实际应用中应替换为真实翻译API。`;
+		},
+		onClickSplit() {
+			console.log('Split view button clicked');
+			// Here you can implement split view functionality
+		},
+		onClickClose() {
+			console.log('Close button clicked');
+			// Here you can implement close functionality, e.g., close the reader
+			if (window.confirm('确定要关闭阅读器吗？')) {
+				console.log('Reader closing confirmed');
+				// Add actual close logic here if needed
+			}
 		}
 	});
 	reader.enableAddToNote(true);
