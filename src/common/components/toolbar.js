@@ -19,6 +19,7 @@ import {
 	ChevronDown as ChevronDownSmall,
 	X,
 	Columns2,
+	Rows2,
 	MoreHorizontal
 } from 'lucide-react';
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
@@ -106,6 +107,12 @@ function Toolbar(props) {
 	function handleSplitClick(_event) {
 		if (props.onClickSplit) {
 			props.onClickSplit();
+		}
+	}
+
+	function handleVerticalSplitClick(_event) {
+		if (props.onClickVerticalSplit) {
+			props.onClickVerticalSplit();
 		}
 	}
 
@@ -425,13 +432,21 @@ function Toolbar(props) {
 				<CustomSections type="Toolbar" />
 
 				<div className="divider" />
-				{/* Pass-through button for split view - only triggers parent callback */}
+				{/* Pass-through button for horizontal split view - only triggers parent callback */}
 				<button
 					className="toolbar-button split"
-					title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Split View' })}
+					title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Horizontal Split View' })}
 					tabIndex={-1}
 					onClick={handleSplitClick}
 				><Columns2 size={18} strokeWidth={1.5} /></button>
+
+				{/* Pass-through button for vertical split view - only triggers parent callback */}
+				<button
+					className="toolbar-button vertical-split"
+					title={intl.formatMessage({ id: 'pdfReader.verticalSplit' }, { defaultMessage: 'Vertical Split View' })}
+					tabIndex={-1}
+					onClick={handleVerticalSplitClick}
+				><Rows2 size={18} strokeWidth={1.5} /></button>
 
 				{/* Pass-through button for close - only triggers parent callback */}
 				<button
@@ -503,7 +518,8 @@ Toolbar.propTypes = {
 	onToggleContextPane: PropTypes.func,
 	contextPaneType: PropTypes.string,
 	onClickClose: PropTypes.func,
-	onClickSplit: PropTypes.func
+	onClickSplit: PropTypes.func,
+	onClickVerticalSplit: PropTypes.func
 };
 
 export default Toolbar;

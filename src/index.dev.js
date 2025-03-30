@@ -108,6 +108,10 @@ async function createReader() {
 			console.log('Split view button clicked');
 			// Here you can implement split view functionality
 		},
+		onClickVerticalSplit() {
+			console.log('Vertical split view button clicked');
+			// Here you can implement vertical split view functionality
+		},
 		onClickClose() {
 			console.log('Close button clicked');
 			// Here you can implement close functionality, e.g., close the reader

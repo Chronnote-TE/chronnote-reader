@@ -68,11 +68,13 @@ class Reader {
 		this._onSaveCustomThemes = options.onSaveCustomThemes;
 		this._onSetLightTheme = options.onSetLightTheme;
 		this._onSetDarkTheme = options.onSetDarkTheme;
-		// Only used on Zotero client, sets text/plain and text/html values from Note Markdown and Note HTML translators
 		this._onSetDataTransferAnnotations = options.onSetDataTransferAnnotations;
 		this._onSetZoom = options.onSetZoom;
 		this._onMenuButtonClick = options.onMenuButtonClick;
 		this._onTranslate = options.onTranslate;
+		this._onClickClose = options.onClickClose;
+		this._onClickSplit = options.onClickSplit;
+		this._onClickVerticalSplit = options.onClickVerticalSplit;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -390,6 +392,9 @@ class Reader {
 							}}
 							onMenuButtonClick={this._handleMenuButtonClick}
 							onTranslate={this._onTranslate}
+							onClickClose={this._onClickClose}
+							onClickSplit={this._onClickSplit}
+							onClickVerticalSplit={this._onClickVerticalSplit}
 						/>
 					</ReaderContext.Provider>
 				</IntlProvider>
