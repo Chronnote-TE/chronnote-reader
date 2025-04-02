@@ -51,11 +51,19 @@ async function createReader() {
 		onSaveAnnotations: async function (annotations) {
 			console.log('Save annotations', annotations);
 		},
+		onClick() {
+			console.log("click")
+		},
 		onDeleteAnnotations: function (ids) {
 			console.log('Delete annotations', JSON.stringify(ids));
 		},
 		onChangeViewState: function (state, primary) {
 			console.log('Set state', state, primary);
+			const el = document.querySelector("#outContainer");
+			console.log(el);
+			el.addEventListener("click", () => {
+				console.log("click");
+			});
 		},
 		onOpenTagsPopup(annotationID, left, top) {
 			alert(`Opening Zotero tagbox popup for id: ${annotationID}, left: ${left}, top: ${top}`);
@@ -119,6 +127,10 @@ async function createReader() {
 				console.log('Reader closing confirmed');
 				// Add actual close logic here if needed
 			}
+		},
+		onPageClick(pageNumber) {
+			console.log('Page clicked:', pageNumber);
+			// 这里可以添加更多页面点击的处理逻辑
 		}
 	});
 	reader.enableAddToNote(true);

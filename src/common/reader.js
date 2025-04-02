@@ -75,6 +75,7 @@ class Reader {
 		this._onClickClose = options.onClickClose;
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
+		this._onClick = options.onClick;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -1058,7 +1059,8 @@ class Reader {
 			onKeyUp,
 			onFocusAnnotation,
 			getLocalizedString,
-			onTranslate
+			onTranslate,
+			onClick: this._onClick
 		};
 
 		if (this._type === 'pdf') {

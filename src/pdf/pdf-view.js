@@ -104,6 +104,7 @@ class PDFView {
 		this._onKeyUp = options.onKeyUp;
 		this._onKeyDown = options.onKeyDown;
 		this._onFocusAnnotation = options.onFocusAnnotation;
+		this._onClick = options.onClick; // Add onClick handler
 
 		this._onTabOut = options.onTabOut;
 
@@ -217,6 +218,12 @@ class PDFView {
 				window.PDFViewerApplication = this._iframeWindow.PDFViewerApplication;
 				window.if = this._iframeWindow;
 				this._resolveInitializedPromise();
+
+				// Add click event listener
+				// this._iframeWindow.document.addEventListener('click', this._handleClick.bind(this));
+				this._iframeWindow.document.querySelector(".pdfViewer").addEventListener("click", () => {
+					this._onClick()
+				})
 
 				this._iframeWindow.document.getElementById('viewerContainer').addEventListener('scroll', (event) => {
 					let x = event.target.scrollLeft;
@@ -922,7 +929,7 @@ class PDFView {
 		// pick node corresponding to the range that actually contains the query
 		let node = endNode.textContent.includes(this._findState.query) ? endNode : startNode;
 		this._a11yVirtualCursorTarget = node.parentNode;
-	  }, A11Y_VIRT_CURSOR_DEBOUNCE_LENGTH);
+	}, A11Y_VIRT_CURSOR_DEBOUNCE_LENGTH);
 
 	// Record the current page that the virtual cursor enter when focus enters the content.
 	// Debounce to not run this on every view stats update.
@@ -1540,7 +1547,7 @@ class PDFView {
 	_getPageAnnotations(pageIndex) {
 		return this._annotations.filter(
 			x => x.position.pageIndex === pageIndex
-			|| x.position.nextPageRects && x.position.pageIndex + 1 === pageIndex
+				|| x.position.nextPageRects && x.position.pageIndex + 1 === pageIndex
 		);
 	}
 
@@ -1570,7 +1577,7 @@ class PDFView {
 
 		let selectedTextAnnotation = selectableAnnotations.find(
 			x => x.type === 'text'
-			&& x.id === this._selectedAnnotationIDs[0]
+				&& x.id === this._selectedAnnotationIDs[0]
 		);
 		if (selectedTextAnnotation) {
 			return [selectedTextAnnotation];
@@ -2525,8 +2532,8 @@ class PDFView {
 					}
 					else if (action.type === 'erase' && action.triggered) {
 						let annotations = [...action.annotations.values()];
-						let updated = annotations.filter( x => x.position.paths.length);
-						let deleted = annotations.filter( x => !x.position.paths.length);
+						let updated = annotations.filter(x => x.position.paths.length);
+						let deleted = annotations.filter(x => !x.position.paths.length);
 						if (updated.length) {
 							this._onUpdateAnnotations(updated);
 						}
@@ -3574,6 +3581,15 @@ class PDFView {
 			x,
 			y,
 		};
+	}
+
+	_handleClick(event) {
+		if (this._onClick) {
+			const position = this.pointerEventToPosition(event);
+			if (position) {
+				this._onClick(position, event);
+			}
+		}
 	}
 }
 
