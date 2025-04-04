@@ -30,7 +30,7 @@ import CustomSections from './common/custom-sections';
 import { IconColor20 } from './common/icons';
 import './toolbar.css';
 
-function Toolbar(props) {
+function Toolbar({ visible = true, ...props }) {
 	const intl = useIntl();
 	const pageInputRef = useRef();
 	const toolbarRef = useRef();
@@ -81,7 +81,7 @@ function Toolbar(props) {
 	}
 
 	// If toolbar is not visible, don't render it
-	if (props.visible === false) {
+	if (visible === false) {
 		return null;
 	}
 
@@ -315,11 +315,6 @@ Toolbar.propTypes = {
 	onClickSplit: PropTypes.func,
 	onClickVerticalSplit: PropTypes.func,
 	visible: PropTypes.bool
-};
-
-// Set default props
-Toolbar.defaultProps = {
-	visible: true
 };
 
 export default Toolbar;
