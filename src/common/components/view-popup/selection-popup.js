@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { ANNOTATION_COLORS } from '../../defines';
-import ViewPopup from './common/view-popup';
 import CustomSections from '../common/custom-sections';
-import { Trash } from 'lucide-react';
+import ViewPopup from './common/view-popup';
 
 import { IconColor16 } from '../common/icons';
 
