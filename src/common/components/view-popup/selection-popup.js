@@ -49,6 +49,7 @@ function SelectionPopup(props) {
 		// 确保至少显示一些内容
 		setTranslation("");
 
+
 		try {
 			const selectedText = props.params.annotation.text || '';
 			if (!selectedText.trim()) {

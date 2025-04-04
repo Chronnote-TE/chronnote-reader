@@ -85,7 +85,7 @@ function Toolbar(props) {
 	return (
 		<div className="toolbar" data-tabstop={1} role="application" ref={toolbarRef}>
 			{/* 左侧区域 - 缩放工具 */}
-			<div className="start toolbar-group">
+			{/* <div className="start toolbar-group">
 				<div className="zoom-controls">
 					<button
 						id="zoomOut"
@@ -112,11 +112,11 @@ function Toolbar(props) {
 						onClick={props.onZoomReset}
 					><Maximize size={18} strokeWidth={1.5} /></button>
 				</div>
-			</div>
+			</div> */}
 
 			{/* 右侧区域 - 注释工具和其他工具 */}
 			<div className="end toolbar-group">
-				<div className="divider" />
+				{/* <div className="divider" /> */}
 				<div className="annotation-tools">
 					<button
 						tabIndex={-1}
