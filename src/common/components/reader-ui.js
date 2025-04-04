@@ -58,6 +58,7 @@ function View(props) {
 					onAddAnnotation={props.onAddAnnotation}
 					onChangeTextSelectionAnnotationMode={props.onChangeTextSelectionAnnotationMode}
 					onTranslate={props.onTranslate}
+					onDeleteAnnotation={props.onDeleteAnnotations}
 				/>
 			}
 			{state[name + 'ViewAnnotationPopup']
@@ -76,6 +77,7 @@ function View(props) {
 					onOpenPageLabelPopup={props.onOpenPageLabelPopup}
 					onOpenAnnotationContextMenu={props.onOpenAnnotationContextMenu}
 					onSetDataTransferAnnotations={props.onSetDataTransferAnnotations}
+					onDeleteAnnotation={props.onDeleteAnnotations}
 				/>}
 			{state[name + 'ViewOverlayPopup'] &&
 				<OverlayPopup

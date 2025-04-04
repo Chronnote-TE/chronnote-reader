@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { ANNOTATION_COLORS } from '../../defines';
 import ViewPopup from './common/view-popup';
 import CustomSections from '../common/custom-sections';
+import { Trash } from 'lucide-react';
 
 import { IconColor16 } from '../common/icons';
 
@@ -24,6 +25,13 @@ function SelectionPopup(props) {
 
 	function handleAddToNote() {
 		props.onAddToNote([props.params.annotation]);
+	}
+
+	function handleDelete() {
+		// Get the annotation ID and call the delete function
+		if (props.params.annotation && props.params.annotation.id) {
+			props.onDeleteAnnotation([props.params.annotation.id]);
+		}
 	}
 
 	async function handleTranslate() {
@@ -130,6 +138,19 @@ function SelectionPopup(props) {
 						}}></span>
 					)}
 				</button>
+				<button
+					tabIndex={-1}
+					className="delete"
+					title={intl.formatMessage({ id: 'pdfReader.deleteAnnotation' }) || "删除注释"}
+					onClick={handleDelete}
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center'
+					}}
+				>
+					<Trash size={16} strokeWidth={1.5} />
+				</button>
 			</div>
 			{props.enableAddToNote && (
 				<button className="toolbar-button wide-button" data-tabstop={1} onClick={handleAddToNote}>
@@ -174,7 +195,8 @@ function SelectionPopup(props) {
 SelectionPopup.propTypes = {
 	params: PropTypes.shape({
 		annotation: PropTypes.shape({
-			text: PropTypes.string
+			text: PropTypes.string,
+			id: PropTypes.string
 		}),
 		rect: PropTypes.array
 	}),
@@ -183,7 +205,8 @@ SelectionPopup.propTypes = {
 	onAddAnnotation: PropTypes.func,
 	onAddToNote: PropTypes.func,
 	onChangeTextSelectionAnnotationMode: PropTypes.func,
-	onTranslate: PropTypes.func
+	onTranslate: PropTypes.func,
+	onDeleteAnnotation: PropTypes.func
 };
 
 export default SelectionPopup;

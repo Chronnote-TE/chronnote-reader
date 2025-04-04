@@ -1,6 +1,7 @@
 import React, { useContext, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import cx from 'classnames';
+import { Trash } from 'lucide-react';
 import Editor from './editor';
 import ExpandableEditor from './expandable-editor';
 import { getPopupCoordinatesFromClickEvent } from '../../lib/utilities';
@@ -50,6 +51,11 @@ export function PopupPreview(props) {
 		props.onOpenContextMenu({ ids: [props.annotation.id], currentID: props.annotation.id, x, y, popup: true, view: true });
 	}
 
+	function handleDelete(event) {
+		event.stopPropagation();
+		props.onDelete && props.onDelete();
+	}
+
 	let { annotation, type } = props;
 	return (
 		<div
@@ -66,17 +72,17 @@ export function PopupPreview(props) {
 						style={{ color: annotation.color }}
 					>
 						{
-							annotation.type === 'highlight' && <IconHighlight/>
-							|| annotation.type === 'underline' && <IconUnderline/>
-							|| annotation.type === 'note' && <IconNote/>
-							|| annotation.type === 'image' && <IconArea/>
-							|| annotation.type === 'ink' && <IconInk/>
-							|| annotation.type === 'text' && <IconText/>
+							annotation.type === 'highlight' && <IconHighlight />
+							|| annotation.type === 'underline' && <IconUnderline />
+							|| annotation.type === 'note' && <IconNote />
+							|| annotation.type === 'image' && <IconArea />
+							|| annotation.type === 'ink' && <IconInk />
+							|| annotation.type === 'text' && <IconText />
 						}
 					</div>
 					{(annotation.pageLabel || props.type === 'pdf') && (
 						<div className="page" onDoubleClick={handlePageLabelDoubleClick}>
-							<div><FormattedMessage id="pdfReader.page"/></div>
+							<div><FormattedMessage id="pdfReader.page" /></div>
 							<div className="label">{annotation.pageLabel || '-'}</div>
 						</div>
 					)}
@@ -87,6 +93,17 @@ export function PopupPreview(props) {
 							{annotation.authorName}
 						</div>
 					)}
+					{!props.readOnly && props.onDelete && (
+						<button
+							data-tabstop={1}
+							tabIndex={-1}
+							className="delete"
+							title={intl.formatMessage({ id: 'pdfReader.deleteAnnotation' }) || "删除注释"}
+							onClick={handleDelete}
+						>
+							<Trash size={16} strokeWidth={1.5} />
+						</button>
+					)}
 					<button
 						data-tabstop={!props.readOnly ? 1 : undefined}
 						tabIndex={-1}
@@ -94,7 +111,7 @@ export function PopupPreview(props) {
 						title={intl.formatMessage({ id: 'pdfReader.openMenu' })}
 						disabled={props.readOnly}
 						onClick={handleClickMore}
-					>{props.readOnly ? <IconLock/> : <IconOptions/>}</button>
+					>{props.readOnly ? <IconLock /> : <IconOptions />}</button>
 				</div>
 			</header>
 
@@ -125,7 +142,7 @@ export function PopupPreview(props) {
 						className="tag" key={index}
 						style={{ color: tag.color }}
 					>{tag.name}</span>
-				)) : <FormattedMessage id="pdfReader.addTags"/>}</button>
+				)) : <FormattedMessage id="pdfReader.addTags" />}</button>
 			)}
 
 		</div>
@@ -238,7 +255,7 @@ export function SidebarPreview(props) {
 			onDragStart={handleDragStart}
 			onKeyDown={handleKeyDown}
 		>
-			<div className="blockquote-border" style={{ backgroundColor: annotation.color }}/>
+			<div className="blockquote-border" style={{ backgroundColor: annotation.color }} />
 			<ExpandableEditor
 				id={annotation.id}
 				text={annotation.text}
@@ -278,7 +295,7 @@ export function SidebarPreview(props) {
 			className="tag" key={index}
 			style={{ color: tag.color }}
 		>{tag.name}</span>
-	)) : <FormattedMessage id="pdfReader.addTags"/>;
+	)) : <FormattedMessage id="pdfReader.addTags" />;
 
 	let expandedState = {};
 	expandedState['expanded' + props.state] = true;
@@ -306,12 +323,12 @@ export function SidebarPreview(props) {
 						style={{ color: annotation.color }}
 					>
 						{
-							annotation.type === 'highlight' && <IconHighlight/>
-							|| annotation.type === 'underline' && <IconUnderline/>
-							|| annotation.type === 'note' && <IconNote/>
-							|| annotation.type === 'image' && <IconArea/>
-							|| annotation.type === 'ink' && <IconInk/>
-							|| annotation.type === 'text' && <IconText/>
+							annotation.type === 'highlight' && <IconHighlight />
+							|| annotation.type === 'underline' && <IconUnderline />
+							|| annotation.type === 'note' && <IconNote />
+							|| annotation.type === 'image' && <IconArea />
+							|| annotation.type === 'ink' && <IconInk />
+							|| annotation.type === 'text' && <IconText />
 						}
 					</div>
 					{(annotation.pageLabel || props.type === 'pdf') && (
@@ -321,7 +338,7 @@ export function SidebarPreview(props) {
 							onDoubleClick={handlePageLabelDoubleClick}
 							id={`page_${annotation.id}`}
 						>
-							<div><FormattedMessage id="pdfReader.page"/></div>
+							<div><FormattedMessage id="pdfReader.page" /></div>
 							<div className="label">{annotation.pageLabel || '-'}</div>
 						</div>
 					)}
@@ -332,7 +349,7 @@ export function SidebarPreview(props) {
 							{annotation.authorName}
 						</div>
 					)}
-					<CustomSections type="SidebarAnnotationHeader" annotation={annotation}/>
+					<CustomSections type="SidebarAnnotationHeader" annotation={annotation} />
 					<button
 						data-tabstop={props.selected && !props.readOnly ? 1 : undefined}
 						tabIndex={props.selected && !props.readOnly ? -1 : undefined}
@@ -343,7 +360,7 @@ export function SidebarPreview(props) {
 						// Make sure 'more' button focusing never triggers annotation element focusing,
 						// which triggers annotation selection
 						onFocus={e => e.stopPropagation()}
-					>{props.readOnly ? <IconLock/> : <IconOptions/>}</button>
+					>{props.readOnly ? <IconLock /> : <IconOptions />}</button>
 				</div>
 			</header>
 			{image && (
@@ -358,17 +375,17 @@ export function SidebarPreview(props) {
 			{text}
 			{comment}
 			{(state >= 1 && !props.readOnly || annotation.tags.length > 0)
-			&& (
-				<button
-					className="tags"
-					data-tabstop={props.selected && !props.readOnly ? 1 : undefined}
-					onClick={e => handleSectionClick(e, 'tags')}
-					draggable={true}
-					onDragStart={handleDragStart}
-					aria-haspopup={true}
-					aria-description={intl.formatMessage({ id: 'pdfReader.manageTags' })}
-				>{tags}</button>
-			)}
+				&& (
+					<button
+						className="tags"
+						data-tabstop={props.selected && !props.readOnly ? 1 : undefined}
+						onClick={e => handleSectionClick(e, 'tags')}
+						draggable={true}
+						onDragStart={handleDragStart}
+						aria-haspopup={true}
+						aria-description={intl.formatMessage({ id: 'pdfReader.manageTags' })}
+					>{tags}</button>
+				)}
 		</div>
 	);
 }

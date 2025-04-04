@@ -1,7 +1,17 @@
 @use "sass:math";
 
 .preview {
+	width: 100%;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	user-select: none;
 	cursor: default;
+
+	&.full-preview {
+		user-select: text;
+	}
 
 	header {
 		display: flex;
@@ -64,6 +74,23 @@
 			padding: 0 3px;
 			gap: 3px;
 		}
+		
+		.more, .delete {
+			width: 16px;
+			height: 16px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+
+			&:disabled {
+				pointer-events: none;
+
+				svg {
+					opacity: 0.5;
+				}
+			}
+		}
 	}
 
 	.text {
@@ -105,8 +132,28 @@
 	}
 
 	.image {
-		width: 100%;
-		@include pdf-page-image-dark-light;
+		position: relative;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 3px;
+		overflow: auto;
+		// Hide scrollbars in Safari
+		outline: none;
+		scrollbar-width: none;
+		&::-webkit-scrollbar {
+			display: none;
+		}
+
+		background: #e5e5e5;
+
+		&.expandable {
+			cursor: zoom-in;
+		}
+
+		img {
+			display: block;
+			pointer-events: none;
+			user-select: none;
+		}
 	}
 
 	.tags {
