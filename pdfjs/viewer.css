@@ -1,3 +1,4 @@
+
 :root {
 	--viewer-container-height: 0;
 	--loading-icon-delay: 400ms;
@@ -9,7 +10,7 @@ body {
 
 @media screen and (forced-colors: active) {
 	:root {
-		--page-border: 4px solid CanvasText;
+		--page-border: 1px solid CanvasText;
 	}
 }
 
@@ -112,7 +113,6 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 
 .pdfViewer .page {
 	flex-shrink: 0;
-	border-radius: 10px;
 }
 
 .pdfViewer .page canvas {
@@ -171,7 +171,6 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	border: var(--page-border);
 	background-clip: content-box;
 	box-shadow: 0 0 2px 0 rgba(0,0,0,.14),0 2px 2px 0 rgba(0,0,0,.12),0 1px 3px 0 rgba(0,0,0,.12);
-	border-radius: 4px;
 }
 
 .pdfViewer .dummyPage {
@@ -193,7 +192,6 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 
 .toolbar {
 	display: none;
-	background-color: white;
 }
 
 .annotationLayer, .annotationEditorLayer {
@@ -205,7 +203,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 #viewer {
-	background-color: white;
+/*//margin-top: 10px;*/
 }
 
 .hidden {
@@ -394,7 +392,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 body, #viewerContainer {
-	background-color: white; /* --color-toolbar */
+	background-color: #f2f2f2; /* --color-toolbar */
 }
 
 .pdfViewer .page {
@@ -404,17 +402,9 @@ body, #viewerContainer {
 :root[data-color-scheme=dark] body,
 :root[data-color-scheme=dark] body #viewerContainer {
 	color-scheme: dark;
-	background-color: oklch(0.2533 0.016 252.42); /* --color-toolbar */
+	background-color: #272727; /* --color-toolbar */
 }
 
 :root[data-color-scheme=dark] .pdfViewer .page {
 	background-color: var(--background-color);
-}
-
-:root[data-color-scheme=dark] #viewer {
-	background-color: oklch(0.2533 0.016 252.42);
-}
-
-:root[data-color-scheme=dark] .toolbar {
-	background-color: oklch(0.2533 0.016 252.42);
 }

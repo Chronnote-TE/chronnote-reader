@@ -204,6 +204,13 @@ class PDFView {
 				catch (e) {
 				}
 				setOptions();
+
+				// Ensure _iframeWindow is available before setting properties
+				if (!this._iframeWindow) {
+					console.error("_iframeWindow is null, cannot initialize PDF viewer");
+					return;
+				}
+
 				this._iframeWindow.onAttachPage = this._attachPage.bind(this);
 				this._iframeWindow.onDetachPage = this._detachPage.bind(this);
 				if (!this._preview) {
@@ -221,9 +228,13 @@ class PDFView {
 
 				// Add click event listener
 				// this._iframeWindow.document.addEventListener('click', this._handleClick.bind(this));
-				this._iframeWindow.document.querySelector(".pdfViewer").addEventListener("click", () => {
-					this._onClick()
-				})
+				if (this._iframeWindow.document && this._iframeWindow.document.querySelector(".pdfViewer")) {
+					this._iframeWindow.document.querySelector(".pdfViewer").addEventListener("click", () => {
+						if (typeof this._onClick === 'function') {
+							this._onClick();
+						}
+					});
+				}
 
 				this._iframeWindow.document.getElementById('viewerContainer').addEventListener('scroll', (event) => {
 					let x = event.target.scrollLeft;
@@ -1094,11 +1105,11 @@ class PDFView {
 	}
 
 	navigateToFirstPage() {
-		this._iframeWindow.PDFViewerApplication.eventBus.dispatch('firstpage');
+		this._iframeWindow.eventBus.dispatch('firstpage');
 	}
 
 	navigateToLastPage() {
-		this._iframeWindow.PDFViewerApplication.eventBus.dispatch('lastpage');
+		this._iframeWindow.eventBus.dispatch('lastpage');
 	}
 
 	rotateLeft() {
