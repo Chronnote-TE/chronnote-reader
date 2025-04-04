@@ -1,7 +1,8 @@
+import cx from 'classnames';
+import { Columns2, PanelRightClose, RectangleEllipsis, Rows2, X } from 'lucide-react';
+import PropTypes from 'prop-types';
 import React, { Fragment, useContext } from 'react';
 import { useIntl } from 'react-intl';
-import cx from 'classnames';
-import { Columns2, Rows2, X, PanelRightClose } from 'lucide-react';
 import { ReaderContext } from '../reader';
 
 function PDFTopbar(props) {
@@ -11,12 +12,19 @@ function PDFTopbar(props) {
     return (
         <div className="pdf-topbar">
             <div className="start">
-                {/* 可以添加左侧按钮 */}
+
             </div>
             <div className="center">
                 {/* 可以添加中间内容 */}
             </div>
             <div className="end">
+                {/* 可以添加左侧按钮 */}
+                <button
+                    className={cx("topbar-button toggle-toolbar", { "active-pseudo-class-fix": props.toolbarVisible })}
+                    title={intl.formatMessage({ id: 'pdfReader.toggleToolbar' }, { defaultMessage: 'Toggle Toolbar' })}
+                    tabIndex={-1}
+                    onClick={() => props.onToggleToolbar(!props.toolbarVisible)}
+                ><RectangleEllipsis size={18} strokeWidth={1.5} /></button>
                 <button
                     className="topbar-button split"
                     title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Horizontal Split View' })}
@@ -61,5 +69,22 @@ function PDFTopbar(props) {
         </div>
     );
 }
+
+PDFTopbar.propTypes = {
+    onClickClose: PropTypes.func,
+    onClickSplit: PropTypes.func,
+    onClickVerticalSplit: PropTypes.func,
+    showContextPaneToggle: PropTypes.bool,
+    contextPaneOpen: PropTypes.bool,
+    onToggleContextPane: PropTypes.func,
+    contextPaneType: PropTypes.string,
+    toolbarVisible: PropTypes.bool,
+    onToggleToolbar: PropTypes.func
+};
+
+// Add required props for the toggle toolbar functionality
+PDFTopbar.defaultProps = {
+    toolbarVisible: true
+};
 
 export default PDFTopbar; 

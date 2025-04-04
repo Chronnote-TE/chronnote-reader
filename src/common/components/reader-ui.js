@@ -105,6 +105,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 	let [state, setState] = useState(props.state);
 	let sidebarRef = useRef();
 	let annotationsViewRef = useRef();
+	let [toolbarVisible, setToolbarVisible] = useState(true);
 
 	useImperativeHandle(ref, () => ({
 		setState,
@@ -125,6 +126,8 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onClickSplit={props.onClickSplit}
 				onClickVerticalSplit={props.onClickVerticalSplit}
 				onToggleContextPane={props.onToggleContextPane}
+				toolbarVisible={toolbarVisible}
+				onToggleToolbar={setToolbarVisible}
 			/>
 			<div className="split-view">
 				{state.sidebarOpen === true &&
@@ -219,6 +222,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onToggleAppearancePopup={props.onToggleAppearancePopup}
 				onToggleFind={props.onToggleFind}
 				onMenuButtonClick={props.onMenuButtonClick}
+				visible={toolbarVisible}
 			/>
 			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
 			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}

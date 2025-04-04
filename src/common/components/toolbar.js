@@ -77,9 +77,14 @@ function Toolbar(props) {
 		}
 	}
 
+	// If toolbar is not visible, don't render it
+	if (props.visible === false) {
+		return null;
+	}
+
 	return (
 		<div className="toolbar" data-tabstop={1} role="application" ref={toolbarRef}>
-			{/* 左侧区域 - 缩放和外观 */}
+			{/* 左侧区域 - 缩放工具 */}
 			<div className="start toolbar-group">
 				<div className="zoom-controls">
 					<button
@@ -107,48 +112,11 @@ function Toolbar(props) {
 						onClick={props.onZoomReset}
 					><Maximize size={18} strokeWidth={1.5} /></button>
 				</div>
-
-
-				{/* <button
-					id="appearance"
-					className={cx('toolbar-button', { active: props.appearancePopup })}
-					title={intl.formatMessage({ id: 'pdfReader.appearance' })}
-					tabIndex={-1}
-					onClick={props.onToggleAppearancePopup}
-				><Type size={18} strokeWidth={1.5} /></button> */}
 			</div>
 
-			{/* 中间区域 - 页码和注释工具 */}
-			<div className="center tools toolbar-group">
-				{['pdf', 'epub'].includes(props.type) && (
-					<div className="page-controls">
-						<input
-							ref={pageInputRef}
-							type="input"
-							id="pageNumber"
-							className="toolbar-text-input"
-							title={intl.formatMessage({
-								id: props.type === 'pdf' || props.usePhysicalPageNumbers
-									? 'pdfReader.page'
-									: 'pdfReader.location'
-							})}
-							defaultValue=""
-							size="4"
-							min="1"
-							tabIndex={-1}
-							autoComplete="off"
-							onKeyDown={handlePageNumberKeydown}
-							onBlur={handlePageNumberBlur}
-						/>
-						{props.pageLabel && (
-							<span id="numPages">&nbsp;<div>{!(props.type === 'pdf' && props.pageIndex + 1 == props.pageLabel)
-								&& (props.pageIndex + 1)} / {props.pagesCount}</div></span>
-						)}
-					</div>
-				)}
-
+			{/* 右侧区域 - 注释工具和其他工具 */}
+			<div className="end toolbar-group">
 				<div className="divider" />
-
 				<div className="annotation-tools">
 					<button
 						tabIndex={-1}
@@ -176,6 +144,36 @@ function Toolbar(props) {
 						onClick={() => handleToolClick('note')}
 						data-l10n-id="pdfReader-toolbar-note"
 					><StickyNote size={18} strokeWidth={1.5} /></button>
+				</div>
+
+				{/* 中间区域 - 页码 */}
+				<div className="center toolbar-group">
+					{['pdf', 'epub'].includes(props.type) && (
+						<div className="page-controls">
+							<input
+								ref={pageInputRef}
+								type="input"
+								id="pageNumber"
+								className="toolbar-text-input"
+								title={intl.formatMessage({
+									id: props.type === 'pdf' || props.usePhysicalPageNumbers
+										? 'pdfReader.page'
+										: 'pdfReader.location'
+								})}
+								defaultValue=""
+								size="4"
+								min="1"
+								tabIndex={-1}
+								autoComplete="off"
+								onKeyDown={handlePageNumberKeydown}
+								onBlur={handlePageNumberBlur}
+							/>
+							{props.pageLabel && (
+								<span id="numPages">&nbsp;<div>{!(props.type === 'pdf' && props.pageIndex + 1 == props.pageLabel)
+									&& (props.pageIndex + 1)} / {props.pagesCount}</div></span>
+							)}
+						</div>
+					)}
 				</div>
 
 				{props.type === 'pdf' && (
@@ -246,10 +244,7 @@ function Toolbar(props) {
 						><Eraser size={18} strokeWidth={1.5} /></button>
 					)}
 				</div>
-			</div>
 
-			{/* 右侧区域 - 自定义部分和上下文面板切换 */}
-			<div className="end toolbar-group">
 				<CustomSections type="Toolbar" />
 
 				{platform === 'zotero' && props.showContextPaneToggle && (
@@ -315,7 +310,13 @@ Toolbar.propTypes = {
 	contextPaneType: PropTypes.string,
 	onClickClose: PropTypes.func,
 	onClickSplit: PropTypes.func,
-	onClickVerticalSplit: PropTypes.func
+	onClickVerticalSplit: PropTypes.func,
+	visible: PropTypes.bool
+};
+
+// Set default props
+Toolbar.defaultProps = {
+	visible: true
 };
 
 export default Toolbar;

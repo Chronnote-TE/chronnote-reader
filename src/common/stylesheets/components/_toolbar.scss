@@ -21,17 +21,31 @@
 	border-radius: 6px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
-	.start,
-	.center,
-	.end {
+	.toolbar-group {
 		display: flex;
 		align-items: center;
+	}
+
+	.start {
+		flex: 0 0 auto;
 		gap: 2px;
+	}
+	
+	.center {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		/* 保证中间区域有固定宽度 */
+		min-width: 120px;
+		margin: 0 15px;
 	}
 
 	.end {
-		justify-content: flex-end;
+		flex: 2;
+		justify-content: flex-start;
 		padding-inline-end: var(--toolbar-placeholder-width);
+		gap: 2px;
 	}
 
 	.custom-sections {
@@ -44,6 +58,13 @@
 		-moz-window-dragging: no-drag;
 	}
 
+	.page-controls {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+	}
+	
 	#pageNumber {
 		width: 48px;
 		text-align: right;
@@ -51,11 +72,14 @@
 
 	#numPages {
 		color: var(--fill-secondary);
-		margin-left: 0;
+		margin-left: 5px;
 		display: flex;
+		min-width: 40px;
+		justify-content: flex-start;
 
 		div {
-			position: absolute;
+			position: relative;
+			white-space: nowrap;
 		}
 	}
 
@@ -64,7 +88,19 @@
 		height: 20px;
 		border-radius: 0.5px;
 		background: var(--fill-quinary);
-		margin: 0 2px;
+		margin: 0 4px;
+	}
+
+	.annotation-tools, .pdf-tools, .utility-tools {
+		display: flex;
+		align-items: center;
+		gap: 2px;
+	}
+	
+	.zoom-controls {
+		display: flex;
+		align-items: center;
+		gap: 2px;
 	}
 
 	@include macOS-inactive-opacity;
