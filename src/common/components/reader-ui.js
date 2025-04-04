@@ -17,6 +17,7 @@ import PasswordPopup from './modal-popup/password-popup';
 import PrintPopup from './modal-popup/print-popup';
 import AppearancePopup from "./modal-popup/appearance-popup";
 import ThemePopup from './modal-popup/theme-popup';
+import PDFTopbar from './pdf-topbar';
 
 
 function View(props) {
@@ -114,117 +115,115 @@ const ReaderUI = React.forwardRef((props, ref) => {
 
 	return (
 		<Fragment>
-			<div>
-				<Toolbar
-					type={props.type}
-					pageIndex={viewStats.pageIndex || 0}
-					pageLabel={viewStats.pageLabel || ''}
-					pagesCount={viewStats.pagesCount || 0}
-					usePhysicalPageNumbers={viewStats.usePhysicalPageNumbers}
-					percentage={viewStats.percentage || ''}
-					sidebarOpen={state.sidebarOpen}
-					enableZoomOut={viewStats.canZoomOut}
-					enableZoomIn={viewStats.canZoomIn}
-					enableZoomReset={viewStats.canZoomReset}
-					enableNavigateBack={viewStats.canNavigateBack}
-					enableNavigateToPreviousPage={viewStats.canNavigateToPreviousPage}
-					enableNavigateToNextPage={viewStats.canNavigateToNextPage}
-					appearancePopup={state.appearancePopup}
-					findPopupOpen={findState.popupOpen}
-					themes={state.themes}
-					onChangeTheme={props.onChangeTheme}
-					tool={state.tool}
-					readOnly={state.readOnly}
-					stackedView={state.bottomPlaceholderHeight !== null}
-					showContextPaneToggle={state.showContextPaneToggle}
-					onToggleSidebar={props.onToggleSidebar}
-					onZoomIn={props.onZoomIn}
-					onZoomOut={props.onZoomOut}
-					onZoomReset={props.onZoomReset}
-					onNavigateBack={props.onNavigateBack}
-					onNavigateToPreviousPage={props.onNavigateToPreviousPage}
-					onNavigateToNextPage={props.onNavigateToNextPage}
-					onChangePageNumber={props.onChangePageNumber}
-					onChangeTool={props.onChangeTool}
-					onOpenColorContextMenu={props.onOpenColorContextMenu}
-					onToggleAppearancePopup={props.onToggleAppearancePopup}
-					onToggleFind={props.onToggleFind}
-					onToggleContextPane={props.onToggleContextPane}
-					onMenuButtonClick={props.onMenuButtonClick}
-					onClickClose={props.onClickClose}
-					onClickSplit={props.onClickSplit}
-					onClickVerticalSplit={props.onClickVerticalSplit}
-					contextPaneOpen={state.contextPaneOpen}
-					contextPaneType={state.contextPaneType}
-				/>
-				<div>
-					{state.sidebarOpen === true &&
-						<Sidebar
-							type={props.type}
-							view={state.sidebarView}
-							filter={state.filter}
-							outline={state.outline}
-							outlineQuery={state.outlineQuery}
-							onUpdateOutline={props.onUpdateOutline}
-							onUpdateOutlineQuery={props.onUpdateOutlineQuery}
-							onChangeView={props.onChangeSidebarView}
-							onChangeFilter={props.onChangeFilter}
-							thumbnailsView={
-								<ThumbnailsView
-									pageLabels={state.pageLabels}
-									thumbnails={state.thumbnails}
-									currentPageIndex={viewStats.pageIndex || 0}
-									onOpenThumbnailContextMenu={props.onOpenThumbnailContextMenu}
-									onRenderThumbnails={props.onRenderThumbnails}
-									onNavigate={props.onNavigate}
-								/>
-							}
-							annotationsView={
-								<AnnotationsView
-									ref={annotationsViewRef}
-									type={props.type}
-									readOnly={state.readOnly}
-									filter={state.filter}
-									annotations={state.annotations}
-									selectedIDs={state.selectedAnnotationIDs}
-									authorName="test"
-									onSelectAnnotations={props.onSelectAnnotations}
-									onUpdateAnnotations={props.onUpdateAnnotations}
-									onSetDataTransferAnnotations={props.onSetDataTransferAnnotations}
-									onOpenTagsPopup={props.onOpenTagsPopup}
-									onOpenPageLabelPopup={props.onOpenPageLabelPopup}
-									onOpenAnnotationContextMenu={props.onOpenAnnotationContextMenu}
-									onOpenSelectorContextMenu={props.onOpenSelectorContextMenu}
-									onChangeFilter={props.onChangeFilter}
-								/>
-							}
-							outlineView={
-								<OutlineView
-									outline={state.outline}
-									currentOutlinePath={viewStats.outlinePath}
-									onNavigate={props.onNavigate}
-									onOpenLink={props.onOpenLink}
-									onUpdate={props.onUpdateOutline}
-								/>
-							}
-						/>
-					}
-
-				</div>
-				{state.sidebarOpen === true && <SidebarResizer onResize={props.onResizeSidebar} />}
-			</div>
+			<PDFTopbar
+				showContextPaneToggle={state.showContextPaneToggle}
+				contextPaneOpen={state.contextPaneOpen}
+				contextPaneType={state.contextPaneType}
+				onClickClose={props.onClickClose}
+				onClickSplit={props.onClickSplit}
+				onClickVerticalSplit={props.onClickVerticalSplit}
+				onToggleContextPane={props.onToggleContextPane}
+			/>
 			<div className="split-view">
-				<View {...props} primary={true} state={state} />
-				<SplitViewResizer onResize={props.onResizeSplitView} />
-				{state.splitType && <View {...props} primary={false} state={state} />}
+				{state.sidebarOpen === true &&
+					<Sidebar
+						type={props.type}
+						view={state.sidebarView}
+						filter={state.filter}
+						outline={state.outline}
+						outlineQuery={state.outlineQuery}
+						onUpdateOutline={props.onUpdateOutline}
+						onUpdateOutlineQuery={props.onUpdateOutlineQuery}
+						onChangeView={props.onChangeSidebarView}
+						onChangeFilter={props.onChangeFilter}
+						thumbnailsView={
+							<ThumbnailsView
+								pageLabels={state.pageLabels}
+								thumbnails={state.thumbnails}
+								currentPageIndex={viewStats.pageIndex || 0}
+								onOpenThumbnailContextMenu={props.onOpenThumbnailContextMenu}
+								onRenderThumbnails={props.onRenderThumbnails}
+								onNavigate={props.onNavigate}
+							/>
+						}
+						annotationsView={
+							<AnnotationsView
+								ref={annotationsViewRef}
+								type={props.type}
+								readOnly={state.readOnly}
+								filter={state.filter}
+								annotations={state.annotations}
+								selectedIDs={state.selectedAnnotationIDs}
+								authorName="test"
+								onSelectAnnotations={props.onSelectAnnotations}
+								onUpdateAnnotations={props.onUpdateAnnotations}
+								onSetDataTransferAnnotations={props.onSetDataTransferAnnotations}
+								onOpenTagsPopup={props.onOpenTagsPopup}
+								onOpenPageLabelPopup={props.onOpenPageLabelPopup}
+								onOpenAnnotationContextMenu={props.onOpenAnnotationContextMenu}
+								onOpenSelectorContextMenu={props.onOpenSelectorContextMenu}
+								onChangeFilter={props.onChangeFilter}
+							/>
+						}
+						outlineView={
+							<OutlineView
+								outline={state.outline}
+								currentOutlinePath={viewStats.outlinePath}
+								onNavigate={props.onNavigate}
+								onOpenLink={props.onOpenLink}
+								onUpdate={props.onUpdateOutline}
+							/>
+						}
+					/>
+				}
+				{state.sidebarOpen === true && <SidebarResizer onResize={props.onResizeSidebar} />}
+				<div className="split-view">
+					<View {...props} primary={true} state={state} />
+					<SplitViewResizer onResize={props.onResizeSplitView} />
+					{state.splitType && <View {...props} primary={false} state={state} />}
+				</div>
 			</div>
+			<Toolbar
+				type={props.type}
+				pageIndex={viewStats.pageIndex || 0}
+				pageLabel={viewStats.pageLabel || ''}
+				pagesCount={viewStats.pagesCount || 0}
+				usePhysicalPageNumbers={viewStats.usePhysicalPageNumbers}
+				percentage={viewStats.percentage || ''}
+				sidebarOpen={state.sidebarOpen}
+				enableZoomOut={viewStats.canZoomOut}
+				enableZoomIn={viewStats.canZoomIn}
+				enableZoomReset={viewStats.canZoomReset}
+				enableNavigateBack={viewStats.canNavigateBack}
+				enableNavigateToPreviousPage={viewStats.canNavigateToPreviousPage}
+				enableNavigateToNextPage={viewStats.canNavigateToNextPage}
+				appearancePopup={state.appearancePopup}
+				findPopupOpen={findState.popupOpen}
+				themes={state.themes}
+				onChangeTheme={props.onChangeTheme}
+				tool={state.tool}
+				readOnly={state.readOnly}
+				stackedView={state.bottomPlaceholderHeight !== null}
+				onToggleSidebar={props.onToggleSidebar}
+				onZoomIn={props.onZoomIn}
+				onZoomOut={props.onZoomOut}
+				onZoomReset={props.onZoomReset}
+				onNavigateBack={props.onNavigateBack}
+				onNavigateToPreviousPage={props.onNavigateToPreviousPage}
+				onNavigateToNextPage={props.onNavigateToNextPage}
+				onChangePageNumber={props.onChangePageNumber}
+				onChangeTool={props.onChangeTool}
+				onOpenColorContextMenu={props.onOpenColorContextMenu}
+				onToggleAppearancePopup={props.onToggleAppearancePopup}
+				onToggleFind={props.onToggleFind}
+				onMenuButtonClick={props.onMenuButtonClick}
+			/>
 			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
 			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}
 			{state.passwordPopup && <PasswordPopup params={state.passwordPopup} onEnterPassword={props.onEnterPassword} />}
 			{state.printPopup && <PrintPopup params={state.printPopup} />}
 			{state.errorMessage && <div className="error-bar" tabIndex={-1}>{state.errorMessage}</div>}
 			{state.appearancePopup && (
-				// We always read the primaryViewState, but we write both view states
 				<AppearancePopup
 					customThemes={state.customThemes}
 					colorScheme={state.colorScheme}

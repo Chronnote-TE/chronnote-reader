@@ -173,7 +173,7 @@ class Reader {
 			outline: null, // null — loading, [] — empty
 			outlineQuery: '',
 			pageLabels: [],
-			sidebarOpen: options.sidebarOpen !== undefined ? options.sidebarOpen : true,
+			sidebarOpen: options.sidebarOpen !== undefined ? options.sidebarOpen : false,
 			sidebarWidth: options.sidebarWidth !== undefined ? options.sidebarWidth : 240,
 			sidebarView: 'annotations',
 			bottomPlaceholderHeight: options.bottomPlaceholderHeight || null,

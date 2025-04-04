@@ -42,11 +42,64 @@
 
 .toolbar {
   position: relative;
+  min-width: 400px !important;
+  max-width: 90%;
+  padding: 0 6px;
 }
 
 .toolbar-dropdown-container {
   position: relative;
   display: inline-block;
+}
+
+/* 工具栏分组样式 */
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+/* 工具栏区域布局调整 */
+.start {
+  flex: 1;
+}
+
+.center {
+  flex: 3;
+  justify-content: center;
+}
+
+.end {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* 工具子分组 */
+.zoom-controls,
+.annotation-tools,
+.pdf-tools,
+.utility-tools {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* 页码控件样式 */
+.page-controls {
+  display: flex;
+  align-items: center;
+  min-width: 70px;
+  margin-right: 6px;
+  margin-left: 6px;
+}
+
+#pageNumber {
+  width: 48px;
+  text-align: center;
+}
+
+#numPages {
+  white-space: nowrap;
 }
 
 /* Dark mode support */

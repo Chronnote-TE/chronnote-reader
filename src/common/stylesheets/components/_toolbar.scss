@@ -1,9 +1,10 @@
 .toolbar {
-	left: 0;
-	right: 0;
+	position: absolute;
+	left: 50%;
+	bottom: 20px;
+	transform: translateX(-50%);
 	z-index: $z-index-toolbar;
 	cursor: default;
-	position: relative;
 	display: flex;
 	justify-content: space-between;
 	-moz-window-dragging: drag;
@@ -13,29 +14,30 @@
 	height: $height-toolbar !important;
 	min-height: 41px;
 	margin: 0;
-	padding: 0px 8px;
+	padding: 0px 6px;
 	min-width: 1px;
 	background: var(--material-toolbar);
 	border-bottom: var(--material-panedivider);
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 
 	.start,
 	.center,
 	.end {
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: 2px;
 	}
 
 	.end {
 		justify-content: flex-end;
 		padding-inline-end: var(--toolbar-placeholder-width);
-
 	}
 
 	.custom-sections {
 		display: flex;
-		padding: 0 3px;
-		gap: 3px;
+		padding: 0 2px;
+		gap: 2px;
 	}
 
 	.toolbar-button, .toolbar-text-input {
@@ -43,7 +45,7 @@
 	}
 
 	#pageNumber {
-		width: 52px;
+		width: 48px;
 		text-align: right;
 	}
 
@@ -62,7 +64,7 @@
 		height: 20px;
 		border-radius: 0.5px;
 		background: var(--fill-quinary);
-		margin: 0 4px;
+		margin: 0 2px;
 	}
 
 	@include macOS-inactive-opacity;
