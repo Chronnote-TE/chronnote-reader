@@ -1,5 +1,5 @@
 import Reader from './common/reader';
-import strings from '../src/en-us.strings';
+import strings from '../src/zh-cn.strings';
 import pdf from '../demo/pdf';
 import epub from '../demo/epub';
 import snapshot from '../demo/snapshot';
@@ -43,7 +43,8 @@ async function createReader() {
 		// platform: 'web',
 		// password: 'test',
 		onOpenContextMenu(params) {
-			reader.openContextMenu(params);
+			console.log('onOpenContextMenu', params);
+			this.openContextMenu(params);
 		},
 		onAddToNote() {
 			alert('Add annotations to the current note');
@@ -58,12 +59,7 @@ async function createReader() {
 			console.log('Delete annotations', JSON.stringify(ids));
 		},
 		onChangeViewState: function (state, primary) {
-			console.log('Set state', state, primary);
-			const el = document.querySelector("#outContainer");
-			console.log(el);
-			el.addEventListener("click", () => {
-				console.log("click");
-			});
+
 		},
 		onOpenTagsPopup(annotationID, left, top) {
 			alert(`Opening Zotero tagbox popup for id: ${annotationID}, left: ${left}, top: ${top}`);

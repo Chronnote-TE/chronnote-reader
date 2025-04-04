@@ -337,7 +337,11 @@ class Reader {
 							onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
 							onOpenTagsPopup={this._onOpenTagsPopup}
 							onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
-							onOpenColorContextMenu={params => this._onOpenContextMenu(createColorContextMenu(this, params))}
+							onOpenColorContextMenu={params => {
+								if (this._state && this._tools) {
+									this._onOpenContextMenu(createColorContextMenu(this, params));
+								}
+							}}
 							onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
 							onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
 							onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}

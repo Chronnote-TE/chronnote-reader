@@ -49,6 +49,9 @@ function Toolbar(props) {
 	function handleToolColorClick(event) {
 		let br = event.currentTarget.getBoundingClientRect();
 		props.onOpenColorContextMenu({ x: br.left, y: br.bottom });
+		console.log(br.left, br.bottom);
+		console.log(props.onOpenColorContextMenu);
+		console.log('handleToolColorClick', event.currentTarget);
 	}
 
 	function handleFindClick(_event) {
