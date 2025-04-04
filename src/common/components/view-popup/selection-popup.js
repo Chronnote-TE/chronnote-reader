@@ -48,7 +48,7 @@ function SelectionPopup(props) {
 		// 显示翻译加载状态
 		setTranslating(true);
 		// 确保至少显示一些内容
-		setTranslation("正在翻译中...");
+		setTranslation("");
 
 		try {
 			const selectedText = props.params.annotation.text || '';
@@ -138,19 +138,7 @@ function SelectionPopup(props) {
 						}}></span>
 					)}
 				</button>
-				<button
-					tabIndex={-1}
-					className="delete"
-					title={intl.formatMessage({ id: 'pdfReader.deleteAnnotation' }) || "删除注释"}
-					onClick={handleDelete}
-					style={{
-						display: 'flex',
-						justifyContent: 'center',
-						alignItems: 'center'
-					}}
-				>
-					<Trash size={16} strokeWidth={1.5} />
-				</button>
+
 			</div>
 			{props.enableAddToNote && (
 				<button className="toolbar-button wide-button" data-tabstop={1} onClick={handleAddToNote}>
@@ -168,12 +156,12 @@ function SelectionPopup(props) {
 						whiteSpace: 'pre-wrap',
 						wordBreak: 'break-word'
 					}}>
-						{translation || "等待翻译结果..."}
+						{!translating && (translation || "")}
 					</div>
 				</div>
 			)}
 
-			{translating && (
+			{translating && translationVisible && (
 				<div className="translation-loading" data-tabstop={1} style={{
 					border: '1px solid #add8e6',
 					borderRadius: '5px',
