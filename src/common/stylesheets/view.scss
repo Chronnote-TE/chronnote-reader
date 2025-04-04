@@ -5,3 +5,8 @@ html, body {
 .pdfViewer .page {
 	border-radius: 10px;
 }
+
+// Add padding to viewerContainer to accommodate fixed topbar
+#viewerContainer {
+	padding-top: 38px !important; // Match the height of the topbar
+}

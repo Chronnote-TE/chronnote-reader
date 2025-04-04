@@ -1,10 +1,10 @@
 .pdf-topbar {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     height: 41px;
-    z-index: $z-index-toolbar;
+    z-index: $z-index-toolbar + 10;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -13,6 +13,7 @@
     padding: 0 8px;
     height: 38px;
     -webkit-app-region: drag;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 
     .start,
     .center,
