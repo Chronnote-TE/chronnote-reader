@@ -5,7 +5,7 @@ import React, { Fragment, useContext } from 'react';
 import { useIntl } from 'react-intl';
 import { ReaderContext } from '../reader';
 
-function PDFTopbar(props) {
+function PDFTopbar({ toolbarVisible = true, ...props }) {
     const intl = useIntl();
     const { platform } = useContext(ReaderContext);
 
@@ -20,10 +20,10 @@ function PDFTopbar(props) {
             <div className="end">
                 {/* 可以添加左侧按钮 */}
                 <button
-                    className={cx("topbar-button toggle-toolbar", { "active-pseudo-class-fix": props.toolbarVisible })}
+                    className={cx("topbar-button toggle-toolbar", { "active-pseudo-class-fix": toolbarVisible })}
                     title={intl.formatMessage({ id: 'pdfReader.toggleToolbar' }, { defaultMessage: 'Toggle Toolbar' })}
                     tabIndex={-1}
-                    onClick={() => props.onToggleToolbar(!props.toolbarVisible)}
+                    onClick={() => props.onToggleToolbar(!toolbarVisible)}
                 ><RectangleEllipsis size={18} strokeWidth={1.5} /></button>
                 <button
                     className="topbar-button split"
@@ -80,11 +80,6 @@ PDFTopbar.propTypes = {
     contextPaneType: PropTypes.string,
     toolbarVisible: PropTypes.bool,
     onToggleToolbar: PropTypes.func
-};
-
-// Add required props for the toggle toolbar functionality
-PDFTopbar.defaultProps = {
-    toolbarVisible: true
 };
 
 export default PDFTopbar; 

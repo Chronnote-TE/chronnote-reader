@@ -98,5 +98,14 @@ export default {
     'pdfReader.themeName': '主题名称：',
     'pdfReader.themeOptions': '主题选项',
     'pdfReader.background': '背景：',
-    'pdfReader.foreground': '前景：'
+    'pdfReader.foreground': '前景：',
+    'general.yellow': '黄色',
+    'general.red': '红色',
+    'general.green': '绿色',
+    'general.blue': '蓝色',
+    'general.purple': '紫色',
+    'general.magenta': '品红色',
+    'general.orange': '橙色',
+    'general.gray': '灰色',
+    'general.black': '黑色'
 }; 
