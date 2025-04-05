@@ -392,7 +392,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 body, #viewerContainer {
-	background-color: #f2f2f2; /* --color-toolbar */
+	background-color: white; /* --color-toolbar */
 }
 
 .pdfViewer .page {
@@ -402,7 +402,7 @@ body, #viewerContainer {
 :root[data-color-scheme=dark] body,
 :root[data-color-scheme=dark] body #viewerContainer {
 	color-scheme: dark;
-	background-color: #272727; /* --color-toolbar */
+	background-color: oklch(25.33% 0.016 252.42);
 }
 
 :root[data-color-scheme=dark] .pdfViewer .page {
