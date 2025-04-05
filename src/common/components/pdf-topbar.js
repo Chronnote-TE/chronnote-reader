@@ -10,7 +10,7 @@ function PDFTopbar({ toolbarVisible = true, ...props }) {
     const { platform } = useContext(ReaderContext);
 
     return (
-        <div className="pdf-topbar">
+        <div className="pdf-topbar" style={{ display: 'flex' }}>
             <div className="start">
 
             </div>

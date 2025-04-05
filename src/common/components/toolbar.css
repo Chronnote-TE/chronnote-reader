@@ -42,7 +42,6 @@
 
 .toolbar {
   position: relative;
-  min-width: 400px !important;
   max-width: 90%;
   padding: 0 6px;
 }
@@ -88,7 +87,6 @@
 .page-controls {
   display: flex;
   align-items: center;
-  min-width: 70px;
   margin-right: 6px;
   margin-left: 6px;
 }
@@ -125,5 +123,429 @@
 @media screen and (max-width: 250px) {
   .more-tools-menu {
     left: -50px;
+  }
+}
+
+/* Responsive toolbar styles */
+@media (max-width: 768px) {
+  .hidden-on-small {
+    display: none;
+  }
+}
+
+/* 对于小屏幕环境，确保PDF工具完全隐藏 */
+.very-small-screen-hidden {
+  display: none !important;
+}
+
+/* 直接作用于有类名的元素 */
+.toolbar.very-small-screen .pdf-tools,
+.toolbar.very-small-screen button.toolbar-button.text,
+.toolbar.very-small-screen button.toolbar-button.area,
+.toolbar.very-small-screen button.toolbar-button.ink,
+.toolbar.very-small-screen button.toolbar-button.eraser {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+@media (max-width: 500px) {
+  /* 为页面中所有与工具栏相关的元素添加通用样式 */
+  body [class*="toolbar"]:not(.toolbar.very-small-screen),
+  body [id*="toolbar"]:not(.toolbar.very-small-screen) {
+    visibility: hidden !important;
+    opacity: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* 完全隐藏工具栏 */
+  .toolbar {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    box-shadow: none !important;
+    background: none !important;
+    border: none !important;
+  }
+  
+  /* 隐藏任何可能的父容器阴影或背景 */
+  .toolbar-container,
+  .toolbar-wrapper,
+  .toolbar-parent,
+  [class*="toolbar"],
+  #toolbarContainer,
+  #toolbarViewer,
+  .toolbarButtonWithContainer,
+  .secondaryToolbar,
+  [class*="ToolbarContainer"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  
+  /* 创建一个固定位置的浮动按钮 */
+  .toolbar.very-small-screen {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: none !important;
+    border: none !important;
+    z-index: 9999 !important;
+    transform: none !important;
+    left: auto !important;
+    min-height: 0 !important;
+    min-width: 0 !important;
+  }
+  
+  /* 隐藏工具栏内所有内容 */
+  .toolbar.very-small-screen .toolbar-group,
+  .toolbar.very-small-screen .annotation-tools,
+  .toolbar.very-small-screen .pdf-tools,
+  .toolbar.very-small-screen .utility-tools,
+  .toolbar.very-small-screen .divider,
+  .toolbar.very-small-screen .center,
+  .toolbar.very-small-screen .page-controls {
+    display: none !important;
+  }
+  
+  /* 仅显示更多按钮 */
+  .toolbar.very-small-screen .more-menu-container {
+    display: block !important;
+    position: relative !important;
+    background: none !important;
+    box-shadow: none !important;
+  }
+  
+  .toolbar.very-small-screen .toolbar-button.more-button {
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000 !important;
+  }
+  
+  /* 确保PDFJS相关的元素也被处理 */
+  #viewerContainer::before,
+  #viewerContainer::after,
+  #toolbarContainer::before,
+  #toolbarContainer::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  /* 菜单样式调整 */
+  .more-menu {
+    width: 180px;
+    right: 0;
+    bottom: 48px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: rgba(255, 255, 255, 0.95);
+  }
+  
+  /* 暗色模式下菜单的样式 */
+  :root[data-color-scheme="dark"] .more-menu {
+    background-color: rgba(43, 42, 51, 0.95) !important;
+    border-color: rgba(68, 68, 68, 0.7) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+
+/* Page controls in the more menu */
+.page-controls-in-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 8px 6px;
+  gap: 5px;
+}
+
+.page-controls-in-menu input {
+  width: 40px;
+  text-align: center;
+  padding: 3px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.page-controls-in-menu span {
+  font-size: 12px;
+  color: #555;
+}
+
+/* More menu container */
+.more-menu-container {
+  position: relative;
+}
+
+/* More menu dropdown */
+.more-menu {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 180px;
+  z-index: 1000;
+  margin-bottom: 5px;
+}
+
+/* More menu sections */
+.more-menu-section {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.more-menu-section:last-child {
+  border-bottom: none;
+}
+
+/* More menu section headers */
+.more-menu-header {
+  padding: 4px 12px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+}
+
+/* More menu buttons */
+.more-menu-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.more-menu-button:hover {
+  background-color: #f5f5f5;
+}
+
+.more-menu-button.active {
+  background-color: #f0f0f0;
+}
+
+.more-menu-button svg {
+  margin-right: 8px;
+  color: #555;
+  width: 16px;
+  height: 16px;
+}
+
+.more-menu-button.active svg {
+  color: #3377ff;
+}
+
+.more-menu-button span {
+  font-size: 13px;
+}
+
+/* 强制覆盖注释和PDF工具菜单的暗色模式样式 */
+html[data-color-scheme="dark"] .more-menu,
+body[data-color-scheme="dark"] .more-menu,
+:root[data-color-scheme="dark"] .more-menu {
+  color-scheme: dark !important;
+  background-color: #2b2a33 !important;
+  color: #eee !important;
+  border-color: #444 !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-section,
+body[data-color-scheme="dark"] .more-menu-section,
+:root[data-color-scheme="dark"] .more-menu-section {
+  border-bottom-color: #444 !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-header,
+body[data-color-scheme="dark"] .more-menu-header,
+:root[data-color-scheme="dark"] .more-menu-header {
+  color: #aaa !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-button,
+body[data-color-scheme="dark"] .more-menu-button,
+:root[data-color-scheme="dark"] .more-menu-button {
+  color: #eee !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-button:hover,
+body[data-color-scheme="dark"] .more-menu-button:hover,
+:root[data-color-scheme="dark"] .more-menu-button:hover {
+  background-color: #444 !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-button svg,
+body[data-color-scheme="dark"] .more-menu-button svg,
+:root[data-color-scheme="dark"] .more-menu-button svg {
+  color: #aaa !important;
+}
+
+html[data-color-scheme="dark"] .more-menu-button.active svg,
+body[data-color-scheme="dark"] .more-menu-button.active svg,
+:root[data-color-scheme="dark"] .more-menu-button.active svg {
+  color: #5b9aff !important;
+}
+
+/* 小屏幕下的更多按钮在暗色模式的样式 */
+:root[data-color-scheme="dark"] .toolbar.very-small-screen .toolbar-button.more-button {
+  background-color: rgba(43, 42, 51, 0.95) !important;
+  border-color: rgba(68, 68, 68, 0.7) !important;
+  color: var(--fill-primary, #eee) !important;
+}
+
+/* 针对暗色模式下媒体查询中的菜单样式 */
+@media (max-width: 500px) {
+  :root[data-color-scheme="dark"] .more-menu {
+    background-color: rgba(43, 42, 51, 0.95) !important;
+    border-color: rgba(68, 68, 68, 0.7) !important;
+  }
+}
+
+/* 针对暗色模式下页码控件的样式 */
+:root[data-color-scheme="dark"] .page-controls-in-menu input {
+  background-color: var(--material-background, #35343f) !important;
+  border-color: var(--material-border, #444) !important;
+  color: var(--fill-primary, #eee) !important;
+}
+
+:root[data-color-scheme="dark"] .page-controls-in-menu span {
+  color: var(--fill-secondary, #aaa) !important;
+}
+
+/* 强制应用暗色模式样式到弹出菜单 */
+@media (prefers-color-scheme: dark) {
+  .more-menu {
+    background-color: #2b2a33 !important;
+    color: #eee !important;
+    border-color: #444 !important;
+  }
+  
+  .more-menu-section {
+    border-bottom-color: #444 !important;
+  }
+  
+  .more-menu-header {
+    color: #aaa !important;
+  }
+  
+  .more-menu-button {
+    color: #eee !important;
+  }
+  
+  .more-menu-button:hover {
+    background-color: #444 !important;
+  }
+  
+  .more-menu-button svg {
+    color: #aaa !important;
+  }
+  
+  .more-menu-button.active svg {
+    color: #5b9aff !important;
+  }
+}
+
+/* 特殊处理Annotation工具和PDF工具菜单 */
+.more-menu-section:has(.more-menu-header:contains("Annotation Tools")),
+.more-menu-section:has(.more-menu-header:contains("PDF Tools")) {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* 响应式设计 - 中等屏幕尺寸 */
+@media (max-width: 768px) and (min-width: 501px) {
+  /* 在中等屏幕尺寸上隐藏PDF工具，因为它们已经放在more菜单中 */
+  .pdf-tools {
+    display: none !important;
+  }
+  
+  /* 确保more菜单按钮显示 */
+  .more-menu-container {
+    display: block !important;
+  }
+  
+  /* 调整工具栏布局保证空间合理利用 */
+  .toolbar {
+    max-width: 100%;
+    justify-content: space-between;
+  }
+  
+  /* 确保注释工具在中等尺寸屏幕上的显示 */
+  .annotation-tools {
+    display: flex !important;
+  }
+}
+
+/* 在大屏幕上隐藏more菜单按钮 */
+@media (min-width: 769px) {
+  .more-menu-container {
+    display: none !important;
+  }
+}
+
+/* 在各种屏幕尺寸下调整工具栏显示 */
+.toolbar.small-screen .toolbar-group {
+  gap: 1px; /* 减小工具按钮间距，节省空间 */
+}
+
+/* 优化中等屏幕尺寸下的工具栏显示 */
+@media (max-width: 768px) and (min-width: 501px) {
+  /* 调整工具栏布局 */
+  .toolbar.small-screen {
+    padding: 0 4px;
+  }
+
+  .toolbar.small-screen .end {
+    justify-content: space-between;
+  }
+  
+  /* 确保页码控件在中等屏幕上显示且布局合理 */
+  .toolbar.small-screen .page-controls {
+    flex: 0 0 auto;
+    margin: 0 5px;
+  }
+  
+  /* PDF工具已移到more菜单，所以在工具栏上隐藏它 */
+  .toolbar.small-screen .pdf-tools {
+    display: none !important;
+  }
+  
+  /* 在小屏幕上调整分隔符的显示 */
+  .toolbar.small-screen .divider {
+    margin: 0 2px;
+  }
+  
+  /* 减小工具按钮尺寸 */
+  .toolbar.small-screen .toolbar-button {
+    width: 26px;
+    height: 26px;
+  }
+  
+  /* 确保more按钮正确显示 */
+  .toolbar.small-screen .more-button {
+    display: flex !important;
   }
 } 

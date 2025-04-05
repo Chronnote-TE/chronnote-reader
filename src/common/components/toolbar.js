@@ -35,12 +35,60 @@ function Toolbar({ visible = true, ...props }) {
 	const pageInputRef = useRef();
 	const toolbarRef = useRef();
 	const { platform } = useContext(ReaderContext);
+	const [showMoreMenu, setShowMoreMenu] = useState(false);
+	const [isSmallScreen, setIsSmallScreen] = useState(false);
+	const [isVerySmallScreen, setIsVerySmallScreen] = useState(false);
+	const moreMenuRef = useRef();
 
 	useEffect(() => {
 		if (['pdf', 'epub'].includes(props.type)) {
-			pageInputRef.current.value = props.pageLabel ?? (props.pageIndex + 1);
+			if (pageInputRef.current) {
+				pageInputRef.current.value = props.pageLabel ?? (props.pageIndex + 1);
+			}
 		}
 	}, [props.pageLabel, props.pageIndex]);
+
+	useEffect(() => {
+		// Function to check screen width and update state
+		const checkScreenWidth = () => {
+			const verySmallScreenThreshold = 500;
+			const smallScreenThreshold = 768;
+
+			setIsVerySmallScreen(window.innerWidth < verySmallScreenThreshold);
+			setIsSmallScreen(window.innerWidth < smallScreenThreshold);
+		};
+
+		// Check on initial render
+		checkScreenWidth();
+
+		// Add event listener for window resize
+		window.addEventListener('resize', checkScreenWidth);
+
+		// Clean up event listener on component unmount
+		return () => {
+			window.removeEventListener('resize', checkScreenWidth);
+		};
+	}, []);
+
+	useEffect(() => {
+		// Close more menu when clicking outside
+		const handleClickOutside = (event) => {
+			if (moreMenuRef.current && !moreMenuRef.current.contains(event.target) &&
+				!event.target.closest('.more-button')) {
+				setShowMoreMenu(false);
+			}
+		};
+
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+		};
+	}, []);
+
+	// 根据屏幕尺寸决定哪些工具应该显示在more菜单中
+	const shouldShowPdfToolsInMoreMenu = isSmallScreen;
+	const shouldShowAnnotationToolsInMoreMenu = isVerySmallScreen;
+	const shouldShowMoreButton = isSmallScreen || isVerySmallScreen;
 
 	function handleSidebarButtonClick(_event) {
 		props.onToggleSidebar(!props.sidebarOpen);
@@ -80,78 +128,107 @@ function Toolbar({ visible = true, ...props }) {
 		}
 	}
 
+	function toggleMoreMenu() {
+		setShowMoreMenu(!showMoreMenu);
+	}
+
 	// If toolbar is not visible, don't render it
 	if (visible === false) {
 		return null;
 	}
 
+	// Define tools that will be moved to "more" menu on small screens
+	const pdfTools = (
+		<div className="pdf-tools">
+			<button
+				tabIndex={-1}
+				className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
+				title={intl.formatMessage({ id: 'pdfReader.addText' })}
+				disabled={props.readOnly}
+				onClick={() => handleToolClick('text')}
+				data-l10n-id="pdfReader-toolbar-text"
+			><FileText size={18} strokeWidth={1.5} /></button>
+			<button
+				tabIndex={-1}
+				className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
+				title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
+				disabled={props.readOnly}
+				onClick={() => handleToolClick('image')}
+				data-l10n-id="pdfReader-toolbar-area"
+			><ImagePlus size={18} strokeWidth={1.5} /></button>
+			<button
+				tabIndex={-1}
+				className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+				title={intl.formatMessage({ id: 'pdfReader.draw' })}
+				disabled={props.readOnly}
+				onClick={() => handleToolClick('ink')}
+				data-l10n-id="pdfReader-toolbar-draw"
+			><Pencil size={18} strokeWidth={1.5} /></button>
+		</div>
+	);
+
+	const eraserTool = props.type === 'pdf' && props.tool.type === 'ink' && (
+		<button
+			tabIndex={-1}
+			className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
+			title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+			disabled={props.readOnly}
+			onClick={() => handleToolClick('eraser')}
+			data-l10n-id="pdfReader-toolbar-eraser"
+		><Eraser size={18} strokeWidth={1.5} /></button>
+	);
+
+	// 决定是否需要显示更多菜单按钮 - 大屏幕时不显示
+	const shouldShowMoreMenuButton = isSmallScreen || isVerySmallScreen;
+
 	return (
-		<div className="toolbar" data-tabstop={1} role="application" ref={toolbarRef}>
-			{/* 左侧区域 - 缩放工具 */}
-			{/* <div className="start toolbar-group">
-				<div className="zoom-controls">
-					<button
-						id="zoomOut"
-						className="toolbar-button zoomOut"
-						title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-						tabIndex={-1}
-						disabled={!props.enableZoomOut}
-						onClick={props.onZoomOut}
-					><ZoomOut size={18} strokeWidth={1.5} /></button>
-					<button
-						id="zoomIn"
-						className="toolbar-button zoomIn"
-						title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-						tabIndex={-1}
-						disabled={!props.enableZoomIn}
-						onClick={props.onZoomIn}
-					><ZoomIn size={18} strokeWidth={1.5} /></button>
-					<button
-						id="zoomAuto"
-						className="toolbar-button zoomAuto"
-						title={intl.formatMessage({ id: 'pdfReader.zoomReset' })}
-						tabIndex={-1}
-						disabled={!props.enableZoomReset}
-						onClick={props.onZoomReset}
-					><Maximize size={18} strokeWidth={1.5} /></button>
-				</div>
-			</div> */}
-
-			{/* 右侧区域 - 注释工具和其他工具 */}
+		<div
+			className={cx(
+				"toolbar",
+				{ "very-small-screen": isVerySmallScreen },
+				{ "small-screen": isSmallScreen && !isVerySmallScreen }
+			)}
+			data-tabstop={1}
+			role="application"
+			ref={toolbarRef}
+		>
+			{/* 工具栏主容器 */}
 			<div className="end toolbar-group">
-				{/* <div className="divider" /> */}
-				<div className="annotation-tools">
-					<button
-						tabIndex={-1}
-						className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-						title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-						disabled={props.readOnly}
-						onClick={() => handleToolClick('highlight')}
-						data-l10n-id="pdfReader-toolbar-highlight"
-					><Highlighter size={18} strokeWidth={1.5} /></button>
-					<button
-						tabIndex={-1}
-						className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-						title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-						disabled={props.readOnly}
-						onClick={() => handleToolClick('underline')}
-						data-l10n-id="pdfReader-toolbar-underline"
-					><Underline size={18} strokeWidth={1.5} /></button>
-					<button
-						tabIndex={-1}
-						className={cx('toolbar-button note', {
-							active: props.tool.type === 'note'
-						})}
-						title={intl.formatMessage({ id: 'pdfReader.addNote' })}
-						disabled={props.readOnly}
-						onClick={() => handleToolClick('note')}
-						data-l10n-id="pdfReader-toolbar-note"
-					><StickyNote size={18} strokeWidth={1.5} /></button>
-				</div>
+				{/* 高亮、下划线和笔记工具 - 仅在较大屏幕和中等屏幕显示 */}
+				{!shouldShowAnnotationToolsInMoreMenu && (
+					<div className="annotation-tools">
+						<button
+							tabIndex={-1}
+							className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
+							title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+							disabled={props.readOnly}
+							onClick={() => handleToolClick('highlight')}
+							data-l10n-id="pdfReader-toolbar-highlight"
+						><Highlighter size={18} strokeWidth={1.5} /></button>
+						<button
+							tabIndex={-1}
+							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+							title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+							disabled={props.readOnly}
+							onClick={() => handleToolClick('underline')}
+							data-l10n-id="pdfReader-toolbar-underline"
+						><Underline size={18} strokeWidth={1.5} /></button>
+						<button
+							tabIndex={-1}
+							className={cx('toolbar-button note', {
+								active: props.tool.type === 'note'
+							})}
+							title={intl.formatMessage({ id: 'pdfReader.addNote' })}
+							disabled={props.readOnly}
+							onClick={() => handleToolClick('note')}
+							data-l10n-id="pdfReader-toolbar-note"
+						><StickyNote size={18} strokeWidth={1.5} /></button>
+					</div>
+				)}
 
-				{/* 中间区域 - 页码 */}
-				<div className="center toolbar-group">
-					{['pdf', 'epub'].includes(props.type) && (
+				{/* 中间区域 - 页码 - 隐藏在很小的屏幕上 */}
+				{!isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
+					<div className="center toolbar-group">
 						<div className="page-controls">
 							<input
 								ref={pageInputRef}
@@ -176,41 +253,18 @@ function Toolbar({ visible = true, ...props }) {
 									&& (props.pageIndex + 1)} / {props.pagesCount}</div></span>
 							)}
 						</div>
-					)}
-				</div>
+					</div>
+				)}
 
-				{props.type === 'pdf' && (
+				{/* PDF工具区域 - 仅在大屏幕上显示 */}
+				{props.type === 'pdf' && !shouldShowPdfToolsInMoreMenu && (
 					<>
 						<div className="divider" />
-						<div className="pdf-tools">
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
-								title={intl.formatMessage({ id: 'pdfReader.addText' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('text')}
-								data-l10n-id="pdfReader-toolbar-text"
-							><FileText size={18} strokeWidth={1.5} /></button>
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
-								title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('image')}
-								data-l10n-id="pdfReader-toolbar-area"
-							><ImagePlus size={18} strokeWidth={1.5} /></button>
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
-								title={intl.formatMessage({ id: 'pdfReader.draw' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('ink')}
-								data-l10n-id="pdfReader-toolbar-draw"
-							><Pencil size={18} strokeWidth={1.5} /></button>
-						</div>
+						{pdfTools}
 					</>
 				)}
 
+				{/* 分隔符和实用工具 */}
 				<div className="divider" />
 
 				<div className="utility-tools">
@@ -236,21 +290,13 @@ function Toolbar({ visible = true, ...props }) {
 						onClick={handleFindClick}
 					><Search size={18} strokeWidth={1.5} /></button>
 
-					{props.type === 'pdf' && props.tool.type === 'ink' && (
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
-							title={intl.formatMessage({ id: 'pdfReader.eraser' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('eraser')}
-							data-l10n-id="pdfReader-toolbar-eraser"
-						><Eraser size={18} strokeWidth={1.5} /></button>
-					)}
+					{!isVerySmallScreen && !shouldShowPdfToolsInMoreMenu && eraserTool}
 				</div>
 
 				<CustomSections type="Toolbar" />
 
-				{platform === 'zotero' && props.showContextPaneToggle && (
+				{/* Zotero上下文面板切换按钮 - 隐藏在很小的屏幕上 */}
+				{platform === 'zotero' && props.showContextPaneToggle && !isVerySmallScreen && (
 					<>
 						<div className="divider" />
 						<button
@@ -268,6 +314,158 @@ function Toolbar({ visible = true, ...props }) {
 							</div>
 						</button>
 					</>
+				)}
+
+				{/* More button - 只在需要显示额外工具时显示 */}
+				{shouldShowMoreButton && (
+					<div className="more-menu-container">
+						<button
+							tabIndex={-1}
+							className="toolbar-button more-button"
+							title={intl.formatMessage({ id: 'pdfReader.moreTools' })}
+							onClick={toggleMoreMenu}
+						>
+							<MoreHorizontal size={isVerySmallScreen ? 20 : 18} strokeWidth={1.5} />
+						</button>
+
+						{showMoreMenu && (
+							<div className="more-menu" ref={moreMenuRef}>
+								{isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">Page Navigation</div>
+										<div className="page-controls-in-menu">
+											<input
+												type="input"
+												className="toolbar-text-input"
+												defaultValue={props.pageLabel ?? (props.pageIndex + 1)}
+												size="3"
+												min="1"
+												onKeyDown={(e) => {
+													if (e.key === 'Enter') {
+														props.onChangePageNumber(e.target.value);
+														setShowMoreMenu(false);
+													}
+												}}
+												onBlur={(e) => {
+													if (e.target.value != (props.pageLabel ?? (props.pageIndex + 1))) {
+														props.onChangePageNumber(e.target.value);
+													}
+												}}
+											/>
+											<span>/ {props.pagesCount}</span>
+										</div>
+									</div>
+								)}
+								{shouldShowAnnotationToolsInMoreMenu && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">Annotation Tools</div>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'highlight' })}
+											onClick={() => {
+												handleToolClick('highlight');
+												setShowMoreMenu(false);
+											}}
+										>
+											<Highlighter size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.highlightText' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'underline' })}
+											onClick={() => {
+												handleToolClick('underline');
+												setShowMoreMenu(false);
+											}}
+										>
+											<Underline size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.underlineText' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'note' })}
+											onClick={() => {
+												handleToolClick('note');
+												setShowMoreMenu(false);
+											}}
+										>
+											<StickyNote size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.addNote' })}</span>
+										</button>
+									</div>
+								)}
+
+								{props.type === 'pdf' && shouldShowPdfToolsInMoreMenu && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">PDF Tools</div>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'text' })}
+											onClick={() => {
+												handleToolClick('text');
+												setShowMoreMenu(false);
+											}}
+										>
+											<FileText size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.addText' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'image' })}
+											onClick={() => {
+												handleToolClick('image');
+												setShowMoreMenu(false);
+											}}
+										>
+											<ImagePlus size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.selectArea' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+											onClick={() => {
+												handleToolClick('ink');
+												setShowMoreMenu(false);
+											}}
+										>
+											<Pencil size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.draw' })}</span>
+										</button>
+										{props.type === 'pdf' && props.tool.type === 'ink' && (
+											<button
+												tabIndex={-1}
+												className={cx('more-menu-button', { active: props.tool.type === 'eraser' })}
+												onClick={() => {
+													handleToolClick('eraser');
+													setShowMoreMenu(false);
+												}}
+											>
+												<Eraser size={16} strokeWidth={1.5} />
+												<span>{intl.formatMessage({ id: 'pdfReader.eraser' })}</span>
+											</button>
+										)}
+									</div>
+								)}
+
+								{platform === 'zotero' && props.showContextPaneToggle && isVerySmallScreen && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">View</div>
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.contextPaneOpen })}
+											onClick={() => {
+												props.onToggleContextPane(!props.contextPaneOpen);
+												setShowMoreMenu(false);
+											}}
+										>
+											<PanelRightClose size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}</span>
+										</button>
+									</div>
+								)}
+							</div>
+						)}
+					</div>
 				)}
 			</div>
 		</div>

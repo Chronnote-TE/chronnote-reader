@@ -1,5 +1,39 @@
 html, body {
 	overscroll-behavior: none;
+	background-color: red !important;
+}
+
+// Global scrollbar styles
+::-webkit-scrollbar {
+	width: 8px !important;
+	height: 8px !important;
+}
+
+::-webkit-scrollbar-thumb {
+	background-color: rgba(0, 0, 0, 0.3);
+	border-radius: 4px !important;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background-color: rgba(0, 0, 0, 0.3); // Same as non-hover state
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+	background-color: transparent !important;
+	border-radius: 0;
+}
+
+::-webkit-scrollbar-track:hover {
+	background-color: transparent !important;
+}
+
+* {
+	scrollbar-width: thin !important; // Force thin scrollbar in Firefox
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important; // Firefox thumb and track color
 }
 
 .pdfViewer .page {
@@ -9,4 +43,36 @@ html, body {
 // Add padding to viewerContainer to accommodate fixed topbar
 #viewerContainer {
 	padding-top: 38px !important; // Match the height of the topbar
+	
+	// Make scrollbar narrower
+	&::-webkit-scrollbar {
+		width: 8px !important;
+		height: 8px !important;
+	}
+	
+	&::-webkit-scrollbar-thumb {
+		background-color: rgba(0, 0, 0, 0.3);
+		border-radius: 4px !important;
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+	
+	&::-webkit-scrollbar-thumb:hover {
+		background-color: rgba(0, 0, 0, 0.3); // Same as non-hover state
+		border: 2px solid transparent;
+		background-clip: padding-box;
+	}
+	
+	&::-webkit-scrollbar-track {
+		background-color: transparent !important;
+		border-radius: 0;
+	}
+	
+	&::-webkit-scrollbar-track:hover {
+		background-color: transparent !important;
+	}
+	
+	// Firefox scrollbar
+	scrollbar-width: thin !important;
+	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important;
 }
