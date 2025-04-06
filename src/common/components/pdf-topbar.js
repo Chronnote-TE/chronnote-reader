@@ -25,12 +25,7 @@ function PDFTopbar({ toolbarVisible = true, ...props }) {
                     tabIndex={-1}
                     onClick={() => props.onToggleToolbar(!toolbarVisible)}
                 ><RectangleEllipsis size={18} strokeWidth={1.5} /></button>
-                <button
-                    className="topbar-button split"
-                    title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Horizontal Split View' })}
-                    tabIndex={-1}
-                    onClick={props.onClickSplit}
-                ><Rows2 size={18} strokeWidth={1.5} /></button>
+
 
                 <button
                     className="topbar-button vertical-split"
@@ -38,7 +33,12 @@ function PDFTopbar({ toolbarVisible = true, ...props }) {
                     tabIndex={-1}
                     onClick={props.onClickVerticalSplit}
                 ><Columns2 size={18} strokeWidth={1.5} /></button>
-
+                <button
+                    className="topbar-button split"
+                    title={intl.formatMessage({ id: 'pdfReader.split' }, { defaultMessage: 'Horizontal Split View' })}
+                    tabIndex={-1}
+                    onClick={props.onClickSplit}
+                ><Rows2 size={18} strokeWidth={1.5} /></button>
                 <button
                     className="topbar-button close"
                     title={intl.formatMessage({ id: 'pdfReader.close' }, { defaultMessage: 'Close' })}
