@@ -54,6 +54,13 @@ function ViewPopup({ id, rect, className, uniqueRef, padding, children, onRender
 		let annotationCenterLeft = rect[0] + (rect[2] - rect[0]) / 2;
 		let left = annotationCenterLeft - width / 2;
 
+		// Make sure popup fits within view
+		if (left < padding) {
+			left = padding;
+		} else if (left + width > viewRect[2] - padding) {
+			left = viewRect[2] - width - padding;
+		}
+
 		let side;
 		let top;
 		if (left < 0) {
@@ -128,7 +135,16 @@ function ViewPopup({ id, rect, className, uniqueRef, padding, children, onRender
 		<div
 			ref={containerRef}
 			className={cx('view-popup', className, { ...pointerClass })}
-			style={pos.current ? { transform: `translate(${pos.current.left}px, ${pos.current.top}px)`, ...(style || {}) } : style}
+			style={pos.current ? {
+				transform: `translate(${pos.current.left}px, ${pos.current.top}px)`,
+				visibility: 'visible',
+				opacity: 1,
+				...(style || {})
+			} : {
+				visibility: 'visible',
+				opacity: 1,
+				...(style || {})
+			}}
 		>
 			{children}
 		</div>

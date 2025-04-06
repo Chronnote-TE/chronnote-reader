@@ -5,6 +5,20 @@
 	@include popover-pointer($width: 16px, $height: 8px);
 	@include popup;
 	z-index: 1;
+
+	// Override any media query that might hide elements on small screens
+	display: block !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+}
+
+// Ensure selection popup and its children are visible on all screen sizes
+.selection-popup, 
+.selection-popup .colors, 
+.selection-popup .color-button {
+	display: flex !important;
+	visibility: visible !important;
+	opacity: 1 !important;
 }
 
 .find-popup {
@@ -87,21 +101,23 @@
 }
 
 .selection-popup {
-	min-width: 290px;
 	padding: 8px;
 	gap: 8px;
+	width: auto;
+	max-width: none;
 
 	.colors {
-		gap: 4px;
 		display: flex;
-		flex-wrap: nowrap;
-		align-items: center;
+		flex-wrap: wrap;
+		gap: 4px;
+		width: 100%;
 		justify-content: center;
 	}
 
 	.color-button {
 		width: 20px;
 		height: 20px;
+		padding: 0;
 		flex-shrink: 0;
 	}
 
@@ -325,5 +341,23 @@
 				transition: none;
 			}
 		}
+	}
+}
+
+// 确保selection-popup在小屏幕上正常显示（覆盖toolbar.css中的媒体查询规则）
+@media (max-width: 500px) {
+	.view-popup, 
+	.selection-popup,
+	.selection-popup .colors,
+	.selection-popup .color-button,
+	.selection-popup .tool-toggle {
+		display: flex !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		background: var(--material-background) !important;
+	}
+	
+	.selection-popup {
+		z-index: 10001 !important; // 确保它比工具栏的浮动按钮层级更高
 	}
 }

@@ -149,17 +149,7 @@
 }
 
 @media (max-width: 500px) {
-  /* 为页面中所有与工具栏相关的元素添加通用样式 */
-  body [class*="toolbar"]:not(.toolbar.very-small-screen),
-  body [id*="toolbar"]:not(.toolbar.very-small-screen) {
-    visibility: hidden !important;
-    opacity: 0 !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
-  
+
   /* 完全隐藏工具栏 */
   .toolbar {
     display: none !important;
