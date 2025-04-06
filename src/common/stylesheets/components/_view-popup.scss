@@ -87,13 +87,14 @@
 }
 
 .selection-popup {
-	max-width: 198px;
+	min-width: 290px;
 	padding: 8px;
 	gap: 8px;
 
 	.colors {
 		gap: 4px;
 		display: flex;
+		flex-wrap: nowrap;
 		align-items: center;
 		justify-content: center;
 	}
@@ -101,6 +102,7 @@
 	.color-button {
 		width: 20px;
 		height: 20px;
+		flex-shrink: 0;
 	}
 
 	.tool-toggle {

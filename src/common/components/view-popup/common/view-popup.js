@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import cx from 'classnames';
 
 // TODO: Resizing window doesn't properly reposition annotation popup on x axis, in EPUB view
-function ViewPopup({ id, rect, className, uniqueRef, padding, children, onRender }) {
+function ViewPopup({ id, rect, className, uniqueRef, padding, children, onRender, style }) {
 	const [popupPosition, setPopupPosition] = useState(null);
 	const containerRef = useRef();
 	const xrect = useRef();
@@ -128,7 +128,7 @@ function ViewPopup({ id, rect, className, uniqueRef, padding, children, onRender
 		<div
 			ref={containerRef}
 			className={cx('view-popup', className, { ...pointerClass })}
-			style={pos.current ? { transform: `translate(${pos.current.left}px, ${pos.current.top}px)` } : {}}
+			style={pos.current ? { transform: `translate(${pos.current.left}px, ${pos.current.top}px)`, ...(style || {}) } : style}
 		>
 			{children}
 		</div>

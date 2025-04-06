@@ -74,6 +74,7 @@ function SelectionPopup(props) {
 			rect={props.params.rect}
 			uniqueRef={{}}
 			padding={20}
+			style={{ minWidth: '290px' }}
 		>
 			<div className="colors" data-tabstop={1}>
 				{ANNOTATION_COLORS.map((color, index) => (<button
