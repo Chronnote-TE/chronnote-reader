@@ -165,10 +165,12 @@ function SelectionPopup(props) {
 									<button
 										className="copy-btn"
 										onClick={handleCopyTranslation}
-										title="复制翻译结果"
+										title={intl.formatMessage({ id: 'general.copy' })}
 									>
-										<Copy size={14} strokeWidth={2} />
-										<span>复制</span>
+										<span className="button-content">
+											<Copy size={14} strokeWidth={2} />
+											<span className="button-text">复制</span>
+										</span>
 									</button>
 								</div>
 							)}

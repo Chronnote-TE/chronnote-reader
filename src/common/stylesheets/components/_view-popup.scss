@@ -227,41 +227,51 @@
 			display: flex;
 			gap: 8px;
 			
-			button {
+			.copy-btn {
 				flex: 1;
 				padding: 6px 12px;
 				border-radius: 4px;
 				font-size: 13px;
 				transition: all 0.2s ease;
 				cursor: pointer;
+				background: var(--material-button);
+				color: var(--material-button-text);
+				border: none; // 确保没有边框
 				
-				&.copy-btn {
-					background: var(--material-button);
-					color: var(--material-button-text);
-					
-					&:hover {
-						background: var(--material-button-hover, var(--material-button));
-						transform: translateY(-1px);
-					}
-					
-					&:active {
-						transform: translateY(0);
-						opacity: 0.9;
-					}
+				.button-content {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 6px; // 图标和文字之间的间距
 				}
 				
-				&.close-btn {
-					background: var(--fill-quinary);
-					
-					&:hover {
-						background: var(--fill-quaternary);
-						transform: translateY(-1px);
-					}
-					
-					&:active {
-						transform: translateY(0);
-						opacity: 0.9;
-					}
+				.button-text {
+					line-height: 1; // 确保文字垂直居中
+					margin-top: 1px; // 微调文字位置
+				}
+				
+				&:hover {
+					background: var(--material-button-hover, var(--material-button));
+					transform: translateY(-1px);
+				}
+				
+				&:active {
+					transform: translateY(0);
+					opacity: 0.9;
+				}
+			}
+			
+			.close-btn {
+				background: var(--fill-quinary);
+				
+				&:hover {
+					background: var(--fill-quaternary);
+					transform: translateY(-1px);
+				}
+				
+				&:active {
+					transform: translateY(0);
+					opacity: 0.9;
 				}
 			}
 		}
