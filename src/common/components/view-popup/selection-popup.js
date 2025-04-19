@@ -10,6 +10,7 @@ import { IconColor16 } from '../common/icons';
 
 import IconHighlight from '../../../../res/icons/16/annotate-highlight.svg';
 import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
+import { Copy } from 'lucide-react';
 
 function SelectionPopup(props) {
 	const intl = useIntl();
@@ -164,14 +165,10 @@ function SelectionPopup(props) {
 									<button
 										className="copy-btn"
 										onClick={handleCopyTranslation}
+										title="复制翻译结果"
 									>
-										复制
-									</button>
-									<button
-										className="close-btn"
-										onClick={() => setTranslationVisible(false)}
-									>
-										关闭
+										<Copy size={14} strokeWidth={2} />
+										<span>复制</span>
 									</button>
 								</div>
 							)}
