@@ -267,31 +267,34 @@ function Toolbar({ visible = true, ...props }) {
 				{/* 分隔符和实用工具 */}
 				<div className="divider" />
 
-				<div className="utility-tools">
-					<button
-						tabIndex={-1}
-						className="toolbar-button toolbar-dropdown-button"
-						disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
-						title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
-						onClick={handleToolColorClick}
-					>
-						{
-							props.tool.type === 'eraser'
-								? <Eraser size={18} strokeWidth={1.5} />
-								: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
-						}
-						<ChevronDownSmall size={12} strokeWidth={1.5} />
-					</button>
-
-					<button
-						tabIndex={-1}
-						className={cx('toolbar-button find', { active: props.findPopupOpen })}
-						title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
-						onClick={handleFindClick}
-					><Search size={18} strokeWidth={1.5} /></button>
-
-					{!isVerySmallScreen && !shouldShowPdfToolsInMoreMenu && eraserTool}
-				</div>
+				{/* Utility tools with zoom controls - only show on larger screens */}
+				{!shouldShowPdfToolsInMoreMenu && !isVerySmallScreen && (
+					<div className="utility-tools">
+						<button
+							tabIndex={-1}
+							className="toolbar-button zoom-out"
+							title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
+							disabled={!props.enableZoomOut}
+							onClick={props.onZoomOut}
+							data-l10n-id="pdfReader-toolbar-zoom-out"
+						><ZoomOut size={18} strokeWidth={1.5} /></button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button zoom-in"
+							title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
+							disabled={!props.enableZoomIn}
+							onClick={props.onZoomIn}
+							data-l10n-id="pdfReader-toolbar-zoom-in"
+						><ZoomIn size={18} strokeWidth={1.5} /></button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button fit-to-width"
+							title={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
+							onClick={props.onFitToWidth}
+							data-l10n-id="pdfReader-toolbar-fit-to-width"
+						><Maximize size={18} strokeWidth={1.5} /></button>
+					</div>
+				)}
 
 				<CustomSections type="Toolbar" />
 
@@ -316,7 +319,7 @@ function Toolbar({ visible = true, ...props }) {
 					</>
 				)}
 
-				{/* More button - 只在需要显示额外工具时显示 */}
+				{/* More button and menu */}
 				{shouldShowMoreButton && (
 					<div className="more-menu-container">
 						<button
@@ -330,6 +333,50 @@ function Toolbar({ visible = true, ...props }) {
 
 						{showMoreMenu && (
 							<div className="more-menu" ref={moreMenuRef}>
+								{/* Add zoom controls at the beginning of the more menu when on very small screen */}
+								{isVerySmallScreen && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">
+											{intl.formatMessage({ id: 'pdfReader.zoomControls' })}
+										</div>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											disabled={!props.enableZoomOut}
+											onClick={() => {
+												props.onZoomOut();
+												setShowMoreMenu(false);
+											}}
+										>
+											<ZoomOut size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											disabled={!props.enableZoomIn}
+											onClick={() => {
+												props.onZoomIn();
+												setShowMoreMenu(false);
+											}}
+										>
+											<ZoomIn size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											onClick={() => {
+												props.onFitToWidth();
+												setShowMoreMenu(false);
+											}}
+										>
+											<Maximize size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
+										</button>
+									</div>
+								)}
+								{/* Rest of the more menu content */}
 								{isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
 									<div className="more-menu-section">
 										<div className="more-menu-header">Page Navigation</div>
@@ -460,6 +507,48 @@ function Toolbar({ visible = true, ...props }) {
 										>
 											<PanelRightClose size={16} strokeWidth={1.5} />
 											<span>{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}</span>
+										</button>
+									</div>
+								)}
+
+								{/* Zoom controls in more menu */}
+								{!isVerySmallScreen && (
+									<div className="more-menu-section">
+										<div className="more-menu-header">Zoom Controls</div>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											disabled={!props.enableZoomOut}
+											onClick={() => {
+												props.onZoomOut();
+												setShowMoreMenu(false);
+											}}
+										>
+											<ZoomOut size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											disabled={!props.enableZoomIn}
+											onClick={() => {
+												props.onZoomIn();
+												setShowMoreMenu(false);
+											}}
+										>
+											<ZoomIn size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
+										</button>
+										<button
+											tabIndex={-1}
+											className="more-menu-button"
+											onClick={() => {
+												props.onFitToWidth();
+												setShowMoreMenu(false);
+											}}
+										>
+											<Maximize size={16} strokeWidth={1.5} />
+											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
 										</button>
 									</div>
 								)}

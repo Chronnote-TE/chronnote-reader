@@ -301,8 +301,8 @@
 
 /* More menu sections */
 .more-menu-section {
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--material-border);
 }
 
 .more-menu-section:last-child {
@@ -311,10 +311,9 @@
 
 /* More menu section headers */
 .more-menu-header {
-  padding: 4px 12px;
-  font-size: 11px;
-  color: #666;
-  font-weight: 500;
+  padding: 0 12px 4px;
+  font-size: 12px;
+  color: var(--fill-secondary);
 }
 
 /* More menu buttons */
@@ -331,25 +330,22 @@
 }
 
 .more-menu-button:hover {
-  background-color: #f5f5f5;
+  background-color: var(--fill-quinary);
 }
 
-.more-menu-button.active {
-  background-color: #f0f0f0;
+.more-menu-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .more-menu-button svg {
   margin-right: 8px;
-  color: #555;
   width: 16px;
   height: 16px;
 }
 
-.more-menu-button.active svg {
-  color: #3377ff;
-}
-
 .more-menu-button span {
+  flex: 1;
   font-size: 13px;
 }
 
@@ -465,6 +461,76 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
   color: inherit !important;
 }
 
+/* Zoom controls in more menu */
+.more-menu-section:has(.more-menu-header:contains("Zoom Controls")) {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+.more-menu-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Hide zoom controls in toolbar on very small screens */
+.toolbar.very-small-screen .utility-tools .zoom-in,
+.toolbar.very-small-screen .utility-tools .zoom-out {
+  display: none !important;
+}
+
+/* Ensure zoom controls are properly hidden on very small screens */
+.toolbar.very-small-screen .utility-tools {
+  display: none !important;
+}
+
+/* Style for zoom controls in more menu */
+.more-menu-section {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--material-border);
+}
+
+.more-menu-section:last-child {
+  border-bottom: none;
+}
+
+.more-menu-header {
+  padding: 0 12px 4px;
+  font-size: 12px;
+  color: var(--fill-secondary);
+}
+
+.more-menu-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.more-menu-button:hover {
+  background-color: var(--fill-quinary);
+}
+
+.more-menu-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.more-menu-button svg {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+.more-menu-button span {
+  flex: 1;
+  font-size: 13px;
+}
+
 /* 响应式设计 - 中等屏幕尺寸 */
 @media (max-width: 768px) and (min-width: 501px) {
   /* 在中等屏幕尺寸上隐藏PDF工具，因为它们已经放在more菜单中 */
@@ -538,4 +604,18 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
   .toolbar.small-screen .more-button {
     display: flex !important;
   }
-} 
+}
+
+/* Hide zoom controls in toolbar on small screens */
+.toolbar.very-small-screen .utility-tools,
+.toolbar.small-screen .utility-tools {
+  display: none !important;
+}
+
+/* Ensure individual zoom buttons are hidden as well */
+.toolbar.very-small-screen .zoom-in,
+.toolbar.very-small-screen .zoom-out,
+.toolbar.small-screen .zoom-in,
+.toolbar.small-screen .zoom-out {
+  display: none !important;
+}
