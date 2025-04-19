@@ -98,7 +98,12 @@ function SelectionPopup(props) {
 								props.onChangeTextSelectionAnnotationMode('highlight');
 							}}
 						>
-							<IconHighlight />
+							<span className="button-content">
+								<IconHighlight />
+								<span className="tooltip">
+									<FormattedMessage id="pdfReader.highlightText" />
+								</span>
+							</span>
 						</button>
 						<button
 							tabIndex={-1}
@@ -110,7 +115,12 @@ function SelectionPopup(props) {
 								props.onChangeTextSelectionAnnotationMode('underline');
 							}}
 						>
-							<IconUnderline />
+							<span className="button-content">
+								<IconUnderline />
+								<span className="tooltip">
+									<FormattedMessage id="pdfReader.underlineText" />
+								</span>
+							</span>
 						</button>
 						<button
 							tabIndex={-1}
@@ -119,7 +129,12 @@ function SelectionPopup(props) {
 							})}
 							onClick={handleTranslate}
 						>
-							译
+							<span className="button-content">
+								<span>译</span>
+								<span className="tooltip">
+									<FormattedMessage id="pdfReader.translate" defaultMessage="Translate" />
+								</span>
+							</span>
 						</button>
 					</div>
 
@@ -141,8 +156,15 @@ function SelectionPopup(props) {
 							className="add-note-btn"
 							data-tabstop={1}
 							onClick={handleAddToNote}
+							title={intl.formatMessage({ id: 'pdfReader.addToNote' })}
+							aria-label={intl.formatMessage({ id: 'pdfReader.addToNote' })}
 						>
-							<span>+</span>
+							<span className="button-content">
+								<span>+</span>
+								<span className="tooltip">
+									<FormattedMessage id="pdfReader.addToNote" />
+								</span>
+							</span>
 						</button>
 					)}
 				</div>
