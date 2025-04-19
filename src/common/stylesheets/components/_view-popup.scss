@@ -101,104 +101,135 @@
 }
 
 .selection-popup {
-	padding: 8px;
-	gap: 8px;
-	width: 210px;
-	max-width: none;
-
-	.colors {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
-		width: 100%;
-		justify-content: center;
+	background: var(--material-background);
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	min-width: 240px;
+	max-width: 320px;
+	
+	&.with-translation {
+		max-width: 400px;
 	}
 
-	.color-button {
-		width: 20px;
-		height: 20px;
-		padding: 0;
-		flex-shrink: 0;
+	.selection-popup-main {
+		padding: 8px;
 	}
 
-	.tool-toggle {
-		background: var(--fill-quinary);
-		height: 22px;
-		border-radius: 6px;
-		padding: 1px;
+	// 工具栏行
+	.toolbar-row {
 		display: flex;
-		box-shadow: 0px 0px 2px 0px #0000000D inset, 0px 0px 4px 0px #0000000D inset, 0px 0px 2px 0px #0000000D inset;
-
-		.highlight, .underline, .translate {
-			height: 20px;
-			flex: 1;
+		align-items: center;
+		gap: 8px;
+		
+		.tools-group {
 			display: flex;
-			justify-content: center;
-			align-items: center;
-			border-radius: 6px;
-			color: var(--fill-secondary);
-			border: 0.5px solid transparent;
+			gap: 4px;
+			padding-right: 8px;
+			border-right: 1px solid var(--color-panedivider);
+		}
 
-			&.active, &:active, &.active-pseudo-class-fix {
-				background: var(--material-button, #FFFFFF);
-				border: 0.5px solid var(--fill-senary, #00000005);
-				box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05), 0px 0.5px 2.5px 0px rgba(0, 0, 0, 0.30);
+		.colors-group {
+			display: flex;
+			gap: 4px;
+			flex-wrap: wrap;
+			max-width: 120px;
+		}
+
+		.tool-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			
+			&:hover {
+				background: var(--fill-quinary);
+			}
+			
+			&.active {
+				background: var(--material-button);
+				color: var(--material-button-text);
 			}
 
-			&:active:not(.active), &.active-pseudo-class-fix:not(.active) {
-				background-color: var(--color-button50);
-				z-index: 1;
+			svg {
+				width: 16px;
+				height: 16px;
+			}
+		}
+
+		.color-btn {
+			width: 24px;
+			height: 24px;
+			border-radius: 4px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			
+			&:hover {
+				transform: scale(1.1);
+			}
+		}
+
+		.add-note-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin-left: auto;
+			background: var(--fill-quinary);
+			
+			span {
+				font-size: 18px;
+				font-weight: bold;
 			}
 		}
 	}
 
-	.wide-button {
-		background: var(--material-button);
-		text-align: center;
-		box-shadow: 0px 0px 0px 0.5px rgba(0, 0, 0, 0.05), 0px 0.5px 2.5px 0px rgba(0, 0, 0, 0.30);
-		width: 100%;
-		color: var(--fill-primary);
-		height: 22px;
-	}
-
-	.translation-result {
-		width: 100%;
-		transition: opacity 0.2s ease-in-out;
+	// 翻译面板
+	.translation-panel {
+		margin-top: 8px;
+		padding: 12px;
+		border-top: 1px solid var(--color-panedivider);
 		
 		.translation-content {
-			color: var(--fill-primary);
-			font-size: 14px;
-			line-height: 1.4;
-			max-height: 200px;
+			font-size: 13px;
+			line-height: 1.5;
+			max-height: 150px;
 			overflow-y: auto;
-			word-wrap: break-word;
-			white-space: pre-wrap;
+			margin-bottom: 8px;
+			padding: 4px;
+			background: var(--fill-quinary);
+			border-radius: 4px;
 		}
-	}
 
-	.translation-loading {
-		margin-top: 8px;
-		padding: 8px;
-		background: var(--fill-quinary);
-		border-radius: 6px;
-		text-align: center;
-		color: var(--fill-secondary);
-		font-size: 14px;
-		animation: pulse 1.5s infinite ease-in-out;
-	}
-	
-	@keyframes pulse {
-		0% { opacity: 0.6; }
-		50% { opacity: 1; }
-		100% { opacity: 0.6; }
-	}
+		.translation-actions {
+			display: flex;
+			gap: 8px;
+			
+			button {
+				flex: 1;
+				padding: 6px;
+				border-radius: 4px;
+				font-size: 13px;
+				
+				&.copy-btn {
+					background: var(--material-button);
+					color: var(--material-button-text);
+				}
+				
+				&.close-btn {
+					background: var(--fill-quinary);
+				}
+			}
+		}
 
-	.custom-sections {
-		padding-top: 5px;
-
-		.section {
-			padding: 5px 0;
-			border-top: 1px solid #d7dad7;
+		.translation-loading {
+			text-align: center;
+			color: var(--fill-secondary);
+			padding: 8px;
 		}
 	}
 }
@@ -359,5 +390,20 @@
 	
 	.selection-popup {
 		z-index: 10001 !important; // 确保它比工具栏的浮动按钮层级更高
+	}
+}
+
+// 响应式设计
+@media (max-width: 500px) {
+	.selection-popup {
+		position: fixed;
+		bottom: 20px;
+		left: 50% !important;
+		transform: translateX(-50%);
+		width: calc(100% - 32px);
+		
+		&.with-translation {
+			max-width: 440px;
+		}
 	}
 }
