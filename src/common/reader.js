@@ -277,6 +277,7 @@ class Reader {
 							onZoomIn={this.zoomIn.bind(this)}
 							onZoomOut={this.zoomOut.bind(this)}
 							onZoomReset={this.zoomReset.bind(this)}
+							onZoomPageWidth={this.zoomPageWidth.bind(this)}
 							onNavigateBack={this.navigateBack.bind(this)}
 							onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
 							onNavigateToNextPage={this.navigateToNextPage.bind(this)}

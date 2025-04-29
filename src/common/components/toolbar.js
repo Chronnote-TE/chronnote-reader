@@ -582,6 +582,7 @@ Toolbar.propTypes = {
 	onZoomIn: PropTypes.func,
 	enableZoomReset: PropTypes.bool,
 	onZoomReset: PropTypes.func,
+	onFitToWidth: PropTypes.func,
 	appearancePopup: PropTypes.bool,
 	onToggleAppearancePopup: PropTypes.func,
 	enableNavigateBack: PropTypes.bool,

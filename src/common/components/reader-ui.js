@@ -213,6 +213,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onZoomIn={props.onZoomIn}
 				onZoomOut={props.onZoomOut}
 				onZoomReset={props.onZoomReset}
+				onFitToWidth={props.onZoomPageWidth}
 				onNavigateBack={props.onNavigateBack}
 				onNavigateToPreviousPage={props.onNavigateToPreviousPage}
 				onNavigateToNextPage={props.onNavigateToNextPage}
