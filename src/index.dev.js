@@ -127,6 +127,179 @@ async function createReader() {
 		onPageClick(pageNumber) {
 			console.log('Page clicked:', pageNumber);
 			// 这里可以添加更多页面点击的处理逻辑
+		},
+		onScreenshot(imageData, pageIndex, rect) {
+			console.log('Screenshot captured:', { pageIndex, rect });
+
+			// 检测是否为暗色模式
+			const isDarkMode = document.documentElement.getAttribute('data-color-scheme') === 'dark';
+
+			// 创建一个临时链接来下载截图
+			const link = document.createElement('a');
+			link.href = imageData;
+			link.download = `screenshot-page-${pageIndex + 1}.png`;
+
+			// 创建一个预览元素
+			const preview = document.createElement('div');
+			preview.style.position = 'fixed';
+			preview.style.top = '20px';
+			preview.style.right = '20px';
+			preview.style.padding = '16px';
+			preview.style.background = isDarkMode ? '#2b2a33' : 'white';
+			preview.style.color = isDarkMode ? '#eee' : '#333';
+			preview.style.boxShadow = isDarkMode
+				? '0 4px 16px rgba(0, 0, 0, 0.4)'
+				: '0 4px 16px rgba(0, 0, 0, 0.15)';
+			preview.style.borderRadius = '12px';
+			preview.style.zIndex = '9999';
+			preview.style.display = 'flex';
+			preview.style.flexDirection = 'column';
+			preview.style.alignItems = 'center';
+			preview.style.gap = '12px';
+			preview.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+			preview.style.border = isDarkMode ? '1px solid #444' : '1px solid rgba(0,0,0,0.1)';
+
+			// 添加标题
+			const title = document.createElement('div');
+			title.textContent = `截图 - 第 ${pageIndex + 1} 页`;
+			title.style.fontWeight = 'bold';
+			title.style.fontSize = '14px';
+			title.style.marginBottom = '4px';
+
+			// 添加预览图像
+			const img = document.createElement('img');
+			img.src = imageData;
+			img.style.maxWidth = '320px';
+			img.style.maxHeight = '240px';
+			img.style.objectFit = 'contain';
+			img.style.border = isDarkMode ? '1px solid #444' : '1px solid #eee';
+			img.style.borderRadius = '6px';
+			img.style.backgroundColor = isDarkMode ? '#1c1b22' : '#f9f9f9';
+			img.style.padding = '4px';
+
+			// 添加操作按钮
+			const actions = document.createElement('div');
+			actions.style.display = 'flex';
+			actions.style.gap = '12px';
+			actions.style.marginTop = '4px';
+
+			// 下载按钮
+			const downloadBtn = document.createElement('button');
+			downloadBtn.textContent = '下载';
+			downloadBtn.style.padding = '8px 16px';
+			downloadBtn.style.background = isDarkMode ? '#0df' : '#0a6cf5';
+			downloadBtn.style.color = 'white';
+			downloadBtn.style.border = 'none';
+			downloadBtn.style.borderRadius = '6px';
+			downloadBtn.style.cursor = 'pointer';
+			downloadBtn.style.fontWeight = '500';
+			downloadBtn.style.transition = 'all 0.2s ease';
+			downloadBtn.onmouseover = () => {
+				downloadBtn.style.transform = 'translateY(-1px)';
+				downloadBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+			};
+			downloadBtn.onmouseout = () => {
+				downloadBtn.style.transform = 'translateY(0)';
+				downloadBtn.style.boxShadow = 'none';
+			};
+			downloadBtn.onclick = () => {
+				link.click();
+				// 显示下载成功提示
+				const toast = document.createElement('div');
+				toast.textContent = '截图已保存';
+				toast.style.position = 'fixed';
+				toast.style.bottom = '20px';
+				toast.style.left = '50%';
+				toast.style.transform = 'translateX(-50%)';
+				toast.style.padding = '8px 16px';
+				toast.style.background = isDarkMode ? '#333' : '#333';
+				toast.style.color = 'white';
+				toast.style.borderRadius = '20px';
+				toast.style.zIndex = '10000';
+				toast.style.opacity = '0';
+				toast.style.transition = 'opacity 0.3s ease';
+				document.body.appendChild(toast);
+
+				// 淡入
+				setTimeout(() => {
+					toast.style.opacity = '1';
+				}, 10);
+
+				// 2秒后淡出并移除
+				setTimeout(() => {
+					toast.style.opacity = '0';
+					setTimeout(() => {
+						if (document.body.contains(toast)) {
+							document.body.removeChild(toast);
+						}
+					}, 300);
+				}, 2000);
+			};
+
+			// 关闭按钮
+			const closeBtn = document.createElement('button');
+			closeBtn.textContent = '关闭';
+			closeBtn.style.padding = '8px 16px';
+			closeBtn.style.background = isDarkMode ? '#444' : '#f5f5f5';
+			closeBtn.style.color = isDarkMode ? '#eee' : '#333';
+			closeBtn.style.border = isDarkMode ? '1px solid #555' : '1px solid #ddd';
+			closeBtn.style.borderRadius = '6px';
+			closeBtn.style.cursor = 'pointer';
+			closeBtn.style.transition = 'all 0.2s ease';
+			closeBtn.onmouseover = () => {
+				closeBtn.style.background = isDarkMode ? '#555' : '#e8e8e8';
+			};
+			closeBtn.onmouseout = () => {
+				closeBtn.style.background = isDarkMode ? '#444' : '#f5f5f5';
+			};
+			closeBtn.onclick = () => {
+				// 添加淡出效果
+				preview.style.opacity = '0';
+				preview.style.transform = 'scale(0.95)';
+
+				// 等待动画完成后移除
+				setTimeout(() => {
+					if (document.body.contains(preview)) {
+						document.body.removeChild(preview);
+					}
+				}, 300);
+			};
+
+			// 添加按钮到操作区
+			actions.appendChild(downloadBtn);
+			actions.appendChild(closeBtn);
+
+			// 添加元素到预览
+			preview.appendChild(title);
+			preview.appendChild(img);
+			preview.appendChild(actions);
+
+			// 添加预览到页面，并添加淡入效果
+			preview.style.opacity = '0';
+			preview.style.transform = 'scale(0.95)';
+			document.body.appendChild(preview);
+
+			// 触发淡入效果
+			setTimeout(() => {
+				preview.style.opacity = '1';
+				preview.style.transform = 'scale(1)';
+			}, 10);
+
+			// 8秒后自动关闭预览
+			setTimeout(() => {
+				if (document.body.contains(preview)) {
+					// 添加淡出效果
+					preview.style.opacity = '0';
+					preview.style.transform = 'scale(0.95)';
+
+					// 等待动画完成后移除
+					setTimeout(() => {
+						if (document.body.contains(preview)) {
+							document.body.removeChild(preview);
+						}
+					}, 300);
+				}
+			}, 8000);
 		}
 	});
 	reader.enableAddToNote(true);

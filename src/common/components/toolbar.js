@@ -1,33 +1,25 @@
 import cx from 'classnames';
 import {
-	ChevronDown,
-	ChevronLeft,
-	ChevronUp,
+	Camera,
+	Eraser,
 	FileText,
 	Highlighter,
 	ImagePlus,
 	Maximize,
+	MoreHorizontal,
 	PanelRightClose,
 	Pencil,
+	Sparkles,
 	StickyNote,
-	Type,
 	Underline,
 	ZoomIn,
-	ZoomOut,
-	Eraser,
-	Search,
-	ChevronDown as ChevronDownSmall,
-	X,
-	Columns2,
-	Rows2,
-	MoreHorizontal
+	ZoomOut
 } from 'lucide-react';
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
-import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useIntl } from 'react-intl';
 import { ReaderContext } from '../reader';
 import CustomSections from './common/custom-sections';
-import { IconColor20 } from './common/icons';
 import './toolbar.css';
 
 function Toolbar({ visible = true, ...props }) {
@@ -156,6 +148,16 @@ function Toolbar({ visible = true, ...props }) {
 				onClick={() => handleToolClick('image')}
 				data-l10n-id="pdfReader-toolbar-area"
 			><ImagePlus size={18} strokeWidth={1.5} /></button>
+			{props.onScreenshot && (
+				<button
+					tabIndex={-1}
+					className={cx('toolbar-button screenshot', { active: props.tool.type === 'screenshot' })}
+					title={intl.formatMessage({ id: 'pdfReader.screenshot' }, { defaultMessage: 'Take Screenshot' })}
+					disabled={props.readOnly}
+					onClick={() => handleToolClick('screenshot')}
+					data-l10n-id="pdfReader-toolbar-screenshot"
+				><Sparkles size={18} strokeWidth={1.5} /></button>
+			)}
 			<button
 				tabIndex={-1}
 				className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
@@ -467,6 +469,19 @@ function Toolbar({ visible = true, ...props }) {
 											<ImagePlus size={16} strokeWidth={1.5} />
 											<span>{intl.formatMessage({ id: 'pdfReader.selectArea' })}</span>
 										</button>
+										{props.onScreenshot && (
+											<button
+												tabIndex={-1}
+												className={cx('more-menu-button', { active: props.tool.type === 'screenshot' })}
+												onClick={() => {
+													handleToolClick('screenshot');
+													setShowMoreMenu(false);
+												}}
+											>
+												<Camera size={16} strokeWidth={1.5} />
+												<span>{intl.formatMessage({ id: 'pdfReader.screenshot' }, { defaultMessage: 'Take Screenshot' })}</span>
+											</button>
+										)}
 										<button
 											tabIndex={-1}
 											className={cx('more-menu-button', { active: ['ink', 'eraser'].includes(props.tool.type) })}
@@ -583,6 +598,7 @@ Toolbar.propTypes = {
 	enableZoomReset: PropTypes.bool,
 	onZoomReset: PropTypes.func,
 	onFitToWidth: PropTypes.func,
+	onScreenshot: PropTypes.func,
 	appearancePopup: PropTypes.bool,
 	onToggleAppearancePopup: PropTypes.func,
 	enableNavigateBack: PropTypes.bool,

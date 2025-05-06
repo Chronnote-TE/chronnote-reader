@@ -105,6 +105,8 @@ class PDFView {
 		this._onKeyDown = options.onKeyDown;
 		this._onFocusAnnotation = options.onFocusAnnotation;
 		this._onClick = options.onClick; // Add onClick handler
+		this._onScreenshot = options.onScreenshot; // Add onScreenshot handler
+		this._onChangeTool = options.onChangeTool; // Add onChangeTool handler
 
 		this._onTabOut = options.onTabOut;
 
@@ -790,6 +792,30 @@ class PDFView {
 	}
 
 	setTool(tool) {
+		// 如果之前的工具是截图工具，移除所有选择框和容器
+		if (this._tool && this._tool.type === 'screenshot') {
+			// 移除所有页面上的选择框和容器
+			const selectionRects = this._iframeWindow.document.querySelectorAll('.screenshot-selection-rect');
+			selectionRects.forEach(rect => rect.remove());
+
+			// 移除所有页面上的选择容器（包含选择框和控制按钮）
+			const selectionContainers = this._iframeWindow.document.querySelectorAll('.screenshot-selection-container');
+			selectionContainers.forEach(container => {
+				// 添加淡出效果
+				container.style.opacity = '0';
+				container.style.transform = 'scale(0.95)';
+
+				// 等待动画完成后移除
+				setTimeout(() => {
+					container.remove();
+				}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
+			});
+
+			// 移除所有控制按钮容器
+			const controlsContainers = this._iframeWindow.document.querySelectorAll('.screenshot-controls');
+			controlsContainers.forEach(controls => controls.remove());
+		}
+
 		if (tool.type === 'hand') {
 			this._iframeWindow.PDFViewerApplication.pdfCursorTools.switchTool(1);
 		}
@@ -1704,6 +1730,9 @@ class PDFView {
 			else if (this._tool.type === 'image') {
 				action = { type: 'image' };
 			}
+			else if (this._tool.type === 'screenshot') {
+				action = { type: 'screenshot' };
+			}
 			else if (this._tool.type === 'text') {
 				action = { type: 'text' };
 			}
@@ -1767,6 +1796,9 @@ class PDFView {
 				cursor = 'move';
 			}
 			else if (action.type === 'ink') {
+				cursor = 'crosshair';
+			}
+			else if (action.type === 'image' || action.type === 'screenshot') {
 				cursor = 'crosshair';
 			}
 			else if (action.type === 'erase') {
@@ -2369,12 +2401,12 @@ class PDFView {
 		else if (action.type === 'drag' && dragging) {
 			action.triggered = true;
 		}
-		else if (action.type === 'image') {
+		else if (action.type === 'image' || action.type === 'screenshot') {
 			let r1 = this.pointerDownPosition.rects[0];
 			let r2 = originalPagePosition.rects[0];
 			let [left, bottom, right, top] = page.originalPage.viewport.viewBox;
 			action.annotation = {
-				type: 'image',
+				type: action.type,
 				color: this._tool.color,
 				pageLabel: this._getPageLabel(this.pointerDownPosition.pageIndex, true),
 				position: {
@@ -2387,6 +2419,59 @@ class PDFView {
 					]]
 				}
 			};
+
+			// 显示选择框
+			if (action.type === 'screenshot') {
+				// 获取当前页面的div元素
+				const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[this.pointerDownPosition.pageIndex].div;
+
+				// 获取或创建选择容器
+				let selectionContainer = pageDiv.querySelector('.screenshot-selection-container');
+				if (!selectionContainer) {
+					// 创建一个包含选择框的容器
+					selectionContainer = document.createElement('div');
+					selectionContainer.className = 'screenshot-selection-container';
+					selectionContainer.style.position = 'absolute';
+					selectionContainer.style.zIndex = '1000';
+					selectionContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+					selectionContainer.style.opacity = '1';
+					selectionContainer.style.transform = 'scale(1)';
+
+					// 创建选择框 - 作为容器的一部分
+					const selectionBox = document.createElement('div');
+					selectionBox.className = 'screenshot-selection-box';
+					selectionBox.style.position = 'absolute';
+					selectionBox.style.left = '0';
+					selectionBox.style.top = '0';
+					selectionBox.style.width = '100%';
+					selectionBox.style.height = '100%';
+					selectionBox.style.border = '2px solid #6c5ce7';
+					selectionBox.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
+					selectionBox.style.backgroundColor = 'transparent';
+					selectionBox.style.boxSizing = 'border-box';
+
+					// 添加选择框到容器
+					selectionContainer.appendChild(selectionBox);
+
+					// 添加容器到页面
+					pageDiv.appendChild(selectionContainer);
+				}
+
+				// 计算选择框的位置和大小
+				const viewport = page.originalPage.viewport;
+				const [x1, y1] = viewport.convertToViewportPoint(action.annotation.position.rects[0][0], action.annotation.position.rects[0][1]);
+				const [x2, y2] = viewport.convertToViewportPoint(action.annotation.position.rects[0][2], action.annotation.position.rects[0][3]);
+
+				// 更新选择容器的位置和大小
+				selectionContainer.style.left = `${Math.min(x1, x2)}px`;
+				selectionContainer.style.top = `${Math.min(y1, y2)}px`;
+				selectionContainer.style.width = `${Math.abs(x2 - x1)}px`;
+				selectionContainer.style.height = `${Math.abs(y2 - y1)}px`;
+				selectionContainer.style.display = 'block';
+				selectionContainer.style.visibility = 'visible';
+				selectionContainer.style.opacity = '1';
+			}
+
 			action.triggered = true;
 		}
 		else if (action.type === 'ink') {
@@ -2508,6 +2593,290 @@ class PDFView {
 						if (width >= MIN_IMAGE_ANNOTATION_SIZE && height >= MIN_IMAGE_ANNOTATION_SIZE) {
 							action.annotation.sortIndex = getSortIndex(this._pdfPages, action.annotation.position);
 							this._onAddAnnotation(action.annotation);
+						}
+					}
+					else if (action.type === 'screenshot' && action.annotation) {
+						let rect = action.annotation.position.rects[0];
+						let width = rect[2] - rect[0];
+						let height = rect[3] - rect[1];
+						if (width >= MIN_IMAGE_ANNOTATION_SIZE && height >= MIN_IMAGE_ANNOTATION_SIZE) {
+							// 获取当前页面的div元素
+							const pageIndex = action.annotation.position.pageIndex;
+							const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex].div;
+							const originalPage = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex];
+							const canvas = originalPage.canvas;
+
+							if (canvas) {
+								// 计算选中区域在canvas中的位置
+								const viewport = originalPage.viewport;
+								const [x1, y1, x2, y2] = action.annotation.position.rects[0];
+								const [viewX1, viewY1] = viewport.convertToViewportPoint(x1, y1);
+								const [viewX2, viewY2] = viewport.convertToViewportPoint(x2, y2);
+
+								// 计算选中区域的宽高
+								const viewWidth = Math.abs(viewX2 - viewX1);
+								const viewHeight = Math.abs(viewY2 - viewY1);
+
+								// 获取选择框 - 确保选择框存在
+								let selectionRect = pageDiv.querySelector('.screenshot-selection-rect');
+								if (!selectionRect) {
+									// 如果选择框不存在，创建一个新的
+									selectionRect = document.createElement('div');
+									selectionRect.className = 'screenshot-selection-rect';
+
+									// 设置选择框的样式
+									selectionRect.style.position = 'absolute';
+									selectionRect.style.left = `${Math.min(viewX1, viewX2)}px`;
+									selectionRect.style.top = `${Math.min(viewY1, viewY2)}px`;
+									selectionRect.style.width = `${viewWidth}px`;
+									selectionRect.style.height = `${viewHeight}px`;
+									selectionRect.style.border = '2px solid #6c5ce7';
+									selectionRect.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
+									selectionRect.style.backgroundColor = 'transparent';
+									selectionRect.style.pointerEvents = 'none';
+									selectionRect.style.zIndex = '1000';
+
+									// 添加选择框到页面
+									pageDiv.appendChild(selectionRect);
+								}
+
+								// 移除已存在的控制按钮（如果有）
+								const existingControls = pageDiv.querySelector('.screenshot-controls');
+								if (existingControls) {
+									existingControls.remove();
+								}
+
+								// 创建一个包含选择框和控制按钮的容器
+								const selectionContainer = document.createElement('div');
+								selectionContainer.className = 'screenshot-selection-container';
+								selectionContainer.style.position = 'absolute';
+								selectionContainer.style.left = `${Math.min(viewX1, viewX2)}px`;
+								selectionContainer.style.top = `${Math.min(viewY1, viewY2)}px`;
+								selectionContainer.style.width = `${viewWidth}px`;
+								selectionContainer.style.height = `${viewHeight}px`;
+								selectionContainer.style.zIndex = '1000';
+								selectionContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+								selectionContainer.style.opacity = '1';
+								selectionContainer.style.transform = 'scale(1)';
+
+								// 创建选择框 - 作为容器的一部分
+								const selectionBox = document.createElement('div');
+								selectionBox.className = 'screenshot-selection-box';
+								selectionBox.style.position = 'absolute';
+								selectionBox.style.left = '0';
+								selectionBox.style.top = '0';
+								selectionBox.style.width = '100%';
+								selectionBox.style.height = '100%';
+								selectionBox.style.border = '2px solid #6c5ce7';
+								selectionBox.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
+								selectionBox.style.backgroundColor = 'transparent';
+								selectionBox.style.boxSizing = 'border-box';
+
+								// 创建控制按钮容器 - 作为容器的一部分
+								const controlsContainer = document.createElement('div');
+								controlsContainer.className = 'screenshot-controls';
+								controlsContainer.style.position = 'absolute';
+								controlsContainer.style.left = '50%';
+								controlsContainer.style.bottom = '-40px';
+								controlsContainer.style.transform = 'translateX(-50%)';
+								controlsContainer.style.display = 'flex';
+								controlsContainer.style.gap = '8px';
+								controlsContainer.style.padding = '8px';
+								controlsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+								controlsContainer.style.borderRadius = '8px';
+								controlsContainer.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.2)';
+								controlsContainer.style.backdropFilter = 'blur(5px)';
+								controlsContainer.style.border = '1px solid rgba(0, 0, 0, 0.05)';
+								controlsContainer.style.zIndex = '1001';
+
+								// 创建确认按钮
+								const confirmButton = document.createElement('button');
+								confirmButton.className = 'confirm';
+
+								// 使用i18n获取翻译文本
+								this._iframeWindow.PDFViewerApplication.l10n.get('general.ok').then(text => {
+									confirmButton.textContent = text || 'Confirm';
+								}).catch(() => {
+									confirmButton.textContent = 'Confirm';
+								});
+
+								confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 0.9)';
+								confirmButton.style.color = 'white';
+								confirmButton.style.border = 'none';
+								confirmButton.style.padding = '0 14px';
+								confirmButton.style.height = '30px';
+								confirmButton.style.borderRadius = '6px';
+								confirmButton.style.cursor = 'pointer';
+								confirmButton.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+								confirmButton.style.fontSize = '13px';
+								confirmButton.style.marginRight = '8px';
+								confirmButton.style.fontWeight = '500';
+								confirmButton.style.transition = 'all 0.2s ease';
+								confirmButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+
+								// 添加悬停效果
+								confirmButton.addEventListener('mouseover', () => {
+									confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 1)';
+									confirmButton.style.boxShadow = '0 2px 5px rgba(108, 92, 231, 0.3)';
+								});
+
+								confirmButton.addEventListener('mouseout', () => {
+									confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 0.9)';
+									confirmButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+								});
+
+								confirmButton.addEventListener('click', () => {
+									// 添加淡出效果
+									selectionContainer.style.opacity = '0';
+									selectionContainer.style.transform = 'scale(0.95)';
+
+									// 使用setTimeout来允许UI更新，显示淡出效果
+									setTimeout(() => {
+										// 创建一个临时canvas来绘制选中区域的内容
+										const tempCanvas = document.createElement('canvas');
+
+										// 设置临时canvas的大小
+										tempCanvas.width = viewWidth * window.devicePixelRatio;
+										tempCanvas.height = viewHeight * window.devicePixelRatio;
+
+										// 获取原始canvas的上下文
+										const ctx = tempCanvas.getContext('2d');
+
+										// 计算在原始canvas中的位置
+										const scale = originalPage.outputScale.sx;
+										const canvasX = Math.min(viewX1, viewX2) * scale;
+										const canvasY = Math.min(viewY1, viewY2) * scale;
+										const canvasWidth = viewWidth * scale;
+										const canvasHeight = viewHeight * scale;
+
+										// 绘制选中区域到临时canvas
+										ctx.drawImage(
+											canvas,
+											canvasX, canvasY, canvasWidth, canvasHeight,
+											0, 0, tempCanvas.width, tempCanvas.height
+										);
+
+										// 绘制注释
+										this.renderPageAnnotationsOnCanvas(tempCanvas, viewport, pageIndex);
+
+										// 获取图像数据
+										const imageData = tempCanvas.toDataURL('image/png');
+
+										// 如果有回调函数，则调用它
+										if (this._onScreenshot) {
+											this._onScreenshot(imageData, pageIndex, rect);
+										}
+
+										// 移除选择容器
+										selectionContainer.remove();
+
+										// 重置工具为指针工具
+										if (this._onChangeTool) {
+											this._onChangeTool({ type: 'pointer' });
+										}
+									}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
+								});
+
+								// 创建取消按钮
+								const cancelButton = document.createElement('button');
+								cancelButton.className = 'cancel';
+
+								// 使用i18n获取翻译文本
+								this._iframeWindow.PDFViewerApplication.l10n.get('general.cancel').then(text => {
+									cancelButton.textContent = text || 'Cancel';
+								}).catch(() => {
+									cancelButton.textContent = 'Cancel';
+								});
+
+								cancelButton.style.backgroundColor = 'rgba(245, 245, 245, 0.9)';
+								cancelButton.style.color = '#333';
+								cancelButton.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+								cancelButton.style.padding = '0 14px';
+								cancelButton.style.height = '30px';
+								cancelButton.style.borderRadius = '6px';
+								cancelButton.style.cursor = 'pointer';
+								cancelButton.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+								cancelButton.style.fontSize = '13px';
+								cancelButton.style.fontWeight = '500';
+								cancelButton.style.transition = 'all 0.2s ease';
+								cancelButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+
+								// 添加悬停效果
+								cancelButton.addEventListener('mouseover', () => {
+									cancelButton.style.backgroundColor = 'rgba(235, 235, 235, 1)';
+									cancelButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
+								});
+
+								cancelButton.addEventListener('mouseout', () => {
+									cancelButton.style.backgroundColor = 'rgba(245, 245, 245, 0.9)';
+									cancelButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
+								});
+
+								cancelButton.addEventListener('click', () => {
+									// 添加淡出效果
+									selectionContainer.style.opacity = '0';
+									selectionContainer.style.transform = 'scale(0.95)';
+
+									// 等待动画完成后移除
+									setTimeout(() => {
+										// 移除选择容器
+										selectionContainer.remove();
+
+										// 重置工具为指针工具
+										if (this._onChangeTool) {
+											this._onChangeTool({ type: 'pointer' });
+										}
+									}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
+								});
+
+								// 添加按钮到控制容器
+								controlsContainer.appendChild(confirmButton);
+								controlsContainer.appendChild(cancelButton);
+
+								// 添加选择框和控制按钮到容器
+								selectionContainer.appendChild(selectionBox);
+								selectionContainer.appendChild(controlsContainer);
+
+								// 添加整个容器到页面
+								pageDiv.appendChild(selectionContainer);
+
+								// 添加点击事件监听器到文档，用于处理点击选择框外部的情况
+								const handleOutsideClick = (e) => {
+									// 检查点击是否在选择框或控制按钮之外
+									if (!selectionContainer.contains(e.target) &&
+										!e.target.closest('.screenshot-selection-container') &&
+										!e.target.closest('.screenshot-controls')) {
+										// 移除事件监听器
+										this._iframeWindow.document.removeEventListener('mousedown', handleOutsideClick);
+
+										// 添加淡出效果
+										selectionContainer.style.opacity = '0';
+										selectionContainer.style.transform = 'scale(0.95)';
+
+										// 等待动画完成后移除
+										setTimeout(() => {
+											// 移除选择容器
+											selectionContainer.remove();
+
+											// 重置工具为指针工具
+											if (this._onChangeTool) {
+												this._onChangeTool({ type: 'pointer' });
+											}
+										}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
+									}
+								};
+
+								// 添加事件监听器，延迟一点以避免立即触发
+								setTimeout(() => {
+									this._iframeWindow.document.addEventListener('mousedown', handleOutsideClick);
+								}, 100);
+
+								// 保存对选择容器的引用，以便在取消时移除
+								if (selectionRect) {
+									selectionRect.remove();
+								}
+								selectionRect = selectionContainer;
+							}
 						}
 					}
 					else if (action.type === 'ink' && action.annotation) {
@@ -2637,6 +3006,36 @@ class PDFView {
 	cancel() {
 		this.setSelection();
 		this._hover = null;
+
+		// 如果当前操作是截图，移除选择容器
+		if (this.action && this.action.type === 'screenshot' && this.pointerDownPosition) {
+			const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[this.pointerDownPosition.pageIndex].div;
+
+			// 移除选择容器（包含选择框和控制按钮）
+			const selectionContainer = pageDiv.querySelector('.screenshot-selection-container');
+			if (selectionContainer) {
+				// 添加淡出效果
+				selectionContainer.style.opacity = '0';
+				selectionContainer.style.transform = 'scale(0.95)';
+
+				// 等待动画完成后移除
+				setTimeout(() => {
+					selectionContainer.remove();
+				}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
+			}
+
+			// 为了向后兼容，也检查旧的选择框和控制按钮
+			const selectionRect = pageDiv.querySelector('.screenshot-selection-rect');
+			if (selectionRect) {
+				selectionRect.remove();
+			}
+
+			const controlsContainer = pageDiv.querySelector('.screenshot-controls');
+			if (controlsContainer) {
+				controlsContainer.remove();
+			}
+		}
+
 		this.action = null;
 		this.updateCursor();
 		this._render();

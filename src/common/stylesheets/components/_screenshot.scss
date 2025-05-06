@@ -1,0 +1,57 @@
+.screenshot-selection-rect {
+  position: absolute;
+  border: 2px solid #6c5ce7;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3);
+  background-color: transparent;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.screenshot-controls {
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: var(--material-background);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1001;
+}
+
+.screenshot-controls button {
+  height: 28px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+
+  &.confirm {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.17) 0%, rgba(255, 255, 255, 0.00) 100%), var(--accent-blue);
+    color: var(--accent-white);
+
+    &:hover {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.08) 100%), var(--accent-blue);
+    }
+
+    &:active {
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.05)), darken(#0a6cf5, 6%);
+    }
+  }
+
+  &.cancel {
+    background: var(--material-button);
+    color: var(--material-button-text);
+
+    &:hover {
+      background: var(--material-button-hover, var(--material-button));
+    }
+
+    &:active {
+      background: var(--fill-quarternary);
+    }
+  }
+}

@@ -76,6 +76,7 @@ class Reader {
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
 		this._onClick = options.onClick;
+		this._onScreenshot = options.onScreenshot;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -115,6 +116,10 @@ class Reader {
 			},
 			image: {
 				type: 'image',
+				color: ANNOTATION_COLORS[0][1],
+			},
+			screenshot: {
+				type: 'screenshot',
 				color: ANNOTATION_COLORS[0][1],
 			},
 			text: {
@@ -278,6 +283,7 @@ class Reader {
 							onZoomOut={this.zoomOut.bind(this)}
 							onZoomReset={this.zoomReset.bind(this)}
 							onZoomPageWidth={this.zoomPageWidth.bind(this)}
+							onScreenshot={this.takeScreenshot.bind(this)}
 							onNavigateBack={this.navigateBack.bind(this)}
 							onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
 							onNavigateToNextPage={this.navigateToNextPage.bind(this)}
@@ -1065,7 +1071,9 @@ class Reader {
 			onFocusAnnotation,
 			getLocalizedString,
 			onTranslate,
-			onClick: this._onClick
+			onClick: this._onClick,
+			onScreenshot: this._onScreenshot,
+			onChangeTool: this.setTool.bind(this)
 		};
 
 		if (this._type === 'pdf') {
@@ -1225,6 +1233,44 @@ class Reader {
 	zoomPageHeight() {
 		this._ensureType('pdf');
 		this._lastView.zoomPageHeight();
+	}
+
+	/**
+	 * 截取当前视图的截图
+	 * 这不是真正的截图，而是获取当前视图的图像数据并通过回调函数传递
+	 */
+	takeScreenshot() {
+		if (this._type === 'pdf') {
+			// 获取当前页面的canvas元素
+			const pageIndex = this._lastView._iframeWindow.PDFViewerApplication.pdfViewer.currentPageNumber - 1;
+			const originalPage = this._lastView._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex];
+			const canvas = originalPage.canvas;
+
+			if (canvas) {
+				// 创建一个新的canvas来绘制页面内容和注释
+				const tempCanvas = document.createElement('canvas');
+				tempCanvas.width = canvas.width;
+				tempCanvas.height = canvas.height;
+
+				// 绘制页面内容
+				const ctx = tempCanvas.getContext('2d');
+				ctx.drawImage(canvas, 0, 0);
+
+				// 绘制注释
+				this._lastView.renderPageAnnotationsOnCanvas(tempCanvas, originalPage.viewport, pageIndex);
+
+				// 获取图像数据
+				const imageData = tempCanvas.toDataURL('image/png');
+
+				// 如果有回调函数，则调用它
+				if (this._onScreenshot) {
+					this._onScreenshot(imageData, pageIndex);
+				}
+
+				return imageData;
+			}
+		}
+		return null;
 	}
 
 	async navigate(location, options) {
