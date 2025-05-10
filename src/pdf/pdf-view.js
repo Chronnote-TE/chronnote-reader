@@ -2693,12 +2693,13 @@ class PDFView {
 								const confirmButton = document.createElement('button');
 								confirmButton.className = 'confirm';
 
-								// 使用i18n获取翻译文本
-								this._iframeWindow.PDFViewerApplication.l10n.get('general.ok').then(text => {
-									confirmButton.textContent = text || 'Confirm';
-								}).catch(() => {
+								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
+								// 尝试从Reader实例获取本地化字符串
+								if (window._reader && typeof window._reader._getString === 'function') {
+									confirmButton.textContent = window._reader._getString('general.ok') || 'Confirm';
+								} else {
 									confirmButton.textContent = 'Confirm';
-								});
+								}
 
 								confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 0.9)';
 								confirmButton.style.color = 'white';
@@ -2781,12 +2782,13 @@ class PDFView {
 								const cancelButton = document.createElement('button');
 								cancelButton.className = 'cancel';
 
-								// 使用i18n获取翻译文本
-								this._iframeWindow.PDFViewerApplication.l10n.get('general.cancel').then(text => {
-									cancelButton.textContent = text || 'Cancel';
-								}).catch(() => {
+								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
+								// 尝试从Reader实例获取本地化字符串
+								if (window._reader && typeof window._reader._getString === 'function') {
+									cancelButton.textContent = window._reader._getString('general.cancel') || 'Cancel';
+								} else {
 									cancelButton.textContent = 'Cancel';
-								});
+								}
 
 								cancelButton.style.backgroundColor = 'rgba(245, 245, 245, 0.9)';
 								cancelButton.style.color = '#333';

@@ -2,6 +2,7 @@ export default {
 	'zotero.appName': 'Zotero',
 	'general.etAl': 'et al.',
 	'general.back': 'Back',
+	'general.ok': 'OK',
 	'general.thanksForHelpingImprove': 'Thanks for helping to improve %S!',
 	'general.tryAgain': 'Try Again',
 	'general.updateAvailable': 'Update Available',
