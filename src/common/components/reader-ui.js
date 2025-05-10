@@ -58,6 +58,7 @@ function View(props) {
 					onAddAnnotation={props.onAddAnnotation}
 					onChangeTextSelectionAnnotationMode={props.onChangeTextSelectionAnnotationMode}
 					onTranslate={props.onTranslate}
+					onAskAI={props.onAskAI}
 					onDeleteAnnotation={props.onDeleteAnnotations}
 				/>
 			}

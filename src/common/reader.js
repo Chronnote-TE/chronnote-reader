@@ -72,6 +72,7 @@ class Reader {
 		this._onSetZoom = options.onSetZoom;
 		this._onMenuButtonClick = options.onMenuButtonClick;
 		this._onTranslate = options.onTranslate;
+		this._onAskAI = options.onAskAI;
 		this._onClickClose = options.onClickClose;
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
@@ -1013,10 +1014,22 @@ class Reader {
 			}
 			: null;
 
-		// 打印检查onTranslate
+		// 添加AI回调函数
+		let onAskAI = this._onAskAI
+			? (text) => {
+				console.log('Reader中的onAskAI被调用，text:', text);
+				return this._onAskAI(text);
+			}
+			: null;
+
+		// 打印检查onTranslate和onAskAI
 		console.log('Reader中准备传递的onTranslate:', onTranslate);
 		if (onTranslate) {
 			console.log('onTranslate是函数:', typeof onTranslate === 'function');
+		}
+		console.log('Reader中准备传递的onAskAI:', onAskAI);
+		if (onAskAI) {
+			console.log('onAskAI是函数:', typeof onAskAI === 'function');
 		}
 
 		let data;
@@ -1071,6 +1084,7 @@ class Reader {
 			onFocusAnnotation,
 			getLocalizedString,
 			onTranslate,
+			onAskAI,
 			onClick: this._onClick,
 			onScreenshot: this._onScreenshot,
 			onChangeTool: this.setTool.bind(this)

@@ -10,7 +10,7 @@ import { IconColor16 } from '../common/icons';
 
 import IconHighlight from '../../../../res/icons/16/annotate-highlight.svg';
 import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
-import { Copy } from 'lucide-react';
+import { Copy, Sparkles } from 'lucide-react';
 
 function SelectionPopup(props) {
 	const intl = useIntl();
@@ -34,11 +34,20 @@ function SelectionPopup(props) {
 		}
 	}
 
+	function handleAskAI() {
+		// 直接调用AI回调函数，不显示面板
+		if (props.onAskAI && props.params.annotation) {
+			const selectedText = props.params.annotation.text || '';
+			if (selectedText.trim()) {
+				props.onAskAI(selectedText);
+			}
+		}
+	}
+
 	async function handleTranslate() {
 		// 切换翻译状态
 		const newState = !translationVisible;
 		setTranslationVisible(newState);
-
 
 		// 如果关闭翻译面板，则直接返回
 		if (!newState) {
@@ -49,7 +58,6 @@ function SelectionPopup(props) {
 		setTranslating(true);
 		// 确保至少显示一些内容
 		setTranslation("");
-
 
 		try {
 			const selectedText = props.params.annotation.text || '';
@@ -79,7 +87,9 @@ function SelectionPopup(props) {
 
 	return (
 		<ViewPopup
-			className={cx("selection-popup", { "with-translation": translationVisible })}
+			className={cx("selection-popup", {
+				"with-translation": translationVisible
+			})}
 			rect={props.params.rect}
 			uniqueRef={{}}
 			padding={12}
@@ -151,22 +161,20 @@ function SelectionPopup(props) {
 						))}
 					</div>
 
-					{props.enableAddToNote && (
-						<button
-							className="add-note-btn"
-							data-tabstop={1}
-							onClick={handleAddToNote}
-							title={intl.formatMessage({ id: 'pdfReader.addToNote' })}
-							aria-label={intl.formatMessage({ id: 'pdfReader.addToNote' })}
-						>
-							<span className="button-content">
-								<span>+</span>
-								<span className="tooltip">
-									<FormattedMessage id="pdfReader.addToNote" />
-								</span>
+					<button
+						className="add-note-btn"
+						data-tabstop={1}
+						onClick={handleAskAI}
+						title={intl.formatMessage({ id: 'pdfReader.askAI', defaultMessage: 'Ask AI' })}
+						aria-label={intl.formatMessage({ id: 'pdfReader.askAI', defaultMessage: 'Ask AI' })}
+					>
+						<span className="button-content">
+							<Sparkles size={16} />
+							<span className="tooltip">
+								<FormattedMessage id="pdfReader.askAI" defaultMessage="Ask AI" />
 							</span>
-						</button>
-					)}
+						</span>
+					</button>
 				</div>
 			</div>
 
@@ -221,6 +229,7 @@ SelectionPopup.propTypes = {
 	onAddToNote: PropTypes.func,
 	onChangeTextSelectionAnnotationMode: PropTypes.func,
 	onTranslate: PropTypes.func,
+	onAskAI: PropTypes.func,
 	onDeleteAnnotation: PropTypes.func
 };
 

@@ -13,8 +13,8 @@
 }
 
 // Ensure selection popup and its children are visible on all screen sizes
-.selection-popup, 
-.selection-popup .colors, 
+.selection-popup,
+.selection-popup .colors,
 .selection-popup .color-button {
 	display: flex !important;
 	visibility: visible !important;
@@ -107,7 +107,7 @@
 	min-width: 240px;
 	width: 320px;
 	box-sizing: border-box; // 确保padding计入总宽度
-	
+
 	.selection-popup-main {
 		padding: 8px;
 		box-sizing: border-box;
@@ -118,7 +118,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		
+
 		.tools-group {
 			display: flex;
 			gap: 4px;
@@ -142,25 +142,25 @@
 			align-items: center;
 			justify-content: center;
 			transition: background-color 0.2s ease;
-			
+
 			// 默认状态
 			background-color: transparent;
 			color: var(--fill-secondary);
-			
+
 			// Hover 效果 - 确保在任何状态下都生效
 			&:hover {
 				background-color: var(--fill-quinary);
 			}
-			
+
 			// 选中状态
 			&.active {
 				background-color: var(--material-button);
 				color: var(--material-button-text);
-				
+
 				svg {
 					fill: var(--material-button-text);
 				}
-				
+
 				// 选中状态下的 hover 效果
 				&:hover {
 					background-color: var(--material-button-hover, var(--material-button));
@@ -181,7 +181,7 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			
+
 			&:hover {
 				transform: scale(1.1);
 			}
@@ -197,13 +197,13 @@
 			margin-left: auto;
 			background: var(--fill-quinary);
 			position: relative; // 为 tooltip 定位
-			
+
 			.button-content {
 				display: flex;
 				align-items: center;
 				justify-content: center;
 			}
-			
+
 			span {
 				font-size: 18px;
 				font-weight: bold;
@@ -226,7 +226,7 @@
 				opacity: 0;
 				transition: opacity 0.2s ease;
 				font-weight: normal;
-				
+
 				// 添加小三角形
 				&:after {
 					content: '';
@@ -246,12 +246,12 @@
 					opacity: 1;
 				}
 			}
-			
+
 			// 按钮悬停效果
 			&:hover {
 				background: var(--fill-quaternary);
 			}
-			
+
 			&:active {
 				background: var(--fill-tertiary);
 			}
@@ -264,7 +264,7 @@
 		padding: 12px;
 		border-top: 1px solid var(--color-panedivider);
 		box-sizing: border-box;
-		
+
 		.translation-content {
 			font-size: 13px;
 			line-height: 1.5;
@@ -280,7 +280,7 @@
 		.translation-actions {
 			display: flex;
 			gap: 8px;
-			
+
 			.copy-btn {
 				flex: 1;
 				padding: 6px 12px;
@@ -291,38 +291,38 @@
 				background: var(--material-button);
 				color: var(--material-button-text);
 				border: none; // 确保没有边框
-				
+
 				.button-content {
 					display: flex;
 					align-items: center;
 					justify-content: center;
 					gap: 6px; // 图标和文字之间的间距
 				}
-				
+
 				.button-text {
 					line-height: 1; // 确保文字垂直居中
 					margin-top: 1px; // 微调文字位置
 				}
-				
+
 				&:hover {
 					background: var(--material-button-hover, var(--material-button));
 					transform: translateY(-1px);
 				}
-				
+
 				&:active {
 					transform: translateY(0);
 					opacity: 0.9;
 				}
 			}
-			
+
 			.close-btn {
 				background: var(--fill-quinary);
-				
+
 				&:hover {
 					background: var(--fill-quaternary);
 					transform: translateY(-1px);
 				}
-				
+
 				&:active {
 					transform: translateY(0);
 					opacity: 0.9;
@@ -331,6 +331,72 @@
 		}
 
 		.translation-loading {
+			text-align: center;
+			color: var(--fill-secondary);
+			padding: 8px;
+		}
+	}
+
+	// AI面板
+	.ai-panel {
+		margin-top: 8px;
+		padding: 12px;
+		border-top: 1px solid var(--color-panedivider);
+		box-sizing: border-box;
+
+		.ai-content {
+			font-size: 13px;
+			line-height: 1.5;
+			max-height: 150px;
+			overflow-y: auto;
+			margin-bottom: 8px;
+			padding: 4px;
+			background: var(--fill-quinary);
+			border-radius: 4px;
+			box-sizing: border-box;
+			white-space: pre-wrap;
+		}
+
+		.ai-actions {
+			display: flex;
+			gap: 8px;
+
+			.copy-btn {
+				flex: 1;
+				padding: 6px 12px;
+				border-radius: 4px;
+				font-size: 13px;
+				transition: all 0.2s ease;
+				cursor: pointer;
+				background: var(--material-button);
+				color: var(--material-button-text);
+				border: none; // 确保没有边框
+
+				.button-content {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					gap: 6px; // 图标和文字之间的间距
+				}
+
+				.button-text {
+					line-height: 1; // 确保文字垂直居中
+					margin-top: 1px; // 微调文字位置
+				}
+
+				&:hover {
+					background: var(--material-button-hover, var(--material-button));
+					transform: translateY(-1px);
+				}
+
+				&:active {
+					transform: translateY(0);
+					opacity: 0.9;
+				}
+			}
+		}
+
+		.ai-loading {
 			text-align: center;
 			color: var(--fill-secondary);
 			padding: 8px;
@@ -481,7 +547,7 @@
 
 // 确保selection-popup在小屏幕上正常显示（覆盖toolbar.css中的媒体查询规则）
 @media (max-width: 500px) {
-	.view-popup, 
+	.view-popup,
 	.selection-popup,
 	.selection-popup .colors,
 	.selection-popup .color-button,
@@ -491,7 +557,7 @@
 		opacity: 1 !important;
 		background: var(--material-background) !important;
 	}
-	
+
 	.selection-popup {
 		z-index: 10001 !important; // 确保它比工具栏的浮动按钮层级更高
 	}
@@ -505,8 +571,8 @@
 		left: 50% !important;
 		transform: translateX(-50%);
 		width: calc(100% - 32px);
-		
-		&.with-translation {
+
+		&.with-translation, &.with-ai {
 			max-width: 440px;
 		}
 	}
