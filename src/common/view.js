@@ -97,7 +97,8 @@ class View {
 			onSetOutline: this._options.onSetOutline,
 			onTabOut: nop,
 			onKeyDown: nop,
-			onTranslate: this._options.onTranslate
+			onTranslate: this._options.onTranslate,
+			onAskAI: this._options.onAskAI
 		};
 
 		if (this._type === 'epub') {

@@ -39,8 +39,15 @@ function SelectionPopup(props) {
 		if (props.onAskAI && props.params.annotation) {
 			const selectedText = props.params.annotation.text || '';
 			if (selectedText.trim()) {
+				console.log('SelectionPopup中的handleAskAI被调用，text:', selectedText);
 				props.onAskAI(selectedText);
+			} else {
+				console.log('SelectionPopup中的handleAskAI被调用，但没有选中文本');
 			}
+		} else {
+			console.log('SelectionPopup中的handleAskAI被调用，但onAskAI回调不存在或params.annotation不存在');
+			console.log('props.onAskAI:', props.onAskAI);
+			console.log('props.params.annotation:', props.params.annotation);
 		}
 	}
 
