@@ -405,6 +405,7 @@ class Reader {
 							}}
 							onMenuButtonClick={this._handleMenuButtonClick}
 							onTranslate={this._onTranslate}
+							onAskAI={this._onAskAI}
 							onClickClose={this._onClickClose}
 							onClickSplit={this._onClickSplit}
 							onClickVerticalSplit={this._onClickVerticalSplit}

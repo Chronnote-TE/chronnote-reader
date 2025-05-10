@@ -49,7 +49,8 @@ function View(props) {
 				data-proxy={`#${name}-view > iframe`}
 				style={{ position: 'absolute' }}
 			/>
-			{state[name + 'ViewSelectionPopup'] && !state.readOnly &&
+			{state[name + 'ViewSelectionPopup'] && !state.readOnly && (
+				console.log('ReaderUI中的props.onAskAI:', props.onAskAI),
 				<SelectionPopup
 					params={state[name + 'ViewSelectionPopup']}
 					textSelectionAnnotationMode={state.textSelectionAnnotationMode}
@@ -61,7 +62,7 @@ function View(props) {
 					onAskAI={props.onAskAI}
 					onDeleteAnnotation={props.onDeleteAnnotations}
 				/>
-			}
+			)}
 			{state[name + 'ViewAnnotationPopup']
 				&& (
 					(!state.sidebarOpen || state.sidebarView !== 'annotations')

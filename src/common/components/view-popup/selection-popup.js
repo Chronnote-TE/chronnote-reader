@@ -36,6 +36,11 @@ function SelectionPopup(props) {
 
 	function handleAskAI() {
 		// 直接调用AI回调函数，不显示面板
+		console.log('SelectionPopup中的handleAskAI被调用');
+		console.log('props:', props);
+		console.log('props.onAskAI:', props.onAskAI);
+		console.log('props.params:', props.params);
+
 		if (props.onAskAI && props.params.annotation) {
 			const selectedText = props.params.annotation.text || '';
 			if (selectedText.trim()) {
@@ -47,7 +52,7 @@ function SelectionPopup(props) {
 		} else {
 			console.log('SelectionPopup中的handleAskAI被调用，但onAskAI回调不存在或params.annotation不存在');
 			console.log('props.onAskAI:', props.onAskAI);
-			console.log('props.params.annotation:', props.params.annotation);
+			console.log('props.params.annotation:', props.params?.annotation);
 		}
 	}
 

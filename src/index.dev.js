@@ -108,6 +108,124 @@ async function createReader() {
 			// 立即返回一个字符串而不是使用异步
 			return `Translation:\n${text}\n\n这是选中文本的模拟翻译效果，在实际应用中应替换为真实翻译API。`;
 		},
+		onAskAI: function (text) {
+			console.log('===== onAskAI 被调用！=====');
+			console.log('传入的文本:', text);
+
+			// 创建一个弹窗显示选中的文本
+			const isDarkMode = document.documentElement.getAttribute('data-color-scheme') === 'dark';
+
+			// 创建一个预览元素
+			const preview = document.createElement('div');
+			preview.style.position = 'fixed';
+			preview.style.top = '50%';
+			preview.style.left = '50%';
+			preview.style.transform = 'translate(-50%, -50%) scale(0.95)';
+			preview.style.padding = '20px';
+			preview.style.background = isDarkMode ? '#2b2a33' : 'white';
+			preview.style.color = isDarkMode ? '#eee' : '#333';
+			preview.style.boxShadow = isDarkMode
+				? '0 4px 24px rgba(0, 0, 0, 0.5)'
+				: '0 4px 24px rgba(0, 0, 0, 0.2)';
+			preview.style.borderRadius = '12px';
+			preview.style.zIndex = '9999';
+			preview.style.display = 'flex';
+			preview.style.flexDirection = 'column';
+			preview.style.alignItems = 'center';
+			preview.style.gap = '16px';
+			preview.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+			preview.style.border = isDarkMode ? '1px solid #444' : '1px solid rgba(0,0,0,0.1)';
+			preview.style.maxWidth = '600px';
+			preview.style.width = '80%';
+			preview.style.opacity = '0';
+
+			// 添加标题
+			const title = document.createElement('div');
+			title.textContent = 'AI 分析';
+			title.style.fontWeight = 'bold';
+			title.style.fontSize = '18px';
+			title.style.marginBottom = '8px';
+			title.style.width = '100%';
+			title.style.textAlign = 'center';
+
+			// 添加内容区域
+			const content = document.createElement('div');
+			content.style.width = '100%';
+			content.style.padding = '16px';
+			content.style.background = isDarkMode ? '#1c1b22' : '#f9f9f9';
+			content.style.borderRadius = '8px';
+			content.style.maxHeight = '300px';
+			content.style.overflowY = 'auto';
+			content.style.fontSize = '14px';
+			content.style.lineHeight = '1.6';
+			content.style.whiteSpace = 'pre-wrap';
+			content.style.wordBreak = 'break-word';
+
+			// 显示思考中...
+			content.textContent = "AI 思考中...";
+
+			// 模拟 AI 响应
+			setTimeout(() => {
+				content.textContent = `您选择的文本：\n\n"${text}"\n\n分析结果：\n这段文本包含了重要的信息，可以从以下几个方面理解：\n\n1. 主要观点：...\n2. 关键信息：...\n3. 背景知识：...\n\n这是一个模拟的 AI 分析结果，在实际应用中应替换为真实 AI API 的响应。`;
+			}, 1500);
+
+			// 添加操作按钮
+			const actions = document.createElement('div');
+			actions.style.display = 'flex';
+			actions.style.gap = '12px';
+			actions.style.marginTop = '8px';
+			actions.style.width = '100%';
+			actions.style.justifyContent = 'center';
+
+			// 关闭按钮
+			const closeBtn = document.createElement('button');
+			closeBtn.textContent = '关闭';
+			closeBtn.style.padding = '8px 24px';
+			closeBtn.style.background = isDarkMode ? '#444' : '#f5f5f5';
+			closeBtn.style.color = isDarkMode ? '#eee' : '#333';
+			closeBtn.style.border = isDarkMode ? '1px solid #555' : '1px solid #ddd';
+			closeBtn.style.borderRadius = '6px';
+			closeBtn.style.cursor = 'pointer';
+			closeBtn.style.transition = 'all 0.2s ease';
+			closeBtn.style.fontSize = '14px';
+			closeBtn.onmouseover = () => {
+				closeBtn.style.background = isDarkMode ? '#555' : '#e8e8e8';
+			};
+			closeBtn.onmouseout = () => {
+				closeBtn.style.background = isDarkMode ? '#444' : '#f5f5f5';
+			};
+			closeBtn.onclick = () => {
+				// 添加淡出效果
+				preview.style.opacity = '0';
+				preview.style.transform = 'translate(-50%, -50%) scale(0.95)';
+
+				// 等待动画完成后移除
+				setTimeout(() => {
+					if (document.body.contains(preview)) {
+						document.body.removeChild(preview);
+					}
+				}, 300);
+			};
+
+			// 添加按钮到操作区
+			actions.appendChild(closeBtn);
+
+			// 添加元素到预览
+			preview.appendChild(title);
+			preview.appendChild(content);
+			preview.appendChild(actions);
+
+			// 添加预览到页面
+			document.body.appendChild(preview);
+
+			// 触发淡入效果
+			setTimeout(() => {
+				preview.style.opacity = '1';
+				preview.style.transform = 'translate(-50%, -50%) scale(1)';
+			}, 10);
+
+			return "AI 分析已完成";
+		},
 		onClickSplit() {
 			console.log('Split view button clicked');
 			// Here you can implement split view functionality

@@ -107,6 +107,8 @@ class PDFView {
 		this._onClick = options.onClick; // Add onClick handler
 		this._onScreenshot = options.onScreenshot; // Add onScreenshot handler
 		this._onChangeTool = options.onChangeTool; // Add onChangeTool handler
+		this._onTranslate = options.onTranslate; // Add onTranslate handler
+		this._onAskAI = options.onAskAI; // Add onAskAI handler
 
 		this._onTabOut = options.onTabOut;
 
