@@ -148,16 +148,6 @@ function Toolbar({ visible = true, ...props }) {
 				onClick={() => handleToolClick('image')}
 				data-l10n-id="pdfReader-toolbar-area"
 			><ImagePlus size={18} strokeWidth={1.5} /></button>
-			{props.onScreenshot && (
-				<button
-					tabIndex={-1}
-					className={cx('toolbar-button screenshot', { active: props.tool.type === 'screenshot' })}
-					title={intl.formatMessage({ id: 'pdfReader.screenshot' }, { defaultMessage: 'Take Screenshot' })}
-					disabled={props.readOnly}
-					onClick={() => handleToolClick('screenshot')}
-					data-l10n-id="pdfReader-toolbar-screenshot"
-				><Sparkles size={18} strokeWidth={1.5} /></button>
-			)}
 			<button
 				tabIndex={-1}
 				className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
@@ -166,6 +156,22 @@ function Toolbar({ visible = true, ...props }) {
 				onClick={() => handleToolClick('ink')}
 				data-l10n-id="pdfReader-toolbar-draw"
 			><Pencil size={18} strokeWidth={1.5} /></button>
+		</div>
+	);
+
+	// Define special tools that will always be visible in all screen sizes
+	const specialTools = (
+		<div className="special-tools-container">
+			{props.onScreenshot && (
+				<button
+					tabIndex={-1}
+					className={cx('toolbar-button screenshot', { active: props.tool.type === 'screenshot' })}
+					title={intl.formatMessage({ id: 'pdfReader.screenshot' }, { defaultMessage: 'Take Screenshot' })}
+					disabled={props.readOnly}
+					onClick={() => handleToolClick('screenshot')}
+					data-l10n-id="pdfReader-toolbar-screenshot"
+				><Sparkles size={isVerySmallScreen ? 20 : 18} strokeWidth={1.5} /></button>
+			)}
 		</div>
 	);
 
@@ -196,6 +202,9 @@ function Toolbar({ visible = true, ...props }) {
 		>
 			{/* 工具栏主容器 */}
 			<div className="end toolbar-group">
+				{/* Special tools that are always visible */}
+				{props.type === 'pdf' && specialTools}
+
 				{/* 高亮、下划线和笔记工具 - 仅在较大屏幕和中等屏幕显示 */}
 				{!shouldShowAnnotationToolsInMoreMenu && (
 					<div className="annotation-tools">
@@ -469,19 +478,6 @@ function Toolbar({ visible = true, ...props }) {
 											<ImagePlus size={16} strokeWidth={1.5} />
 											<span>{intl.formatMessage({ id: 'pdfReader.selectArea' })}</span>
 										</button>
-										{props.onScreenshot && (
-											<button
-												tabIndex={-1}
-												className={cx('more-menu-button', { active: props.tool.type === 'screenshot' })}
-												onClick={() => {
-													handleToolClick('screenshot');
-													setShowMoreMenu(false);
-												}}
-											>
-												<Camera size={16} strokeWidth={1.5} />
-												<span>{intl.formatMessage({ id: 'pdfReader.screenshot' }, { defaultMessage: 'Take Screenshot' })}</span>
-											</button>
-										)}
 										<button
 											tabIndex={-1}
 											className={cx('more-menu-button', { active: ['ink', 'eraser'].includes(props.tool.type) })}

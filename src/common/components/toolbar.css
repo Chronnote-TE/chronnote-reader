@@ -58,6 +58,52 @@
   padding: 0 4px;
 }
 
+/* 高亮显示特殊工具按钮 */
+.toolbar-button.screenshot svg,
+.more-menu-button.screenshot svg,
+.toolbar-button.camera svg,
+.more-menu-button.camera svg {
+  color: #6c5ce7 !important;
+  stroke-width: 2px;
+}
+
+/* 确保特殊工具按钮在所有屏幕尺寸下都显示 */
+.special-tools-container {
+  display: flex !important;
+  align-items: center;
+  gap: 2px;
+  margin-right: 4px;
+}
+
+/* 在小屏幕上确保特殊工具容器始终显示 */
+.toolbar.very-small-screen .special-tools-container {
+  display: flex !important;
+  position: fixed;
+  bottom: 10px;
+  right: 60px; /* 位于more按钮左侧 */
+  z-index: 9999;
+}
+
+/* 在小屏幕上调整特殊工具按钮样式 */
+.toolbar.very-small-screen .special-tools-container .toolbar-button {
+  display: flex !important;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 暗色模式下的特殊工具按钮样式 */
+:root[data-color-scheme="dark"] .toolbar.very-small-screen .special-tools-container .toolbar-button {
+  background-color: rgba(43, 42, 51, 0.95) !important;
+  border-color: rgba(68, 68, 68, 0.7) !important;
+  color: var(--fill-primary, #eee) !important;
+}
+
 /* 工具栏区域布局调整 */
 .start {
   flex: 1;
@@ -159,7 +205,7 @@
     background: none !important;
     border: none !important;
   }
-  
+
   /* 隐藏任何可能的父容器阴影或背景 */
   .toolbar-container,
   .toolbar-wrapper,
@@ -175,7 +221,7 @@
     box-shadow: none !important;
     border: none !important;
   }
-  
+
   /* 创建一个固定位置的浮动按钮 */
   .toolbar.very-small-screen {
     display: block !important;
@@ -196,9 +242,8 @@
     min-height: 0 !important;
     min-width: 0 !important;
   }
-  
-  /* 隐藏工具栏内所有内容 */
-  .toolbar.very-small-screen .toolbar-group,
+
+  /* 隐藏工具栏内所有内容，但保留特殊工具 */
   .toolbar.very-small-screen .annotation-tools,
   .toolbar.very-small-screen .pdf-tools,
   .toolbar.very-small-screen .utility-tools,
@@ -207,7 +252,25 @@
   .toolbar.very-small-screen .page-controls {
     display: none !important;
   }
-  
+
+  /* 确保工具栏组在小屏幕上正确显示 */
+  .toolbar.very-small-screen .toolbar-group {
+    display: flex !important;
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    background: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+
+  /* 确保特殊工具容器始终显示 */
+  .toolbar.very-small-screen .special-tools-container,
+  .toolbar.small-screen .special-tools-container {
+    display: flex !important;
+  }
+
   /* 仅显示更多按钮 */
   .toolbar.very-small-screen .more-menu-container {
     display: block !important;
@@ -215,7 +278,7 @@
     background: none !important;
     box-shadow: none !important;
   }
-  
+
   .toolbar.very-small-screen .toolbar-button.more-button {
     display: flex !important;
     width: 40px;
@@ -228,7 +291,7 @@
     align-items: center;
     z-index: 10000 !important;
   }
-  
+
   /* 确保PDFJS相关的元素也被处理 */
   #viewerContainer::before,
   #viewerContainer::after,
@@ -239,7 +302,7 @@
     background: transparent !important;
     box-shadow: none !important;
   }
-  
+
   /* 菜单样式调整 */
   .more-menu {
     width: 180px;
@@ -249,7 +312,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     background-color: rgba(255, 255, 255, 0.95);
   }
-  
+
   /* 暗色模式下菜单的样式 */
   :root[data-color-scheme="dark"] .more-menu {
     background-color: rgba(43, 42, 51, 0.95) !important;
@@ -428,27 +491,27 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
     color: #eee !important;
     border-color: #444 !important;
   }
-  
+
   .more-menu-section {
     border-bottom-color: #444 !important;
   }
-  
+
   .more-menu-header {
     color: #aaa !important;
   }
-  
+
   .more-menu-button {
     color: #eee !important;
   }
-  
+
   .more-menu-button:hover {
     background-color: #444 !important;
   }
-  
+
   .more-menu-button svg {
     color: #aaa !important;
   }
-  
+
   .more-menu-button.active svg {
     color: #5b9aff !important;
   }
@@ -537,18 +600,18 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
   .pdf-tools {
     display: none !important;
   }
-  
+
   /* 确保more菜单按钮显示 */
   .more-menu-container {
     display: block !important;
   }
-  
+
   /* 调整工具栏布局保证空间合理利用 */
   .toolbar {
     max-width: 100%;
     justify-content: space-between;
   }
-  
+
   /* 确保注释工具在中等尺寸屏幕上的显示 */
   .annotation-tools {
     display: flex !important;
@@ -559,6 +622,13 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
 @media (min-width: 769px) {
   .more-menu-container {
     display: none !important;
+  }
+}
+
+/* 确保特殊工具容器在所有屏幕尺寸下都显示 */
+@media (max-width: 768px) {
+  .special-tools-container {
+    display: flex !important;
   }
 }
 
@@ -577,29 +647,29 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
   .toolbar.small-screen .end {
     justify-content: space-between;
   }
-  
+
   /* 确保页码控件在中等屏幕上显示且布局合理 */
   .toolbar.small-screen .page-controls {
     flex: 0 0 auto;
     margin: 0 5px;
   }
-  
+
   /* PDF工具已移到more菜单，所以在工具栏上隐藏它 */
   .toolbar.small-screen .pdf-tools {
     display: none !important;
   }
-  
+
   /* 在小屏幕上调整分隔符的显示 */
   .toolbar.small-screen .divider {
     margin: 0 2px;
   }
-  
+
   /* 减小工具按钮尺寸 */
   .toolbar.small-screen .toolbar-button {
     width: 26px;
     height: 26px;
   }
-  
+
   /* 确保more按钮正确显示 */
   .toolbar.small-screen .more-button {
     display: flex !important;

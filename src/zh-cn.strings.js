@@ -41,6 +41,7 @@ export default {
     'pdfReader.fitToWidth': '大小自适应',
     'pdfReader.draw': '绘图',
     'pdfReader.eraser': '橡皮擦',
+    'pdfReader.screenshot': '截图',
     'pdfReader.pickColor': '选择颜色',
     'pdfReader.addToNote': '添加到笔记',
     'pdfReader.zoomIn': '放大',
@@ -110,4 +111,4 @@ export default {
     'general.orange': '橙色',
     'general.gray': '灰色',
     'general.black': '黑色'
-}; 
+};

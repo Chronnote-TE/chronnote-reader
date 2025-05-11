@@ -36,6 +36,60 @@ html, body {
 	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important; // Firefox thumb and track color
 }
 
+// Ensure scrollbars are positioned at the rightmost edge
+.modal-popup, .view-popup, .dialog-popup-overlay, .tooltip-popup-overlay, .toolbar-popup-overlay {
+	& > div, & > section, & > article, & > main, & > aside, & > nav, & > header, & > footer, & > iframe, & > .content, & > .inner, & > .ai-content, & > .translation-content {
+		scrollbar-gutter: stable;
+		padding-right: 0 !important;
+	}
+}
+
+// Fix for scrollable content in update notification window
+.modal-popup, .view-popup {
+	overflow: hidden; // Ensure the container itself doesn't show scrollbars
+
+	& > div, & > section, & > article, & > main, & > aside, & > nav, & > header, & > footer, & > iframe {
+		&::-webkit-scrollbar {
+			position: absolute;
+			right: 0;
+		}
+
+		&::-webkit-scrollbar-track {
+			margin-right: 0;
+		}
+
+		&.content, &.inner, &.ai-content, &.translation-content, &[class*="content"] {
+			margin-right: 0 !important;
+			width: 100% !important;
+			scrollbar-width: thin; // Firefox scrollbar width
+		}
+
+		// Firefox specific scrollbar positioning
+		scrollbar-width: thin;
+		scrollbar-gutter: stable;
+		box-sizing: border-box;
+		padding-right: 0 !important;
+	}
+}
+
+// Specific fix for the update notification window
+.dialog-popup-overlay .modal-popup {
+	& > div {
+		overflow-y: auto;
+		scrollbar-gutter: stable;
+		padding-right: 0 !important;
+
+		&::-webkit-scrollbar {
+			position: absolute;
+			right: 0;
+		}
+
+		&::-webkit-scrollbar-track {
+			margin-right: 0;
+		}
+	}
+}
+
 .pdfViewer .page {
 	border-radius: 10px;
 }
@@ -43,35 +97,35 @@ html, body {
 // Add padding to viewerContainer to accommodate fixed topbar
 #viewerContainer {
 	padding-top: 38px !important; // Match the height of the topbar
-	
+
 	// Make scrollbar narrower
 	&::-webkit-scrollbar {
 		width: 8px !important;
 		height: 8px !important;
 	}
-	
+
 	&::-webkit-scrollbar-thumb {
 		background-color: rgba(0, 0, 0, 0.3);
 		border-radius: 4px !important;
 		border: 2px solid transparent;
 		background-clip: padding-box;
 	}
-	
+
 	&::-webkit-scrollbar-thumb:hover {
 		background-color: rgba(0, 0, 0, 0.3); // Same as non-hover state
 		border: 2px solid transparent;
 		background-clip: padding-box;
 	}
-	
+
 	&::-webkit-scrollbar-track {
 		background-color: transparent !important;
 		border-radius: 0;
 	}
-	
+
 	&::-webkit-scrollbar-track:hover {
 		background-color: transparent !important;
 	}
-	
+
 	// Firefox scrollbar
 	scrollbar-width: thin !important;
 	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important;
