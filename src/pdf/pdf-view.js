@@ -2096,6 +2096,80 @@ class PDFView {
 		this._pointerDownTriggered = false;
 	}
 
+	// 使用requestAnimationFrame优化截图选择框的渲染
+	_updateScreenshotSelectionFrame = null;
+	_lastScreenshotUpdateTime = 0;
+
+	// 自定义截图选择框更新函数，使用requestAnimationFrame来优化性能
+	_updateScreenshotSelection(pageDiv, viewport, rect, action) {
+		// 取消之前的动画帧请求（如果有）
+		if (this._updateScreenshotSelectionFrame) {
+			cancelAnimationFrame(this._updateScreenshotSelectionFrame);
+		}
+
+		// 使用requestAnimationFrame来更新选择框，提高性能
+		this._updateScreenshotSelectionFrame = requestAnimationFrame(() => {
+			// 获取或创建选择容器
+			let selectionContainer = pageDiv.querySelector('.screenshot-selection-container');
+			if (!selectionContainer) {
+				// 创建一个包含选择框的容器
+				selectionContainer = document.createElement('div');
+				selectionContainer.className = 'screenshot-selection-container';
+				selectionContainer.style.position = 'absolute';
+				selectionContainer.style.zIndex = '1000';
+				selectionContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+				selectionContainer.style.opacity = '1';
+				selectionContainer.style.transform = 'scale(1)';
+				selectionContainer.style.willChange = 'transform, width, height'; // 优化性能
+				selectionContainer.style.backfaceVisibility = 'hidden'; // 优化性能
+				selectionContainer.style.transformStyle = 'preserve-3d'; // 优化性能
+
+				// 创建选择框 - 作为容器的一部分
+				const selectionBox = document.createElement('div');
+				selectionBox.className = 'screenshot-selection-box';
+				selectionBox.style.position = 'absolute';
+				selectionBox.style.left = '0';
+				selectionBox.style.top = '0';
+				selectionBox.style.width = '100%';
+				selectionBox.style.height = '100%';
+				selectionBox.style.border = '2px solid #6c5ce7';
+				selectionBox.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
+				selectionBox.style.backgroundColor = 'transparent';
+				selectionBox.style.boxSizing = 'border-box';
+				selectionBox.style.willChange = 'transform'; // 优化性能
+
+				// 添加选择框到容器
+				selectionContainer.appendChild(selectionBox);
+
+				// 添加容器到页面
+				pageDiv.appendChild(selectionContainer);
+			}
+
+			// 计算选择框的位置和大小
+			const [x1, y1] = viewport.convertToViewportPoint(rect[0], rect[1]);
+			const [x2, y2] = viewport.convertToViewportPoint(rect[2], rect[3]);
+
+			// 使用transform来更新位置，而不是直接修改left/top属性
+			// 这样可以减少重排(reflow)，提高性能
+			const left = Math.min(x1, x2);
+			const top = Math.min(y1, y2);
+			const width = Math.abs(x2 - x1);
+			const height = Math.abs(y2 - y1);
+
+			// 使用transform3d触发GPU加速
+			selectionContainer.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+			selectionContainer.style.width = `${width}px`;
+			selectionContainer.style.height = `${height}px`;
+			selectionContainer.style.display = 'block';
+			selectionContainer.style.visibility = 'visible';
+			selectionContainer.style.opacity = '1';
+
+			// 清除引用
+			this._updateScreenshotSelectionFrame = null;
+		});
+	}
+
+	// 优化后的指针移动处理函数 - 使用更低的延迟来处理截图工具
 	_handlePointerMove = throttle((event) => {
 		let dragging = !!event.dataTransfer;
 		// Set action cursor on hover
@@ -2422,7 +2496,7 @@ class PDFView {
 				}
 			};
 
-			// 显示选择框
+			// 优化截图选择框的渲染 - 直接更新DOM以确保在拖动过程中可见
 			if (action.type === 'screenshot') {
 				// 获取当前页面的div元素
 				const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[this.pointerDownPosition.pageIndex].div;
@@ -2435,9 +2509,8 @@ class PDFView {
 					selectionContainer.className = 'screenshot-selection-container';
 					selectionContainer.style.position = 'absolute';
 					selectionContainer.style.zIndex = '1000';
-					selectionContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+					selectionContainer.style.transition = 'opacity 0.2s ease';
 					selectionContainer.style.opacity = '1';
-					selectionContainer.style.transform = 'scale(1)';
 
 					// 创建选择框 - 作为容器的一部分
 					const selectionBox = document.createElement('div');
@@ -2464,11 +2537,17 @@ class PDFView {
 				const [x1, y1] = viewport.convertToViewportPoint(action.annotation.position.rects[0][0], action.annotation.position.rects[0][1]);
 				const [x2, y2] = viewport.convertToViewportPoint(action.annotation.position.rects[0][2], action.annotation.position.rects[0][3]);
 
-				// 更新选择容器的位置和大小
-				selectionContainer.style.left = `${Math.min(x1, x2)}px`;
-				selectionContainer.style.top = `${Math.min(y1, y2)}px`;
-				selectionContainer.style.width = `${Math.abs(x2 - x1)}px`;
-				selectionContainer.style.height = `${Math.abs(y2 - y1)}px`;
+				// 直接更新位置和大小，确保在拖动过程中可见
+				const left = Math.min(x1, x2);
+				const top = Math.min(y1, y2);
+				const width = Math.abs(x2 - x1);
+				const height = Math.abs(y2 - y1);
+
+				// 直接设置位置和大小，不使用transform
+				selectionContainer.style.left = `${left}px`;
+				selectionContainer.style.top = `${top}px`;
+				selectionContainer.style.width = `${width}px`;
+				selectionContainer.style.height = `${height}px`;
 				selectionContainer.style.display = 'block';
 				selectionContainer.style.visibility = 'visible';
 				selectionContainer.style.opacity = '1';
@@ -2507,7 +2586,16 @@ class PDFView {
 			this._onSetSelectionPopup();
 		}
 		this._render();
-	}, () => ['ink', 'eraser'].includes(this._tool.type) ? 0 : 50);
+	}, () => {
+		// 对于截图工具使用更低的延迟，使选择更流畅
+		if (this.action && this.action.type === 'screenshot') {
+			return 0; // 对截图工具不使用节流，实时更新
+		}
+		else if (['ink', 'eraser'].includes(this._tool.type)) {
+			return 0;
+		}
+		return 16; // 约60fps的更新频率，比原来的50ms更流畅
+	});
 
 	_getAnnotationFromSelectionRanges(selectionRanges, type, color) {
 		if (selectionRanges[0].collapsed) {
