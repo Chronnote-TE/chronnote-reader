@@ -1,6 +1,6 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ANNOTATION_COLORS } from '../../defines';
 import CustomSections from '../common/custom-sections';
@@ -97,6 +97,42 @@ function SelectionPopup(props) {
 		}
 	}
 
+	async function handleCopy() {
+		try {
+			const selectedText = props.params.annotation.text || '';
+			if (selectedText.trim()) {
+				await navigator.clipboard.writeText(selectedText);
+				// Optional: provide visual feedback that text was copied
+			} else {
+				console.log('No text selected to copy');
+			}
+		} catch (error) {
+			console.error('Copy failed:', error);
+		}
+	}
+
+	// Prevent events from bubbling up to parent elements
+	function handleTranslationContentClick(e) {
+		e.stopPropagation();
+	}
+
+	// Allow text selection in the translation content
+	function handleTranslationContentMouseDown(e) {
+		e.stopPropagation();
+	}
+
+	// Auto-adjust textarea height based on content
+	const textareaRef = useRef(null);
+
+	useEffect(() => {
+		if (textareaRef.current && translation) {
+			// Reset height to auto to get the correct scrollHeight
+			textareaRef.current.style.height = 'auto';
+			// Set the height to scrollHeight to fit all content
+			textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+		}
+	}, [translation]);
+
 	return (
 		<ViewPopup
 			className={cx("selection-popup", {
@@ -158,6 +194,19 @@ function SelectionPopup(props) {
 								</span>
 							</span>
 						</button>
+						<button
+							tabIndex={-1}
+							className="tool-btn"
+							onClick={handleCopy}
+							title={intl.formatMessage({ id: 'general.copy', defaultMessage: 'Copy' })}
+						>
+							<span className="button-content">
+								<Copy size={16} />
+								<span className="tooltip">
+									<FormattedMessage id="general.copy" defaultMessage="Copy" />
+								</span>
+							</span>
+						</button>
 					</div>
 
 					<div className="colors-group">
@@ -199,19 +248,42 @@ function SelectionPopup(props) {
 						</div>
 					) : (
 						<>
-							<div className="translation-content">
-								{translation || ""}
+							<div className="translation-content-wrapper"
+								onClick={handleTranslationContentClick}
+								onMouseDown={handleTranslationContentMouseDown}
+							>
+								<textarea
+									ref={textareaRef}
+									readOnly
+									className="translation-content selectable-text"
+									style={{
+										userSelect: 'text !important',
+										WebkitUserSelect: 'text !important',
+										MozUserSelect: 'text !important',
+										msUserSelect: 'text !important',
+										cursor: 'text',
+										fontFamily: 'inherit',
+										margin: 0,
+										width: '100%',
+										minHeight: '100px',
+										resize: 'none',
+										border: 'none',
+										background: 'transparent',
+										overflow: 'auto'
+									}}
+									value={translation || ""}
+								/>
 							</div>
 							{translation && (
 								<div className="translation-actions">
 									<button
 										className="copy-btn"
 										onClick={handleCopyTranslation}
-										title={intl.formatMessage({ id: 'general.copy' })}
+										title={intl.formatMessage({ id: 'general.copy', defaultMessage: 'Copy All' })}
 									>
 										<span className="button-content">
 											<Copy size={14} strokeWidth={2} />
-											<span className="button-text">复制</span>
+											<span className="button-text">复制全部</span>
 										</span>
 									</button>
 								</div>
