@@ -121,7 +121,7 @@
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 	min-width: 240px;
-	width: 320px;
+	width: 340px; // 增加10px宽度
 	box-sizing: border-box; // 确保padding计入总宽度
 
 	.selection-popup-main {
@@ -607,7 +607,7 @@
 		width: calc(100% - 32px);
 
 		&.with-translation, &.with-ai {
-			max-width: 440px;
+			max-width: 450px; // 增加10px宽度
 		}
 	}
 }
