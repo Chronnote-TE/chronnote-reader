@@ -1,5 +1,6 @@
 body.sidebar-open {
-	#split-view, .split-view {
+	#split-view,
+	.split-view {
 		inset-inline-start: var(--sidebar-width);
 	}
 }
@@ -8,7 +9,7 @@ body.sidebar-open {
 	display: flex;
 	flex-direction: column;
 	position: absolute;
-	top: 41px;
+	top: 0;
 	bottom: 0;
 	width: var(--sidebar-width);
 	z-index: $z-index-sidebar;

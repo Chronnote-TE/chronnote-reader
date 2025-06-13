@@ -1,14 +1,15 @@
-
-#split-view, .split-view {
+#split-view,
+.split-view {
 	position: absolute;
 	inset-inline-start: 0;
 	inset-inline-end: 0;
-	top: 41px;
+	top: 0;
 	bottom: var(--bottom-placeholder-height);
 	display: flex;
 	height: 100%;
 
-	.primary-view, .secondary-view {
+	.primary-view,
+	.secondary-view {
 		display: flex;
 		position: relative;
 		overflow: hidden;
@@ -51,7 +52,8 @@ body.enable-horizontal-split-view {
 		height: 0;
 	}
 
-	#split-view, .split-view {
+	#split-view,
+	.split-view {
 		flex-direction: column;
 
 		.secondary-view {

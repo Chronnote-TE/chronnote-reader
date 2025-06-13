@@ -17,7 +17,6 @@ import PasswordPopup from './modal-popup/password-popup';
 import PrintPopup from './modal-popup/print-popup';
 import AppearancePopup from "./modal-popup/appearance-popup";
 import ThemePopup from './modal-popup/theme-popup';
-import PDFTopbar from './pdf-topbar';
 
 
 function View(props) {
@@ -120,17 +119,6 @@ const ReaderUI = React.forwardRef((props, ref) => {
 
 	return (
 		<Fragment>
-			<PDFTopbar
-				showContextPaneToggle={state.showContextPaneToggle}
-				contextPaneOpen={state.contextPaneOpen}
-				contextPaneType={state.contextPaneType}
-				onClickClose={props.onClickClose}
-				onClickSplit={props.onClickSplit}
-				onClickVerticalSplit={props.onClickVerticalSplit}
-				onToggleContextPane={props.onToggleContextPane}
-				toolbarVisible={toolbarVisible}
-				onToggleToolbar={setToolbarVisible}
-			/>
 			<div className="split-view">
 				{state.sidebarOpen === true &&
 					<Sidebar

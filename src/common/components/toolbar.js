@@ -611,9 +611,6 @@ Toolbar.propTypes = {
 	contextPaneOpen: PropTypes.bool,
 	onToggleContextPane: PropTypes.func,
 	contextPaneType: PropTypes.string,
-	onClickClose: PropTypes.func,
-	onClickSplit: PropTypes.func,
-	onClickVerticalSplit: PropTypes.func,
 	visible: PropTypes.bool
 };
 
