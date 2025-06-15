@@ -17,7 +17,7 @@ import PasswordPopup from './modal-popup/password-popup';
 import PrintPopup from './modal-popup/print-popup';
 import AppearancePopup from "./modal-popup/appearance-popup";
 import ThemePopup from './modal-popup/theme-popup';
-import PDFTopbar from './pdf-topbar';
+
 
 
 function View(props) {
@@ -107,7 +107,6 @@ const ReaderUI = React.forwardRef((props, ref) => {
 	let [state, setState] = useState(props.state);
 	let sidebarRef = useRef();
 	let annotationsViewRef = useRef();
-	let [toolbarVisible, setToolbarVisible] = useState(true);
 
 	useImperativeHandle(ref, () => ({
 		setState,
@@ -120,17 +119,6 @@ const ReaderUI = React.forwardRef((props, ref) => {
 
 	return (
 		<Fragment>
-			<PDFTopbar
-				showContextPaneToggle={state.showContextPaneToggle}
-				contextPaneOpen={state.contextPaneOpen}
-				contextPaneType={state.contextPaneType}
-				onClickClose={props.onClickClose}
-				onClickSplit={props.onClickSplit}
-				onClickVerticalSplit={props.onClickVerticalSplit}
-				onToggleContextPane={props.onToggleContextPane}
-				toolbarVisible={toolbarVisible}
-				onToggleToolbar={setToolbarVisible}
-			/>
 			<div className="split-view">
 				{state.sidebarOpen === true &&
 					<Sidebar
@@ -226,7 +214,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onToggleAppearancePopup={props.onToggleAppearancePopup}
 				onToggleFind={props.onToggleFind}
 				onMenuButtonClick={props.onMenuButtonClick}
-				visible={toolbarVisible}
+				visible={state.toolbarVisible}
 			/>
 			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
 			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}
