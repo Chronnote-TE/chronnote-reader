@@ -1,6 +1,6 @@
-html, body {
+html,
+body {
 	overscroll-behavior: none;
-	background-color: red !important;
 }
 
 // Global scrollbar styles
@@ -37,18 +37,43 @@ html, body {
 }
 
 // Ensure scrollbars are positioned at the rightmost edge
-.modal-popup, .view-popup, .dialog-popup-overlay, .tooltip-popup-overlay, .toolbar-popup-overlay {
-	& > div, & > section, & > article, & > main, & > aside, & > nav, & > header, & > footer, & > iframe, & > .content, & > .inner, & > .ai-content, & > .translation-content {
+.modal-popup,
+.view-popup,
+.dialog-popup-overlay,
+.tooltip-popup-overlay,
+.toolbar-popup-overlay {
+	& > div,
+	& > section,
+	& > article,
+	& > main,
+	& > aside,
+	& > nav,
+	& > header,
+	& > footer,
+	& > iframe,
+	& > .content,
+	& > .inner,
+	& > .ai-content,
+	& > .translation-content {
 		scrollbar-gutter: stable;
 		padding-right: 0 !important;
 	}
 }
 
 // Fix for scrollable content in update notification window
-.modal-popup, .view-popup {
+.modal-popup,
+.view-popup {
 	overflow: hidden; // Ensure the container itself doesn't show scrollbars
 
-	& > div, & > section, & > article, & > main, & > aside, & > nav, & > header, & > footer, & > iframe {
+	& > div,
+	& > section,
+	& > article,
+	& > main,
+	& > aside,
+	& > nav,
+	& > header,
+	& > footer,
+	& > iframe {
 		&::-webkit-scrollbar {
 			position: absolute;
 			right: 0;
@@ -58,7 +83,11 @@ html, body {
 			margin-right: 0;
 		}
 
-		&.content, &.inner, &.ai-content, &.translation-content, &[class*="content"] {
+		&.content,
+		&.inner,
+		&.ai-content,
+		&.translation-content,
+		&[class*="content"] {
 			margin-right: 0 !important;
 			width: 100% !important;
 			scrollbar-width: thin; // Firefox scrollbar width
@@ -94,10 +123,7 @@ html, body {
 	border-radius: 10px;
 }
 
-// Add padding to viewerContainer to accommodate fixed topbar
 #viewerContainer {
-	padding-top: 38px !important; // Match the height of the topbar
-
 	// Make scrollbar narrower
 	&::-webkit-scrollbar {
 		width: 8px !important;
@@ -129,4 +155,49 @@ html, body {
 	// Firefox scrollbar
 	scrollbar-width: thin !important;
 	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important;
+}
+
+// PDF.js Theme Customization
+// Override PDF.js CSS variables for custom theming
+iframe[src*="viewer.html"] {
+	// Wait for iframe to load, then apply custom styles
+	&.loaded {
+		// This targets the iframe content - note: may not work due to same-origin policy
+		// Use Method 2 below for more reliable theming
+	}
+}
+
+// Method 2: Global PDF.js theme overrides
+// These will be applied when PDF.js is loaded in the same origin
+:root {
+	// Light theme overrides
+	--pdf-main-color: #333333;
+	--pdf-body-bg-color: #ffffff;
+	--pdf-toolbar-bg-color: #f8f9fa;
+	--pdf-toolbar-border-color: #dee2e6;
+	--pdf-sidebar-bg-color: #f8f9fa;
+	--pdf-button-hover-color: #e9ecef;
+
+	// Dark theme overrides
+	&[data-theme="dark"] {
+		--pdf-main-color: #ffffff;
+		--pdf-body-bg-color: #1a1a1a;
+		--pdf-toolbar-bg-color: #2d2d2d;
+		--pdf-toolbar-border-color: #404040;
+		--pdf-sidebar-bg-color: #2d2d2d;
+		--pdf-button-hover-color: #404040;
+	}
+}
+
+// Method 3: Direct iframe content targeting (if same-origin)
+// This approach injects styles directly into the PDF.js iframe
+.pdf-viewer-container {
+	iframe[src*="viewer.html"] {
+		// Custom styles for the PDF viewer iframe
+		border: none;
+		background: var(--pdf-body-bg-color, #ffffff);
+
+		// Post-load styling via JavaScript will be more reliable
+		// See Method 4 below for JavaScript implementation
+	}
 }

@@ -34,6 +34,7 @@ async function createReader() {
 		},
 		// rtl: true,
 		annotations: demo.annotations,
+		colorScheme: 'dark',
 		primaryViewState: demo.state,
 		sidebarWidth: 240,
 		bottomPlaceholderHeight: null,
@@ -242,6 +243,11 @@ async function createReader() {
 				// Add actual close logic here if needed
 			}
 		},
+		onToggleToolbar(visible) {
+			console.log('Toolbar visibility changed:', visible);
+			// Here you can implement additional logic when toolbar visibility changes
+			// For example, save the state to localStorage or notify other components
+		},
 		onPageClick(pageNumber) {
 			console.log('Page clicked:', pageNumber);
 			// 这里可以添加更多页面点击的处理逻辑
@@ -423,6 +429,24 @@ async function createReader() {
 	reader.enableAddToNote(true);
 	window._reader = reader;
 	await reader.initializedPromise;
+
+	// 示例：外部控制工具栏的显示/隐藏
+	// 3秒后隐藏工具栏
+	setTimeout(() => {
+		console.log('Auto-hiding toolbar...');
+		reader.toggleToolbar(false);
+	}, 3000);
+
+	// 6秒后重新显示工具栏
+	setTimeout(() => {
+		console.log('Auto-showing toolbar...');
+		reader.toggleToolbar(true);
+	}, 6000);
+
+	// 暴露全局方法供开发者在控制台测试
+	window.toggleToolbar = reader.toggleToolbar.bind(reader);
+
+	window.reader = reader;
 }
 
 createReader();

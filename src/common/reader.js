@@ -76,6 +76,7 @@ class Reader {
 		this._onClickClose = options.onClickClose;
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
+		this._onToggleToolbar = options.onToggleToolbar;
 		this._onClick = options.onClick;
 		this._onScreenshot = options.onScreenshot;
 
@@ -206,6 +207,7 @@ class Reader {
 				entireWord: false,
 				result: null,
 			},
+			toolbarVisible: options.toolbarVisible !== undefined ? options.toolbarVisible : true,
 			secondaryViewState: null,
 			secondaryViewStats: {},
 			secondaryViewAnnotationPopup: null,
@@ -409,6 +411,7 @@ class Reader {
 							onClickClose={this._onClickClose}
 							onClickSplit={this._onClickSplit}
 							onClickVerticalSplit={this._onClickVerticalSplit}
+							onToggleToolbar={this._onToggleToolbar}
 						/>
 					</ReaderContext.Provider>
 				</IntlProvider>
@@ -495,10 +498,8 @@ class Reader {
 			else {
 				delete document.documentElement.dataset.colorScheme;
 			}
-			if (!init) {
-				this._primaryView?.setColorScheme(this._state.colorScheme);
-				this._secondaryView?.setColorScheme(this._state.colorScheme);
-			}
+			this._primaryView?.setColorScheme(this._state.colorScheme);
+			this._secondaryView?.setColorScheme(this._state.colorScheme);
 		}
 
 		if (this._state.readOnly !== previousState.readOnly) {
@@ -1286,6 +1287,20 @@ class Reader {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * 切换工具栏的显示/隐藏状态
+	 * @param {boolean} visible - 工具栏是否可见，如果不传参数则切换当前状态
+	 */
+	toggleToolbar(visible) {
+		if (visible === undefined) {
+			visible = !this._state.toolbarVisible;
+		}
+		this._updateState({ toolbarVisible: visible });
+		if (this._onToggleToolbar) {
+			this._onToggleToolbar(visible);
+		}
 	}
 
 	async navigate(location, options) {

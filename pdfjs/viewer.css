@@ -82,7 +82,8 @@ body.portal #viewerContainer {
 	-ms-overflow-style: none; /* Internet Explorer 10+ */
 }
 
-body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
+body.portal #viewerContainer::-webkit-scrollbar {
+	/* WebKit */
 	width: 0;
 	height: 0;
 }
@@ -117,22 +118,23 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 /* Dark theme scrollbar */
-:root[data-color-scheme=dark] #viewerContainer {
+:root[data-color-scheme="dark"] #viewerContainer {
 	scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
 }
 
-:root[data-color-scheme=dark] #viewerContainer::-webkit-scrollbar-track {
+:root[data-color-scheme="dark"] #viewerContainer::-webkit-scrollbar-track {
 	background-color: transparent !important;
 }
 
-:root[data-color-scheme=dark] #viewerContainer::-webkit-scrollbar-thumb {
+:root[data-color-scheme="dark"] #viewerContainer::-webkit-scrollbar-thumb {
 	background-color: rgba(255, 255, 255, 0.3);
 	border-radius: 4px !important;
 	border: 2px solid transparent;
 	background-clip: padding-box;
 }
 
-:root[data-color-scheme=dark] #viewerContainer::-webkit-scrollbar-thumb:hover {
+:root[data-color-scheme="dark"]
+	#viewerContainer::-webkit-scrollbar-thumb:hover {
 	background-color: rgba(255, 255, 255, 0.3); /* Same as non-hover state */
 	border: 2px solid transparent;
 	background-clip: padding-box;
@@ -220,7 +222,8 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	overflow: hidden;
 	border: var(--page-border);
 	background-clip: content-box;
-	box-shadow: 0 0 2px 0 rgba(0,0,0,.14),0 2px 2px 0 rgba(0,0,0,.12),0 1px 3px 0 rgba(0,0,0,.12);
+	box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.14), 0 2px 2px 0 rgba(0, 0, 0, 0.12),
+		0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 
 .pdfViewer .dummyPage {
@@ -236,7 +239,12 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	z-index: 1;
 }
 
-#sidebarContainer, .toolbar, .secondaryToolbar, .findbar, #overlayContainer, #fileInput {
+#sidebarContainer,
+.toolbar,
+.secondaryToolbar,
+.findbar,
+#overlayContainer,
+#fileInput {
 	display: none;
 }
 
@@ -244,7 +252,8 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	display: none;
 }
 
-.annotationLayer, .annotationEditorLayer {
+.annotationLayer,
+.annotationEditorLayer {
 	display: none;
 }
 
@@ -253,7 +262,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 #viewer {
-/*//margin-top: 10px;*/
+	/*//margin-top: 10px;*/
 }
 
 .hidden {
@@ -352,8 +361,8 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 .textLayer span.markedContent {
-  top: 0;
-  height: 0;
+	top: 0;
+	height: 0;
 }
 
 .textLayer .highlight {
@@ -387,7 +396,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	background: transparent;
 }
 .customAnnotationLayer ::selection {
-	background-color: #71ADFD;
+	background-color: #71adfd;
 }
 
 .textLayer .endOfContent {
@@ -430,7 +439,7 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 .textAnnotation:empty:before {
-	content: ' ';
+	content: " ";
 }
 
 .textAnnotation.focusable {
@@ -441,7 +450,8 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	outline: none;
 }
 
-body, #viewerContainer {
+body,
+#viewerContainer {
 	background-color: white; /* --color-toolbar */
 }
 
@@ -449,12 +459,12 @@ body, #viewerContainer {
 	background-color: var(--background-color);
 }
 
-:root[data-color-scheme=dark] body,
-:root[data-color-scheme=dark] body #viewerContainer {
+:root[data-color-scheme="dark"] body,
+:root[data-color-scheme="dark"] body #viewerContainer {
 	color-scheme: dark;
-	background-color: oklch(25.33% 0.016 252.42);
+	background-color: oklch(21.6% 0.006 56.043);
 }
 
-:root[data-color-scheme=dark] .pdfViewer .page {
+:root[data-color-scheme="dark"] .pdfViewer .page {
 	background-color: var(--background-color);
 }
