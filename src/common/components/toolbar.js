@@ -1,16 +1,22 @@
 import cx from 'classnames';
 import {
 	Camera,
+	ChevronDown,
+	ChevronLeft,
 	Eraser,
 	FileText,
 	Highlighter,
 	ImagePlus,
 	Maximize,
 	MoreHorizontal,
+	PanelLeft,
+	PanelBottom,
 	PanelRightClose,
 	Pencil,
+	Search,
 	Sparkles,
 	StickyNote,
+	Type,
 	Underline,
 	ZoomIn,
 	ZoomOut
@@ -127,27 +133,27 @@ function Toolbar({ visible = true, ...props }) {
 				<button
 					id="sidebarToggle"
 					className="toolbar-button sidebar-toggle"
-					title={intl.formatMessage({ id: 'pdfReader.toggleSidebar' })}
+					title={l10n.getString('pdfReader-toggleSidebar')}
 					tabIndex={-1}
 					onClick={handleSidebarButtonClick}
-				><IconSidebar /></button>
+				><PanelLeft /></button>
 				<div className="divider" />
 				<button
 					id="zoomOut"
 					className="toolbar-button zoomOut"
-					title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
+					title={l10n.getString('pdfReader-zoomOut')}
 					tabIndex={-1}
 					disabled={!props.enableZoomOut}
 					onClick={props.onZoomOut}
-				><IconZoomOut /></button>
+				><ZoomOut /></button>
 				<button
 					id="zoomIn"
 					className="toolbar-button zoomIn"
-					title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
+					title={l10n.getString('pdfReader-zoomIn')}
 					tabIndex={-1}
 					disabled={!props.enableZoomIn}
 					onClick={props.onZoomIn}
-				><IconZoomIn /></button>
+				><ZoomIn /></button>
 				<button
 					id="zoomAuto"
 					className="toolbar-button zoomAuto"
@@ -155,51 +161,47 @@ function Toolbar({ visible = true, ...props }) {
 					tabIndex={-1}
 					disabled={!props.enableZoomReset}
 					onClick={props.onZoomReset}
-				><IconAutoWidth /></button>
+				><Maximize /></button>
 				<button
 					id="appearance"
 					className={cx('toolbar-button', { active: props.appearancePopup })}
-					title={intl.formatMessage({ id: 'pdfReader.appearance' })}
+					title={l10n.getString('pdfReader-appearance')}
 					tabIndex={-1}
 					onClick={props.onToggleAppearancePopup}
-				><IconFormatText /></button>
+				><Sparkles /></button>
 				<div className="divider" />
 				<button
 					id="navigateBack"
 					className="toolbar-button navigateBack"
-					title={intl.formatMessage({ id: 'general.back' })}
+					title={l10n.getString('general-back')}
 					tabIndex={-1}
 					disabled={!props.enableNavigateBack}
 					onClick={props.onNavigateBack}
-				><IconChevronLeft /></button>
+				><ChevronLeft /></button>
 				<div className="divider" />
 				{['pdf', 'epub'].includes(props.type) && (
 					<React.Fragment>
 						<button
-							className="toolbar-button pageUp"
-							title={intl.formatMessage({ id: 'pdfReader.previousPage' })}
+							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+							title={l10n.getString('pdfReader-underlineText')}
 							id="previous"
 							tabIndex={-1}
-							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-							title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
 							disabled={props.readOnly}
 							onClick={() => handleToolClick('underline')}
 							data-l10n-id="pdfReader-toolbar-underline"
 						><Underline size={18} strokeWidth={1.5} /></button>
 						<button
-							className="toolbar-button pageDown"
-							title={l10n.getString('reader-next-page')}
-							id="next"
-							tabIndex={-1}
 							className={cx('toolbar-button note', {
 								active: props.tool.type === 'note'
 							})}
-							title={intl.formatMessage({ id: 'pdfReader.addNote' })}
+							title={l10n.getString('pdfReader-addNote')}
+							id="next"
+							tabIndex={-1}
 							disabled={props.readOnly}
 							onClick={() => handleToolClick('note')}
 							data-l10n-id="pdfReader-toolbar-note"
 						><StickyNote size={18} strokeWidth={1.5} /></button>
-					</div>
+					</React.Fragment>
 				)}
 				{['pdf', 'epub'].includes(props.type) && (
 					<input
@@ -207,11 +209,11 @@ function Toolbar({ visible = true, ...props }) {
 						type="input"
 						id="pageNumber"
 						className="toolbar-text-input"
-						title={intl.formatMessage({
-							id: props.type === 'pdf' || props.usePhysicalPageNumbers
-								? 'pdfReader.page'
-								: 'pdfReader.location'
-						})}
+						title={l10n.getString(
+							props.type === 'pdf' || props.usePhysicalPageNumbers
+								? 'pdfReader-page'
+								: 'pdfReader-location'
+						)}
 						defaultValue=""
 						size="4"
 						min="1"
@@ -229,92 +231,92 @@ function Toolbar({ visible = true, ...props }) {
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-					title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+					title={l10n.getString('pdfReader-highlightText')}
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('highlight')}
 					data-l10n-id="pdfReader-toolbar-highlight"
-				><IconHighlight /></button>
+				><Highlighter /></button>
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-					title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+					title={l10n.getString('pdfReader-underlineText')}
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('underline')}
 					data-l10n-id="pdfReader-toolbar-underline"
-				><IconUnderline /></button>
+				><Underline /></button>
 				<button
 					tabIndex={-1}
 					className={cx('toolbar-button note', {
 						active: props.tool.type === 'note'
 					})}
-					title={intl.formatMessage({ id: 'pdfReader.addNote' })}
+					title={l10n.getString('pdfReader-addNote')}
 					disabled={props.readOnly}
 					onClick={() => handleToolClick('note')}
 					data-l10n-id="pdfReader-toolbar-note"
-				><IconNote /></button>
+				><StickyNote /></button>
 				{props.type === 'pdf' && (
 					<button
 						tabIndex={-1}
 						className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
-						title={intl.formatMessage({ id: 'pdfReader.addText' })}
+						title={l10n.getString('pdfReader-addText')}
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('text')}
 						data-l10n-id="pdfReader-toolbar-text"
-					><IconText /></button>
+					><Type /></button>
 				)}
 				{props.type === 'pdf' && (
 					<button
 						tabIndex={-1}
 						className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
-						title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
+						title={l10n.getString('pdfReader-selectArea')}
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('image')}
 						data-l10n-id="pdfReader-toolbar-area"
-					><IconImage /></button>
+					><ImagePlus /></button>
 				)}
 				{props.type === 'pdf' && (
 					<button
 						tabIndex={-1}
 						className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
-						title={intl.formatMessage({ id: 'pdfReader.draw' })}
+						title={l10n.getString('pdfReader-draw')}
 						disabled={props.readOnly}
 						onClick={() => handleToolClick('ink')}
 						data-l10n-id="pdfReader-toolbar-draw"
-					><IconInk /></button>
+					><Pencil /></button>
 				)}
 				<div className="divider" />
 				<button
 					tabIndex={-1}
 					className="toolbar-button toolbar-dropdown-button"
 					disabled={props.readOnly || ['pointer', 'hand'].includes(props.tool.type)}
-					title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
+					title={l10n.getString('pdfReader-pickColor')}
 					onClick={handleToolColorClick}
 				>
 					{
 						props.tool.type === 'eraser'
-							? <IconEraser />
-							: <IconColor20 color={props.tool.color || ['pointer', 'hand'].includes(props.tool.type) && 'transparent'} />
+							? <Eraser />
+							: <div style={{ width: 16, height: 16, backgroundColor: props.tool.color || 'transparent', borderRadius: '50%', border: '1px solid #ccc' }} />
 					}
-					<IconChevronDown8 />
+					<ChevronDown />
 				</button>
 			</div>
 			<div className="end">
 				<CustomSections type="Toolbar" />
 				<button
 					className={cx('toolbar-button find', { active: props.findPopupOpen })}
-					title={intl.formatMessage({ id: 'pdfReader.findInDocument' })}
+					title={l10n.getString('pdfReader-findInDocument')}
 					tabIndex={-1}
 					onClick={handleFindClick}
-				><IconFind /></button>
+				><Search /></button>
 				{platform === 'zotero' && props.showContextPaneToggle && (
 					<Fragment>
 						<div className="divider" />
 						<button
 							className="toolbar-button context-pane-toggle"
-							title={intl.formatMessage({ id: 'pdfReader.toggleContextPane' })}
+							title={l10n.getString('pdfReader-toggleContextPane')}
 							tabIndex={-1}
 							onClick={props.onToggleContextPane}
-						>{props.stackedView ? <IconSidebarBottom /> : <IconSidebar className="standard-view" />}</button>
+						>{props.stackedView ? <PanelBottom /> : <PanelLeft className="standard-view" />}</button>
 					</Fragment>
 				)}
 			</div>

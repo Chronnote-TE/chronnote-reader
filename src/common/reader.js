@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React, { createContext } from 'react';
+import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import ReaderUI from './components/reader-ui';
 import PDFView from '../pdf/pdf-view';
 import EPUBView from '../dom/epub/epub-view';
@@ -24,7 +25,7 @@ import {
 } from './lib/utilities';
 import { debounce } from './lib/debounce';
 import { flushSync } from 'react-dom';
-import { getLocalizedString } from '../fluent';
+import { bundle, getLocalizedString } from '../fluent';
 
 // Compute style values for usage in views (CSS variables aren't sufficient for that)
 // Font family is necessary for text annotations
@@ -287,13 +288,9 @@ class Reader {
 		}
 
 		if (!this._preview) {
+			const l10n = new ReactLocalization([bundle]);
 			createRoot(document.getElementById('reader-ui')).render(
-				<IntlProvider
-					locale={window.navigator.language}
-					messages={this._localizedStrings}
-					onError={window.development && (() => {
-					})}
-				>
+				<LocalizationProvider l10n={l10n}>
 					<ReaderContext.Provider value={this._readerContext}>
 						<ReaderUI
 							type={this._type}
@@ -420,7 +417,7 @@ class Reader {
 							}}
 						/>
 					</ReaderContext.Provider>
-				</IntlProvider>
+				</LocalizationProvider>
 			);
 		}
 
@@ -1023,33 +1020,33 @@ class Reader {
 
 		let onSetHiddenAnnotations = (ids) => {
 			this._annotationManager.setFilter({ hiddenIDs: ids });
-
-			// 添加翻译回调函数
-			let onTranslate = this._onTranslate
-				? (text) => {
-					console.log('Reader中的onTranslate被调用，text:', text);
-					return this._onTranslate(text);
-				}
-				: null;
-
-			// 添加AI回调函数
-			let onAskAI = this._onAskAI
-				? (text) => {
-					console.log('Reader中的onAskAI被调用，text:', text);
-					return this._onAskAI(text);
-				}
-				: null;
-
-			// 打印检查onTranslate和onAskAI
-			console.log('Reader中准备传递的onTranslate:', onTranslate);
-			if (onTranslate) {
-				console.log('onTranslate是函数:', typeof onTranslate === 'function');
-			}
-			console.log('Reader中准备传递的onAskAI:', onAskAI);
-			if (onAskAI) {
-				console.log('onAskAI是函数:', typeof onAskAI === 'function');
-			}
 		};
+
+		// 添加翻译回调函数
+		let onTranslate = this._onTranslate
+			? (text) => {
+				console.log('Reader中的onTranslate被调用，text:', text);
+				return this._onTranslate(text);
+			}
+			: null;
+
+		// 添加AI回调函数
+		let onAskAI = this._onAskAI
+			? (text) => {
+				console.log('Reader中的onAskAI被调用，text:', text);
+				return this._onAskAI(text);
+			}
+			: null;
+
+		// 打印检查onTranslate和onAskAI
+		console.log('Reader中准备传递的onTranslate:', onTranslate);
+		if (onTranslate) {
+			console.log('onTranslate是函数:', typeof onTranslate === 'function');
+		}
+		console.log('Reader中准备传递的onAskAI:', onAskAI);
+		if (onAskAI) {
+			console.log('onAskAI是函数:', typeof onAskAI === 'function');
+		}
 
 		let data;
 		if (this._type === 'pdf') {
@@ -1101,7 +1098,13 @@ class Reader {
 			onKeyDown,
 			onKeyUp,
 			onFocusAnnotation,
-			getLocalizedString
+			onSetHiddenAnnotations,
+			getLocalizedString,
+			onTranslate,
+			onAskAI,
+			onClick: this._onClick,
+			onScreenshot: this._onScreenshot,
+			onChangeTool: this.setTool.bind(this)
 		};
 
 		if (this._type === 'pdf') {

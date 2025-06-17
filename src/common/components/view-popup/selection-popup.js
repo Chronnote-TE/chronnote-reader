@@ -1,6 +1,7 @@
-import React from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
 import cx from 'classnames';
+import PropTypes from 'prop-types';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocalization } from '@fluent/react';
 import { ANNOTATION_COLORS } from '../../defines';
 import CustomSections from '../common/custom-sections';
 import ViewPopup from './common/view-popup';
@@ -12,7 +13,10 @@ import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
 import { Copy, Sparkles } from 'lucide-react';
 
 function SelectionPopup(props) {
-	const intl = useIntl();
+	const { l10n } = useLocalization();
+	const [translationVisible, setTranslationVisible] = useState(false);
+	const [translation, setTranslation] = useState('');
+	const [translating, setTranslating] = useState(false);
 
 	function handleColorPick(color) {
 		let type = props.textSelectionAnnotationMode;

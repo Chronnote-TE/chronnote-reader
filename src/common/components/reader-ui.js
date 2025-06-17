@@ -17,7 +17,7 @@ import PasswordPopup from './modal-popup/password-popup';
 import PrintPopup from './modal-popup/print-popup';
 import AppearancePopup from "./modal-popup/appearance-popup";
 import ThemePopup from './modal-popup/theme-popup';
-
+import { bundle } from '../../fluent';
 
 function View(props) {
 	let { primary, state } = props;
