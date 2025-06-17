@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 import React, { createContext } from 'react';
-import { IntlProvider } from 'react-intl';
 import ReaderUI from './components/reader-ui';
 import PDFView from '../pdf/pdf-view';
 import EPUBView from '../dom/epub/epub-view';
@@ -24,6 +23,8 @@ import {
 	setMultiDragPreview,
 } from './lib/utilities';
 import { debounce } from './lib/debounce';
+import { flushSync } from 'react-dom';
+import { getLocalizedString } from '../fluent';
 
 // Compute style values for usage in views (CSS variables aren't sufficient for that)
 // Font family is necessary for text annotations
@@ -183,6 +184,7 @@ class Reader {
 			sidebarOpen: options.sidebarOpen !== undefined ? options.sidebarOpen : false,
 			sidebarWidth: options.sidebarWidth !== undefined ? options.sidebarWidth : 240,
 			sidebarView: 'annotations',
+			contextPaneOpen: options.contextPaneOpen !== undefined ? options.contextPaneOpen : false,
 			bottomPlaceholderHeight: options.bottomPlaceholderHeight || null,
 			toolbarPlaceholderWidth: options.toolbarPlaceholderWidth || 0,
 			showContextPaneToggle: options.showContextPaneToggle,
@@ -265,7 +267,24 @@ class Reader {
 			}
 		});
 
+		// Select the annotation instead of just navigating when to it when the location is provided externally
+		let selectAnnotationID;
+		if (
+			options.location?.annotationID
+			&& options.annotations.find(x => x.id === options.location.annotationID)
+		) {
+			selectAnnotationID = options.location.annotationID;
+			delete options.location;
+		}
+
 		this._primaryView = this._createView(true, options.location);
+
+		if (selectAnnotationID) {
+			(async () => {
+				await this._primaryView.initializedPromise;
+				this.setSelectedAnnotations([selectAnnotationID]);
+			})();
+		}
 
 		if (!this._preview) {
 			createRoot(document.getElementById('reader-ui')).render(
@@ -285,8 +304,6 @@ class Reader {
 							onZoomIn={this.zoomIn.bind(this)}
 							onZoomOut={this.zoomOut.bind(this)}
 							onZoomReset={this.zoomReset.bind(this)}
-							onZoomPageWidth={this.zoomPageWidth.bind(this)}
-							onScreenshot={this.takeScreenshot.bind(this)}
 							onNavigateBack={this.navigateBack.bind(this)}
 							onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
 							onNavigateToNextPage={this.navigateToNextPage.bind(this)}
@@ -347,11 +364,7 @@ class Reader {
 							onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
 							onOpenTagsPopup={this._onOpenTagsPopup}
 							onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
-							onOpenColorContextMenu={params => {
-								if (this._state && this._tools) {
-									this._onOpenContextMenu(createColorContextMenu(this, params));
-								}
-							}}
+							onOpenColorContextMenu={params => this._onOpenContextMenu(createColorContextMenu(this, params))}
 							onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
 							onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
 							onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}
@@ -376,21 +389,21 @@ class Reader {
 							onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
 							onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
 							onChangeSplitType={(type) => {
-								if (!type) {
-									this.disableSplitView();
-								}
-								else if (type === 'horizontal') {
+								if (type === 'horizontal') {
 									this.toggleHorizontalSplit(true);
 								}
 								else if (type === 'vertical') {
 									this.toggleVerticalSplit(true);
+								}
+								else {
+									this.disableSplitView();
 								}
 							}}
 							onChangeScrollMode={(mode) => this.scrollMode = mode}
 							onChangeSpreadMode={(mode) => this.spreadMode = mode}
 							onChangeFlowMode={(mode) => this.flowMode = mode}
 							onAddTheme={() => this._updateState({ themePopup: {} })}
-							onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
+							onOpenThemeContextMenu={params => this._onOpenContextMenu(createThemeContextMenu(this, params))}
 							onCloseThemePopup={() => this._updateState({ themePopup: null })}
 							onSaveCustomThemes={(customThemes) => {
 								this._onSaveCustomThemes(customThemes);
@@ -405,13 +418,6 @@ class Reader {
 								}
 								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
 							}}
-							onMenuButtonClick={this._handleMenuButtonClick}
-							onTranslate={this._onTranslate}
-							onAskAI={this._onAskAI}
-							onClickClose={this._onClickClose}
-							onClickSplit={this._onClickSplit}
-							onClickVerticalSplit={this._onClickVerticalSplit}
-							onToggleToolbar={this._onToggleToolbar}
 						/>
 					</ReaderContext.Provider>
 				</IntlProvider>
@@ -541,7 +547,7 @@ class Reader {
 			this._secondaryView?.setFindState(this._state.secondaryViewFindState);
 		}
 
-		if (this._type === 'epub') {
+		if (this._type === 'epub' || this._type === 'snapshot') {
 			if (this._state.fontFamily !== previousState.fontFamily) {
 				this._primaryView?.setFontFamily(this._state.fontFamily);
 				this._secondaryView?.setFontFamily(this._state.fontFamily);
@@ -559,16 +565,10 @@ class Reader {
 		}
 
 		if (init || this._state.sidebarOpen !== previousState.sidebarOpen) {
-			if (this._state.sidebarOpen) {
-				document.body.classList.add('sidebar-open');
-			}
-			else {
-				document.body.classList.remove('sidebar-open');
-			}
+			document.body.classList.toggle('sidebar-open', this._state.sidebarOpen);
 			this._primaryView?.setSidebarOpen(this._state.sidebarOpen);
 			this._secondaryView?.setSidebarOpen(this._state.sidebarOpen);
 		}
-
 
 		if (init || this._state.splitType !== previousState.splitType) {
 			document.body.classList.remove('enable-horizontal-split-view');
@@ -763,9 +763,24 @@ class Reader {
 	}
 
 	_handleAppearanceChange(params) {
-		this._ensureType('epub');
+		this._ensureType('epub', 'snapshot');
 		this._primaryView?.setAppearance(params);
 		this._secondaryView?.setAppearance(params);
+	}
+
+	_handleFocusModeEnabledChange(enabled) {
+		this._ensureType('snapshot');
+		try {
+			this._primaryView?.setFocusModeEnabled(enabled);
+			this._secondaryView?.setFocusModeEnabled(enabled);
+		}
+		catch (e) {
+			console.error(e);
+			this.setErrorMessage(this._getString('reader-focus-mode-not-supported'));
+			setTimeout(() => {
+				this.setErrorMessage(null);
+			}, 5000);
+		}
 	}
 
 	_handleFindStateChange(primary, params) {
@@ -791,12 +806,12 @@ class Reader {
 		if (!findStateResult) return;
 		let { index, total, currentPageLabel, currentSnippet } = findStateResult;
 		if (total == 0) {
-			this.setA11yMessage(this._getString('pdfReader.phraseNotFound'));
+			this.setA11yMessage(this._getString('reader-phrase-not-found'));
 			return;
 		}
-		let searchIndex = `${this._getString('pdfReader.searchResultIndex')}: ${index + 1}.`;
-		let totalResults = `${this._getString('pdfReader.searchResultTotal')}: ${total}.`;
-		let page = currentPageLabel ? `${this._getString('pdfReader.page')}: ${currentPageLabel}.` : '';
+		let searchIndex = `${this._getString('reader-search-result-index')}: ${index + 1}.`;
+		let totalResults = `${this._getString('reader-search-result-total')}: ${total}.`;
+		let page = currentPageLabel ? `${this._getString('reader-page')}: ${currentPageLabel}.` : '';
 		this.setA11yMessage(`${searchIndex} ${totalResults} ${page} ${currentSnippet || ''}`);
 	}, 100);
 
@@ -858,7 +873,7 @@ class Reader {
 	}
 
 	_getString(name) {
-		return this._localizedStrings[name] || name;
+		return getLocalizedString(name);
 	}
 
 	_createView(primary, location) {
@@ -985,7 +1000,7 @@ class Reader {
 		});
 
 		let onEPUBEncrypted = () => {
-			this.setErrorMessage(this._getString('pdfReader.epubEncrypted'));
+			this.setErrorMessage(this._getString('reader-epub-encrypted'));
 		};
 
 		let onFocusAnnotation = (annotation) => {
@@ -1001,38 +1016,40 @@ class Reader {
 				return;
 			}
 			// Announce the type and content of annotations added by the user
-			let annotationType = this._getString(`pdfReader.${annotation.type}Annotation`);
+			let annotationType = this._getString(`reader-${annotation.type}-annotation`);
 			let annotationContent = `${annotationType}. ${annotation.text || annotation.comment}`;
 			this.setA11yMessage(annotationContent);
-		}
+		};
 
-		let getLocalizedString = (name) => this._getString(name);
+		let onSetHiddenAnnotations = (ids) => {
+			this._annotationManager.setFilter({ hiddenIDs: ids });
 
-		// 添加翻译回调函数
-		let onTranslate = this._onTranslate
-			? (text) => {
-				console.log('Reader中的onTranslate被调用，text:', text);
-				return this._onTranslate(text);
+			// 添加翻译回调函数
+			let onTranslate = this._onTranslate
+				? (text) => {
+					console.log('Reader中的onTranslate被调用，text:', text);
+					return this._onTranslate(text);
+				}
+				: null;
+
+			// 添加AI回调函数
+			let onAskAI = this._onAskAI
+				? (text) => {
+					console.log('Reader中的onAskAI被调用，text:', text);
+					return this._onAskAI(text);
+				}
+				: null;
+
+			// 打印检查onTranslate和onAskAI
+			console.log('Reader中准备传递的onTranslate:', onTranslate);
+			if (onTranslate) {
+				console.log('onTranslate是函数:', typeof onTranslate === 'function');
 			}
-			: null;
-
-		// 添加AI回调函数
-		let onAskAI = this._onAskAI
-			? (text) => {
-				console.log('Reader中的onAskAI被调用，text:', text);
-				return this._onAskAI(text);
+			console.log('Reader中准备传递的onAskAI:', onAskAI);
+			if (onAskAI) {
+				console.log('onAskAI是函数:', typeof onAskAI === 'function');
 			}
-			: null;
-
-		// 打印检查onTranslate和onAskAI
-		console.log('Reader中准备传递的onTranslate:', onTranslate);
-		if (onTranslate) {
-			console.log('onTranslate是函数:', typeof onTranslate === 'function');
-		}
-		console.log('Reader中准备传递的onAskAI:', onAskAI);
-		if (onAskAI) {
-			console.log('onAskAI是函数:', typeof onAskAI === 'function');
-		}
+		};
 
 		let data;
 		if (this._type === 'pdf') {
@@ -1084,12 +1101,7 @@ class Reader {
 			onKeyDown,
 			onKeyUp,
 			onFocusAnnotation,
-			getLocalizedString,
-			onTranslate,
-			onAskAI,
-			onClick: this._onClick,
-			onScreenshot: this._onScreenshot,
-			onChangeTool: this.setTool.bind(this)
+			getLocalizedString
 		};
 
 		if (this._type === 'pdf') {
@@ -1154,8 +1166,8 @@ class Reader {
 		if (ids.length > 1) {
 			if (!this._onConfirm(
 				'',
-				this._getString('pdfReader.deleteAnnotation.plural'),
-				this._getString('general.delete')
+				this._getString('reader-delete-annotation', { count: ids.length }),
+				this._getString('general-delete')
 			)) {
 				return;
 			}
@@ -1305,7 +1317,16 @@ class Reader {
 
 	async navigate(location, options) {
 		await this._lastView.initializedPromise;
-		this._lastView.navigate(location, options);
+		// Select the annotation instead of just navigating when navigation is triggered externally
+		if (
+			location.annotationID
+			&& this._state.annotations.find(x => x.id === location.annotationID)
+		) {
+			this.setSelectedAnnotations([location.annotationID]);
+		}
+		else {
+			this._lastView.navigate(location, options);
+		}
 	}
 
 	navigateBack() {
@@ -1469,16 +1490,16 @@ class Reader {
 						let a11yAnnouncement = await document.l10n.formatValue('pdfReader-a11yAnnotationSelected', { type: annotationType });
 						// Announce if there is a popup.
 						if (document.querySelector('.annotation-popup')) {
-							a11yAnnouncement += ' ' + await document.l10n.formatValue('pdfReader-a11yAnnotationPopupAppeared');
+							a11yAnnouncement += ' ' + getLocalizedString('reader-a11y-annotation-popup-appeared');
 						}
 						// Announce available keyboard interface options for this annotation type
 						if (['highlight', 'underline'].includes(annotation.type)) {
-							a11yAnnouncement += ' ' + await document.l10n.formatValue('pdfReader-a11yEditTextAnnotation');
+							a11yAnnouncement += ' ' + getLocalizedString('reader-a11y-edit-text-annotation');
 						}
 						else if (['note', 'text', 'image'].includes(annotation.type)) {
-							a11yAnnouncement += ' ' + await document.l10n.formatValue('pdfReader-a11yMoveAnnotation');
+							a11yAnnouncement += ' ' + getLocalizedString('reader-a11y-move-annotation');
 							if (['text', 'image'].includes(annotation.type)) {
-								a11yAnnouncement += ' ' + await document.l10n.formatValue('pdfReader-a11yResizeAnnotation');
+								a11yAnnouncement += ' ' + getLocalizedString('reader-a11y-resize-annotation');
 							}
 						}
 						// only announce if the content view is focused. E.g. if comment in
@@ -1559,6 +1580,14 @@ class Reader {
 			open = !this._state.sidebarOpen;
 		}
 		this._updateState({ sidebarOpen: open });
+	}
+
+	setContextPaneOpen(open) {
+		// Our context pane toggle will replace the sidenav context pane toggle,
+		// so we need to be sure that this update renders synchronously
+		flushSync(() => {
+			this._updateState({ contextPaneOpen: open });
+		});
 	}
 
 	setSidebarWidth(width) {

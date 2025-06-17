@@ -14,6 +14,8 @@
 	height: $height-toolbar !important;
 	min-height: 41px;
 	margin: 0;
+	padding-inline: 8px 4px;
+	padding-block: 0;
 	padding: 0px 6px;
 	min-width: 1px;
 	background: var(--material-toolbar);
@@ -30,19 +32,18 @@
 		flex: 0 0 auto;
 		gap: 2px;
 	}
-	
+
 	.center {
 		flex: 1;
 		display: flex;
 		align-items: center;
-		justify-content: center;
+		gap: 4px;
 	}
 
 	.end {
 		flex: 2;
 		justify-content: flex-start;
 		padding-inline-end: var(--toolbar-placeholder-width);
-		gap: 2px;
 	}
 
 	.custom-sections {
@@ -51,7 +52,8 @@
 		gap: 2px;
 	}
 
-	.toolbar-button, .toolbar-text-input {
+	.toolbar-button,
+	.toolbar-text-input {
 		-moz-window-dragging: no-drag;
 	}
 
@@ -61,7 +63,7 @@
 		justify-content: center;
 		position: relative;
 	}
-	
+
 	#pageNumber {
 		width: 48px;
 		text-align: right;
@@ -88,12 +90,14 @@
 		margin: 0 4px;
 	}
 
-	.annotation-tools, .pdf-tools, .utility-tools {
+	.annotation-tools,
+	.pdf-tools,
+	.utility-tools {
 		display: flex;
 		align-items: center;
 		gap: 2px;
 	}
-	
+
 	.zoom-controls {
 		display: flex;
 		align-items: center;
@@ -103,13 +107,13 @@
 	@include macOS-inactive-opacity;
 }
 
-[dir=rtl] .toolbar {
+[dir="rtl"] .toolbar {
 	.sidebar-toggle {
 		transform: scaleX(-1);
 	}
 }
 
-[dir=ltr] .toolbar {
+[dir="ltr"] .toolbar {
 	.context-pane-toggle .standard-view {
 		transform: scaleX(-1);
 	}
@@ -128,7 +132,9 @@
 		background-color: var(--fill-quinary);
 	}
 
-	&:active, &.active, &.active-pseudo-class-fix {
+	&:active,
+	&.active,
+	&.active-pseudo-class-fix {
 		background-color: var(--fill-quarternary);
 	}
 

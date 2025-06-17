@@ -132,6 +132,8 @@ class PDFView {
 
 		this._findState = options.findState;
 
+		this._scrolling = false;
+
 
 		// Create a MediaQueryList object
 		let darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -217,7 +219,10 @@ class PDFView {
 
 				this._iframeWindow.onAttachPage = this._attachPage.bind(this);
 				this._iframeWindow.onDetachPage = this._detachPage.bind(this);
-				if (!this._preview) {
+				if (this._preview) {
+					setTimeout(this._resolveInitializedPromise);
+				}
+				else {
 					this._init();
 				}
 				if (options.data.buf) {
@@ -228,7 +233,6 @@ class PDFView {
 				}
 				window.PDFViewerApplication = this._iframeWindow.PDFViewerApplication;
 				window.if = this._iframeWindow;
-				this._resolveInitializedPromise();
 
 				// Add click event listener
 				// this._iframeWindow.document.addEventListener('click', this._handleClick.bind(this));
@@ -241,6 +245,13 @@ class PDFView {
 				}
 
 				this._iframeWindow.document.getElementById('viewerContainer').addEventListener('scroll', (event) => {
+					this._scrolling = true;
+					clearTimeout(this._scrollTimeout);
+					this._scrollTimeout = setTimeout(() => {
+						this._scrolling = false;
+					}, 100);
+
+
 					let x = event.target.scrollLeft;
 					let y = event.target.scrollTop;
 
@@ -411,6 +422,8 @@ class PDFView {
 		if (this._location) {
 			this.navigate(this._location);
 		}
+
+		this._resolveInitializedPromise();
 
 		await this._initProcessedData();
 		this._findController.setDocument(this._iframeWindow.PDFViewerApplication.pdfDocument);
@@ -2167,6 +2180,10 @@ class PDFView {
 
 	// 优化后的指针移动处理函数 - 使用更低的延迟来处理截图工具
 	_handlePointerMove = throttle((event) => {
+		if (this._scrolling) {
+			return;
+		}
+
 		let dragging = !!event.dataTransfer;
 		// Set action cursor on hover
 		if (!this.pointerDownPosition) {
