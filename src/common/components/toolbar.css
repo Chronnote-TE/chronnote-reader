@@ -1,61 +1,61 @@
 .more-tools-menu {
-  position: absolute;
-  top: calc(100% + 5px);
-  left: 0;
-  transform: none;
-  width: 100px;
-  max-width: 120px;
-  background-color: var(--material-background);
-  border: 1px solid var(--material-border);
-  border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  padding: 5px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+	position: absolute;
+	top: calc(100% + 5px);
+	left: 0;
+	transform: none;
+	width: 100px;
+	max-width: 120px;
+	background-color: var(--material-background);
+	border: 1px solid var(--material-border);
+	border-radius: 4px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+	padding: 5px;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
 }
 
 .more-tools-menu button {
-  justify-content: flex-start;
-  padding: 5px 8px;
-  white-space: nowrap;
-  width: 100%;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--fill-primary);
+	justify-content: flex-start;
+	padding: 5px 8px;
+	white-space: nowrap;
+	width: 100%;
+	font-size: 13px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--fill-primary);
 }
 
 .more-tools-menu button span {
-  margin-left: 2px;
+	margin-left: 2px;
 }
 
 .more-tools-menu button:hover {
-  background-color: var(--fill-quinary);
+	background-color: var(--fill-quinary);
 }
 
 .more-tools-menu button:active {
-  background-color: var(--fill-quarternary);
+	background-color: var(--fill-quarternary);
 }
 
 .toolbar {
-  position: relative;
-  max-width: 90%;
-  padding: 0 6px;
+	position: relative;
+	max-width: 90%;
+	padding: 0 6px;
 }
 
 .toolbar-dropdown-container {
-  position: relative;
-  display: inline-block;
+	position: relative;
+	display: inline-block;
 }
 
 /* 工具栏分组样式 */
 .toolbar-group {
-  display: flex;
-  align-items: center;
-  padding: 0 4px;
+	display: flex;
+	align-items: center;
+	padding: 0 4px;
 }
 
 /* 高亮显示特殊工具按钮 */
@@ -63,60 +63,63 @@
 .more-menu-button.screenshot svg,
 .toolbar-button.camera svg,
 .more-menu-button.camera svg {
-  color: #6c5ce7 !important;
-  stroke-width: 2px;
+	color: #6c5ce7 !important;
+	stroke-width: 2px;
 }
 
 /* 确保特殊工具按钮在所有屏幕尺寸下都显示 */
 .special-tools-container {
-  display: flex !important;
-  align-items: center;
-  gap: 2px;
-  margin-right: 4px;
+	display: flex !important;
+	align-items: center;
+	gap: 2px;
+	margin-right: 4px;
 }
 
 /* 在小屏幕上确保特殊工具容器始终显示 */
 .toolbar.very-small-screen .special-tools-container {
-  display: flex !important;
-  position: fixed;
-  bottom: 10px;
-  right: 60px; /* 位于more按钮左侧 */
-  z-index: 9999;
+	display: flex !important;
+	position: fixed;
+	bottom: 10px;
+	right: 60px; /* 位于more按钮左侧 */
+	z-index: 9999;
 }
 
 /* 在小屏幕上调整特殊工具按钮样式 */
 .toolbar.very-small-screen .special-tools-container .toolbar-button {
-  display: flex !important;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
-  justify-content: center;
-  align-items: center;
+	display: flex !important;
+	width: 40px;
+	height: 40px;
+	border-radius: 20px;
+	background-color: rgba(255, 255, 255, 0.95) !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+	border: 1px solid rgba(0, 0, 0, 0.1) !important;
+	justify-content: center;
+	align-items: center;
 }
 
 /* 暗色模式下的特殊工具按钮样式 */
-:root[data-color-scheme="dark"] .toolbar.very-small-screen .special-tools-container .toolbar-button {
-  background-color: rgba(43, 42, 51, 0.95) !important;
-  border-color: rgba(68, 68, 68, 0.7) !important;
-  color: var(--fill-primary, #eee) !important;
+:root[data-color-scheme="dark"]
+	.toolbar.very-small-screen
+	.special-tools-container
+	.toolbar-button {
+	background-color: rgba(43, 42, 51, 0.95) !important;
+	border-color: rgba(68, 68, 68, 0.7) !important;
+	color: var(--fill-primary, #eee) !important;
 }
 
 /* 工具栏区域布局调整 */
 .start {
-  flex: 1;
+	flex: 1;
 }
 
 .center {
-  flex: 3;
-  justify-content: center;
+	flex: 3;
+	justify-content: center;
 }
 
 .end {
-  flex: 1;
-  justify-content: flex-end;
+	flex: 1;
+	justify-content: flex-end;
 }
 
 /* 工具子分组 */
@@ -124,64 +127,64 @@
 .annotation-tools,
 .pdf-tools,
 .utility-tools {
-  display: flex;
-  align-items: center;
-  gap: 2px;
+	display: flex;
+	align-items: center;
+	gap: 2px;
 }
 
 /* 页码控件样式 */
 .page-controls {
-  display: flex;
-  align-items: center;
-  margin-right: 6px;
-  margin-left: 6px;
+	display: flex;
+	align-items: center;
+	margin-right: 6px;
+	margin-left: 6px;
 }
 
 #pageNumber {
-  width: 48px;
-  text-align: center;
+	width: 48px;
+	text-align: center;
 }
 
 #numPages {
-  white-space: nowrap;
+	white-space: nowrap;
 }
 
 /* Dark mode support */
-:root[data-color-scheme=dark] .more-tools-menu {
-  background-color: var(--material-background);
-  border-color: var(--material-border);
-  color: var(--fill-primary);
+:root[data-color-scheme="dark"] .more-tools-menu {
+	background-color: var(--material-background);
+	border-color: var(--material-border);
+	color: var(--fill-primary);
 }
 
-:root[data-color-scheme=dark] .more-tools-menu button {
-  color: var(--fill-primary);
+:root[data-color-scheme="dark"] .more-tools-menu button {
+	color: var(--fill-primary);
 }
 
-:root[data-color-scheme=dark] .more-tools-menu button:hover {
-  background-color: var(--fill-quinary);
+:root[data-color-scheme="dark"] .more-tools-menu button:hover {
+	background-color: var(--fill-quinary);
 }
 
-:root[data-color-scheme=dark] .more-tools-menu button:active {
-  background-color: var(--fill-quarternary);
+:root[data-color-scheme="dark"] .more-tools-menu button:active {
+	background-color: var(--fill-quarternary);
 }
 
 /* 确保下拉菜单不会超出屏幕边界 */
 @media screen and (max-width: 250px) {
-  .more-tools-menu {
-    left: -50px;
-  }
+	.more-tools-menu {
+		left: -50px;
+	}
 }
 
 /* Responsive toolbar styles */
 @media (max-width: 768px) {
-  .hidden-on-small {
-    display: none;
-  }
+	.hidden-on-small {
+		display: none;
+	}
 }
 
 /* 对于小屏幕环境，确保PDF工具完全隐藏 */
 .very-small-screen-hidden {
-  display: none !important;
+	display: none !important;
 }
 
 /* 直接作用于有类名的元素 */
@@ -190,496 +193,497 @@
 .toolbar.very-small-screen button.toolbar-button.area,
 .toolbar.very-small-screen button.toolbar-button.ink,
 .toolbar.very-small-screen button.toolbar-button.eraser {
-  display: none !important;
-  visibility: hidden !important;
+	display: none !important;
+	visibility: hidden !important;
 }
 
 @media (max-width: 500px) {
+	/* 完全隐藏工具栏 */
+	.toolbar {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		box-shadow: none !important;
+		background: none !important;
+		border: none !important;
+	}
 
-  /* 完全隐藏工具栏 */
-  .toolbar {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    box-shadow: none !important;
-    background: none !important;
-    border: none !important;
-  }
+	/* 隐藏任何可能的父容器阴影或背景 */
+	.toolbar-container,
+	.toolbar-wrapper,
+	.toolbar-parent,
+	[class*="toolbar"],
+	#toolbarContainer,
+	#toolbarViewer,
+	.toolbarButtonWithContainer,
+	.secondaryToolbar,
+	[class*="ToolbarContainer"] {
+		background: transparent !important;
+		background-color: transparent !important;
+		box-shadow: none !important;
+		border: none !important;
+	}
 
-  /* 隐藏任何可能的父容器阴影或背景 */
-  .toolbar-container,
-  .toolbar-wrapper,
-  .toolbar-parent,
-  [class*="toolbar"],
-  #toolbarContainer,
-  #toolbarViewer,
-  .toolbarButtonWithContainer,
-  .secondaryToolbar,
-  [class*="ToolbarContainer"] {
-    background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-  }
+	/* 创建一个固定位置的浮动按钮 */
+	.toolbar.very-small-screen {
+		display: block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		position: fixed;
+		bottom: 10px;
+		right: 10px;
+		width: auto !important;
+		height: auto !important;
+		padding: 0 !important;
+		margin: 0 !important;
+		background: none !important;
+		border: none !important;
+		z-index: 9999 !important;
+		transform: none !important;
+		left: auto !important;
+		min-height: 0 !important;
+		min-width: 0 !important;
+	}
 
-  /* 创建一个固定位置的浮动按钮 */
-  .toolbar.very-small-screen {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    width: auto !important;
-    height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: none !important;
-    border: none !important;
-    z-index: 9999 !important;
-    transform: none !important;
-    left: auto !important;
-    min-height: 0 !important;
-    min-width: 0 !important;
-  }
+	/* 隐藏工具栏内所有内容，但保留特殊工具 */
+	.toolbar.very-small-screen .annotation-tools,
+	.toolbar.very-small-screen .pdf-tools,
+	.toolbar.very-small-screen .utility-tools,
+	.toolbar.very-small-screen .divider,
+	.toolbar.very-small-screen .center,
+	.toolbar.very-small-screen .page-controls {
+		display: none !important;
+	}
 
-  /* 隐藏工具栏内所有内容，但保留特殊工具 */
-  .toolbar.very-small-screen .annotation-tools,
-  .toolbar.very-small-screen .pdf-tools,
-  .toolbar.very-small-screen .utility-tools,
-  .toolbar.very-small-screen .divider,
-  .toolbar.very-small-screen .center,
-  .toolbar.very-small-screen .page-controls {
-    display: none !important;
-  }
+	/* 确保工具栏组在小屏幕上正确显示 */
+	.toolbar.very-small-screen .toolbar-group {
+		display: flex !important;
+		position: fixed;
+		bottom: 10px;
+		right: 10px;
+		background: none !important;
+		box-shadow: none !important;
+		border: none !important;
+		padding: 0 !important;
+	}
 
-  /* 确保工具栏组在小屏幕上正确显示 */
-  .toolbar.very-small-screen .toolbar-group {
-    display: flex !important;
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    background: none !important;
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-  }
+	/* 确保特殊工具容器始终显示 */
+	.toolbar.very-small-screen .special-tools-container,
+	.toolbar.small-screen .special-tools-container {
+		display: flex !important;
+	}
 
-  /* 确保特殊工具容器始终显示 */
-  .toolbar.very-small-screen .special-tools-container,
-  .toolbar.small-screen .special-tools-container {
-    display: flex !important;
-  }
+	/* 仅显示更多按钮 */
+	.toolbar.very-small-screen .more-menu-container {
+		display: block !important;
+		position: relative !important;
+		background: none !important;
+		box-shadow: none !important;
+	}
 
-  /* 仅显示更多按钮 */
-  .toolbar.very-small-screen .more-menu-container {
-    display: block !important;
-    position: relative !important;
-    background: none !important;
-    box-shadow: none !important;
-  }
+	.toolbar.very-small-screen .toolbar-button.more-button {
+		display: flex !important;
+		width: 40px;
+		height: 40px;
+		border-radius: 20px;
+		background-color: rgba(255, 255, 255, 0.95) !important;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+		border: 1px solid rgba(0, 0, 0, 0.1) !important;
+		justify-content: center;
+		align-items: center;
+		z-index: 10000 !important;
+	}
 
-  .toolbar.very-small-screen .toolbar-button.more-button {
-    display: flex !important;
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000 !important;
-  }
+	/* 确保PDFJS相关的元素也被处理 */
+	#viewerContainer::before,
+	#viewerContainer::after,
+	#toolbarContainer::before,
+	#toolbarContainer::after {
+		content: none !important;
+		display: none !important;
+		background: transparent !important;
+		box-shadow: none !important;
+	}
 
-  /* 确保PDFJS相关的元素也被处理 */
-  #viewerContainer::before,
-  #viewerContainer::after,
-  #toolbarContainer::before,
-  #toolbarContainer::after {
-    content: none !important;
-    display: none !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
+	/* 菜单样式调整 */
+	.more-menu {
+		width: 180px;
+		right: 0;
+		bottom: 48px;
+		border-radius: 8px;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+		background-color: rgba(255, 255, 255, 0.95);
+	}
 
-  /* 菜单样式调整 */
-  .more-menu {
-    width: 180px;
-    right: 0;
-    bottom: 48px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    background-color: rgba(255, 255, 255, 0.95);
-  }
-
-  /* 暗色模式下菜单的样式 */
-  :root[data-color-scheme="dark"] .more-menu {
-    background-color: rgba(43, 42, 51, 0.95) !important;
-    border-color: rgba(68, 68, 68, 0.7) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
-  }
+	/* 暗色模式下菜单的样式 */
+	:root[data-color-scheme="dark"] .more-menu {
+		background-color: rgba(43, 42, 51, 0.95) !important;
+		border-color: rgba(68, 68, 68, 0.7) !important;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+	}
 }
 
 /* Page controls in the more menu */
 .page-controls-in-menu {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0px 8px 6px;
-  gap: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0px 8px 6px;
+	gap: 5px;
 }
 
 .page-controls-in-menu input {
-  width: 40px;
-  text-align: center;
-  padding: 3px;
-  border: 1px solid #ddd;
-  border-radius: 3px;
+	width: 40px;
+	text-align: center;
+	padding: 3px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
 }
 
 .page-controls-in-menu span {
-  font-size: 12px;
-  color: #555;
+	font-size: 12px;
+	color: #555;
 }
 
 /* More menu container */
 .more-menu-container {
-  position: relative;
+	position: relative;
 }
 
 /* More menu dropdown */
 .more-menu {
-  position: absolute;
-  bottom: 100%;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  width: 180px;
-  z-index: 1000;
-  margin-bottom: 5px;
+	position: absolute;
+	bottom: 100%;
+	right: 0;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	width: 180px;
+	z-index: 1000;
+	margin-bottom: 5px;
 }
 
 /* More menu sections */
 .more-menu-section {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--material-border);
+	padding: 8px 0;
+	border-bottom: 1px solid var(--material-border);
 }
 
 .more-menu-section:last-child {
-  border-bottom: none;
+	border-bottom: none;
 }
 
 /* More menu section headers */
 .more-menu-header {
-  padding: 0 12px 4px;
-  font-size: 12px;
-  color: var(--fill-secondary);
+	padding: 0 12px 4px;
+	font-size: 12px;
+	color: var(--fill-secondary);
 }
 
 /* More menu buttons */
 .more-menu-button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 6px 12px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 6px 12px;
+	border: none;
+	background: none;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 0.2s;
 }
 
 .more-menu-button:hover {
-  background-color: var(--fill-quinary);
+	background-color: var(--fill-quinary);
 }
 
 .more-menu-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .more-menu-button svg {
-  margin-right: 8px;
-  width: 16px;
-  height: 16px;
+	margin-right: 8px;
+	width: 16px;
+	height: 16px;
 }
 
 .more-menu-button span {
-  flex: 1;
-  font-size: 13px;
+	flex: 1;
+	font-size: 13px;
 }
 
 /* 强制覆盖注释和PDF工具菜单的暗色模式样式 */
 html[data-color-scheme="dark"] .more-menu,
 body[data-color-scheme="dark"] .more-menu,
 :root[data-color-scheme="dark"] .more-menu {
-  color-scheme: dark !important;
-  background-color: #2b2a33 !important;
-  color: #eee !important;
-  border-color: #444 !important;
+	color-scheme: dark !important;
+	background-color: #2b2a33 !important;
+	color: #eee !important;
+	border-color: #444 !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-section,
 body[data-color-scheme="dark"] .more-menu-section,
 :root[data-color-scheme="dark"] .more-menu-section {
-  border-bottom-color: #444 !important;
+	border-bottom-color: #444 !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-header,
 body[data-color-scheme="dark"] .more-menu-header,
 :root[data-color-scheme="dark"] .more-menu-header {
-  color: #aaa !important;
+	color: #aaa !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-button,
 body[data-color-scheme="dark"] .more-menu-button,
 :root[data-color-scheme="dark"] .more-menu-button {
-  color: #eee !important;
+	color: #eee !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-button:hover,
 body[data-color-scheme="dark"] .more-menu-button:hover,
 :root[data-color-scheme="dark"] .more-menu-button:hover {
-  background-color: #444 !important;
+	background-color: #444 !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-button svg,
 body[data-color-scheme="dark"] .more-menu-button svg,
 :root[data-color-scheme="dark"] .more-menu-button svg {
-  color: #aaa !important;
+	color: #aaa !important;
 }
 
 html[data-color-scheme="dark"] .more-menu-button.active svg,
 body[data-color-scheme="dark"] .more-menu-button.active svg,
 :root[data-color-scheme="dark"] .more-menu-button.active svg {
-  color: #5b9aff !important;
+	color: #5b9aff !important;
 }
 
 /* 小屏幕下的更多按钮在暗色模式的样式 */
-:root[data-color-scheme="dark"] .toolbar.very-small-screen .toolbar-button.more-button {
-  background-color: rgba(43, 42, 51, 0.95) !important;
-  border-color: rgba(68, 68, 68, 0.7) !important;
-  color: var(--fill-primary, #eee) !important;
+:root[data-color-scheme="dark"]
+	.toolbar.very-small-screen
+	.toolbar-button.more-button {
+	background-color: rgba(43, 42, 51, 0.95) !important;
+	border-color: rgba(68, 68, 68, 0.7) !important;
+	color: var(--fill-primary, #eee) !important;
 }
 
 /* 针对暗色模式下媒体查询中的菜单样式 */
 @media (max-width: 500px) {
-  :root[data-color-scheme="dark"] .more-menu {
-    background-color: rgba(43, 42, 51, 0.95) !important;
-    border-color: rgba(68, 68, 68, 0.7) !important;
-  }
+	:root[data-color-scheme="dark"] .more-menu {
+		background-color: rgba(43, 42, 51, 0.95) !important;
+		border-color: rgba(68, 68, 68, 0.7) !important;
+	}
 }
 
 /* 针对暗色模式下页码控件的样式 */
 :root[data-color-scheme="dark"] .page-controls-in-menu input {
-  background-color: var(--material-background, #35343f) !important;
-  border-color: var(--material-border, #444) !important;
-  color: var(--fill-primary, #eee) !important;
+	background-color: var(--material-background, #35343f) !important;
+	border-color: var(--material-border, #444) !important;
+	color: var(--fill-primary, #eee) !important;
 }
 
 :root[data-color-scheme="dark"] .page-controls-in-menu span {
-  color: var(--fill-secondary, #aaa) !important;
+	color: var(--fill-secondary, #aaa) !important;
 }
 
 /* 强制应用暗色模式样式到弹出菜单 */
 @media (prefers-color-scheme: dark) {
-  .more-menu {
-    background-color: #2b2a33 !important;
-    color: #eee !important;
-    border-color: #444 !important;
-  }
+	.more-menu {
+		background-color: #2b2a33 !important;
+		color: #eee !important;
+		border-color: #444 !important;
+	}
 
-  .more-menu-section {
-    border-bottom-color: #444 !important;
-  }
+	.more-menu-section {
+		border-bottom-color: #444 !important;
+	}
 
-  .more-menu-header {
-    color: #aaa !important;
-  }
+	.more-menu-header {
+		color: #aaa !important;
+	}
 
-  .more-menu-button {
-    color: #eee !important;
-  }
+	.more-menu-button {
+		color: #eee !important;
+	}
 
-  .more-menu-button:hover {
-    background-color: #444 !important;
-  }
+	.more-menu-button:hover {
+		background-color: #444 !important;
+	}
 
-  .more-menu-button svg {
-    color: #aaa !important;
-  }
+	.more-menu-button svg {
+		color: #aaa !important;
+	}
 
-  .more-menu-button.active svg {
-    color: #5b9aff !important;
-  }
+	.more-menu-button.active svg {
+		color: #5b9aff !important;
+	}
 }
 
 /* 特殊处理Annotation工具和PDF工具菜单 */
 .more-menu-section:has(.more-menu-header:contains("Annotation Tools")),
 .more-menu-section:has(.more-menu-header:contains("PDF Tools")) {
-  background-color: inherit !important;
-  color: inherit !important;
+	background-color: inherit !important;
+	color: inherit !important;
 }
 
 /* Zoom controls in more menu */
 .more-menu-section:has(.more-menu-header:contains("Zoom Controls")) {
-  background-color: inherit !important;
-  color: inherit !important;
+	background-color: inherit !important;
+	color: inherit !important;
 }
 
 .more-menu-button svg {
-  width: 16px;
-  height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 /* Hide zoom controls in toolbar on very small screens */
 .toolbar.very-small-screen .utility-tools .zoom-in,
 .toolbar.very-small-screen .utility-tools .zoom-out {
-  display: none !important;
+	display: none !important;
 }
 
 /* Ensure zoom controls are properly hidden on very small screens */
 .toolbar.very-small-screen .utility-tools {
-  display: none !important;
+	display: none !important;
 }
 
 /* Style for zoom controls in more menu */
 .more-menu-section {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--material-border);
+	padding: 8px 0;
+	border-bottom: 1px solid var(--material-border);
 }
 
 .more-menu-section:last-child {
-  border-bottom: none;
+	border-bottom: none;
 }
 
 .more-menu-header {
-  padding: 0 12px 4px;
-  font-size: 12px;
-  color: var(--fill-secondary);
+	padding: 0 12px 4px;
+	font-size: 12px;
+	color: var(--fill-secondary);
 }
 
 .more-menu-button {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 6px 12px;
-  border: none;
-  background: none;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.2s;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	padding: 6px 12px;
+	border: none;
+	background: none;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 0.2s;
 }
 
 .more-menu-button:hover {
-  background-color: var(--fill-quinary);
+	background-color: var(--fill-quinary);
 }
 
 .more-menu-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .more-menu-button svg {
-  margin-right: 8px;
-  width: 16px;
-  height: 16px;
+	margin-right: 8px;
+	width: 16px;
+	height: 16px;
 }
 
 .more-menu-button span {
-  flex: 1;
-  font-size: 13px;
+	flex: 1;
+	font-size: 13px;
 }
 
 /* 响应式设计 - 中等屏幕尺寸 */
 @media (max-width: 768px) and (min-width: 501px) {
-  /* 在中等屏幕尺寸上隐藏PDF工具，因为它们已经放在more菜单中 */
-  .pdf-tools {
-    display: none !important;
-  }
+	/* 在中等屏幕尺寸上隐藏PDF工具，因为它们已经放在more菜单中 */
+	.pdf-tools {
+		display: none !important;
+	}
 
-  /* 确保more菜单按钮显示 */
-  .more-menu-container {
-    display: block !important;
-  }
+	/* 确保more菜单按钮显示 */
+	.more-menu-container {
+		display: block !important;
+	}
 
-  /* 调整工具栏布局保证空间合理利用 */
-  .toolbar {
-    max-width: 100%;
-    justify-content: space-between;
-  }
+	/* 调整工具栏布局保证空间合理利用 */
+	.toolbar {
+		max-width: 100%;
+		justify-content: space-between;
+	}
 
-  /* 确保注释工具在中等尺寸屏幕上的显示 */
-  .annotation-tools {
-    display: flex !important;
-  }
+	/* 确保注释工具在中等尺寸屏幕上的显示 */
+	.annotation-tools {
+		display: flex !important;
+	}
 }
 
 /* 在大屏幕上隐藏more菜单按钮 */
 @media (min-width: 769px) {
-  .more-menu-container {
-    display: none !important;
-  }
+	.more-menu-container {
+		display: none !important;
+	}
 }
 
 /* 确保特殊工具容器在所有屏幕尺寸下都显示 */
 @media (max-width: 768px) {
-  .special-tools-container {
-    display: flex !important;
-  }
+	.special-tools-container {
+		display: flex !important;
+	}
 }
 
 /* 在各种屏幕尺寸下调整工具栏显示 */
 .toolbar.small-screen .toolbar-group {
-  gap: 1px; /* 减小工具按钮间距，节省空间 */
+	gap: 1px; /* 减小工具按钮间距，节省空间 */
 }
 
 /* 优化中等屏幕尺寸下的工具栏显示 */
 @media (max-width: 768px) and (min-width: 501px) {
-  /* 调整工具栏布局 */
-  .toolbar.small-screen {
-    padding: 0 4px;
-  }
+	/* 调整工具栏布局 */
+	.toolbar.small-screen {
+		padding: 0 4px;
+	}
 
-  .toolbar.small-screen .end {
-    justify-content: space-between;
-  }
+	.toolbar.small-screen .end {
+		justify-content: space-between;
+	}
 
-  /* 确保页码控件在中等屏幕上显示且布局合理 */
-  .toolbar.small-screen .page-controls {
-    flex: 0 0 auto;
-    margin: 0 5px;
-  }
+	/* 确保页码控件在中等屏幕上显示且布局合理 */
+	.toolbar.small-screen .page-controls {
+		flex: 0 0 auto;
+		margin: 0 5px;
+	}
 
-  /* PDF工具已移到more菜单，所以在工具栏上隐藏它 */
-  .toolbar.small-screen .pdf-tools {
-    display: none !important;
-  }
+	/* PDF工具已移到more菜单，所以在工具栏上隐藏它 */
+	.toolbar.small-screen .pdf-tools {
+		display: none !important;
+	}
 
-  /* 在小屏幕上调整分隔符的显示 */
-  .toolbar.small-screen .divider {
-    margin: 0 2px;
-  }
+	/* 在小屏幕上调整分隔符的显示 */
+	.toolbar.small-screen .divider {
+		margin: 0 2px;
+	}
 
-  /* 减小工具按钮尺寸 */
-  .toolbar.small-screen .toolbar-button {
-    width: 26px;
-    height: 26px;
-  }
+	/* 减小工具按钮尺寸 */
+	.toolbar.small-screen .toolbar-button {
+		width: 26px;
+		height: 26px;
+	}
 
-  /* 确保more按钮正确显示 */
-  .toolbar.small-screen .more-button {
-    display: flex !important;
-  }
+	/* 确保more按钮正确显示 */
+	.toolbar.small-screen .more-button {
+		display: flex !important;
+	}
 }
 
 /* Hide zoom controls in toolbar on small screens */
 .toolbar.very-small-screen .utility-tools,
 .toolbar.small-screen .utility-tools {
-  display: none !important;
+	display: none !important;
 }
 
 /* Ensure individual zoom buttons are hidden as well */
@@ -687,5 +691,5 @@ body[data-color-scheme="dark"] .more-menu-button.active svg,
 .toolbar.very-small-screen .zoom-out,
 .toolbar.small-screen .zoom-in,
 .toolbar.small-screen .zoom-out {
-  display: none !important;
+	display: none !important;
 }

@@ -26,6 +26,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Localized, useLocalization } from "@fluent/react";
 import { ReaderContext } from '../reader';
 import CustomSections from './common/custom-sections';
+import { Button } from '@/components/ui/button';
 import './toolbar.css';
 
 function Toolbar({ visible = true, ...props }) {
@@ -130,13 +131,11 @@ function Toolbar({ visible = true, ...props }) {
 	return (
 		<div className="toolbar" data-tabstop={1} role="application">
 			<div className="start">
-				<button
-					id="sidebarToggle"
-					className="toolbar-button sidebar-toggle"
-					title={l10n.getString('pdfReader-toggleSidebar')}
-					tabIndex={-1}
-					onClick={handleSidebarButtonClick}
-				><PanelLeft /></button>
+				<Button variant="ghost" size="icon" onClick={handleSidebarButtonClick}>
+					<PanelLeft />
+					你好
+				</Button>
+
 				<div className="divider" />
 				<button
 					id="zoomOut"

@@ -57,7 +57,20 @@ function generateReaderConfig(build) {
 					use: 'ts-loader',
 				},
 				{
-					test: /\.s?css$/,
+					test: /\.css$/,
+					exclude: path.resolve(__dirname, './src/dom'),
+					use: [
+						MiniCssExtractPlugin.loader,
+						{
+							loader: 'css-loader',
+						},
+						{
+							loader: 'postcss-loader',
+						},
+					],
+				},
+				{
+					test: /\.scss$/,
 					exclude: path.resolve(__dirname, './src/dom'),
 					use: [
 						MiniCssExtractPlugin.loader,
@@ -102,7 +115,10 @@ function generateReaderConfig(build) {
 			].filter(Boolean)
 		},
 		resolve: {
-			extensions: ['.js', '.ts', '.tsx']
+			extensions: ['.js', '.ts', '.tsx'],
+			alias: {
+				'@': path.resolve(__dirname, 'src')
+			}
 		},
 		plugins: [
 			new ZoteroLocalePlugin({
@@ -229,7 +245,20 @@ function generateViewConfig(build) {
 					},
 				},
 				{
-					test: /\.s?css$/,
+					test: /\.css$/,
+					exclude: path.resolve(__dirname, './src/dom'),
+					use: [
+						MiniCssExtractPlugin.loader,
+						{
+							loader: 'css-loader',
+						},
+						{
+							loader: 'postcss-loader',
+						},
+					]
+				},
+				{
+					test: /\.scss$/,
 					exclude: path.resolve(__dirname, './src/dom'),
 					use: [
 						MiniCssExtractPlugin.loader,

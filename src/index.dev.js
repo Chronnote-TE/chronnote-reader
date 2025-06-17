@@ -3,6 +3,7 @@ import pdf from '../demo/pdf';
 import epub from '../demo/epub';
 import snapshot from '../demo/snapshot';
 import './fluent';
+import './styles/globals.css';
 
 window.dev = true;
 
