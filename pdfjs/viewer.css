@@ -88,58 +88,6 @@ body.portal #viewerContainer::-webkit-scrollbar {
 	height: 0;
 }
 
-/* Custom scrollbar styles */
-#viewerContainer {
-	scrollbar-width: thin !important; /* Firefox */
-	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important; /* Firefox: thumb and track color */
-}
-
-#viewerContainer::-webkit-scrollbar {
-	width: 8px !important; /* Width of the entire scrollbar */
-	height: 8px !important;
-}
-
-#viewerContainer::-webkit-scrollbar-track {
-	background-color: transparent !important; /* Force track to be transparent */
-	border-radius: 0;
-}
-
-#viewerContainer::-webkit-scrollbar-thumb {
-	background-color: rgba(0, 0, 0, 0.3); /* Color of the thumb */
-	border-radius: 4px !important;
-	border: 2px solid transparent;
-	background-clip: padding-box;
-}
-
-#viewerContainer::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(0, 0, 0, 0.3); /* Same as non-hover state */
-	border: 2px solid transparent;
-	background-clip: padding-box;
-}
-
-/* Dark theme scrollbar */
-:root[data-color-scheme="dark"] #viewerContainer {
-	scrollbar-color: rgba(255, 255, 255, 0.3) transparent !important;
-}
-
-:root[data-color-scheme="dark"] #viewerContainer::-webkit-scrollbar-track {
-	background-color: transparent !important;
-}
-
-:root[data-color-scheme="dark"] #viewerContainer::-webkit-scrollbar-thumb {
-	background-color: rgba(255, 255, 255, 0.3);
-	border-radius: 4px !important;
-	border: 2px solid transparent;
-	background-clip: padding-box;
-}
-
-:root[data-color-scheme="dark"]
-	#viewerContainer::-webkit-scrollbar-thumb:hover {
-	background-color: rgba(255, 255, 255, 0.3); /* Same as non-hover state */
-	border: 2px solid transparent;
-	background-clip: padding-box;
-}
-
 .pdfViewer.scrollHorizontal {
 	flex-direction: row;
 }
@@ -452,7 +400,7 @@ body.portal #viewerContainer::-webkit-scrollbar {
 
 body,
 #viewerContainer {
-	background-color: white; /* --color-toolbar */
+	background-color: #fff; /* --color-toolbar */
 }
 
 .pdfViewer .page {
@@ -462,7 +410,7 @@ body,
 :root[data-color-scheme="dark"] body,
 :root[data-color-scheme="dark"] body #viewerContainer {
 	color-scheme: dark;
-	background-color: oklch(21.6% 0.006 56.043);
+	background-color: #171717 !important; /* --color-toolbar */
 }
 
 :root[data-color-scheme="dark"] .pdfViewer .page {

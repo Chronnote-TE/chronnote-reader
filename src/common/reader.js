@@ -415,6 +415,9 @@ class Reader {
 								}
 								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
 							}}
+							onMenuButtonClick={this._handleMenuButtonClick}
+							onAskAI={this._onAskAI}
+							onTranslate={this._onTranslate}
 						/>
 					</ReaderContext.Provider>
 				</LocalizationProvider>
@@ -1306,15 +1309,33 @@ class Reader {
 
 	/**
 	 * 切换工具栏的显示/隐藏状态
-	 * @param {boolean} visible - 工具栏是否可见，如果不传参数则切换当前状态
+	 * 纯粹的 toggle 功能，不接受参数
 	 */
-	toggleToolbar(visible) {
-		if (visible === undefined) {
-			visible = !this._state.toolbarVisible;
-		}
+	toggleToolbar() {
+		const visible = !this._state.toolbarVisible;
 		this._updateState({ toolbarVisible: visible });
-		if (this._onToggleToolbar) {
-			this._onToggleToolbar(visible);
+
+		// Notify host (if any)
+		this._onToggleToolbar?.(visible);
+	}
+
+	/**
+	 * 显示工具栏
+	 */
+	showToolbar() {
+		if (!this._state.toolbarVisible) {
+			this._updateState({ toolbarVisible: true });
+			this._onToggleToolbar?.(true);
+		}
+	}
+
+	/**
+	 * 隐藏工具栏
+	 */
+	hideToolbar() {
+		if (this._state.toolbarVisible) {
+			this._updateState({ toolbarVisible: false });
+			this._onToggleToolbar?.(false);
 		}
 	}
 

@@ -123,6 +123,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 		<Fragment>
 			<div>
 				<Toolbar
+					visible={state.toolbarVisible}
 					type={props.type}
 					pageIndex={viewStats.pageIndex || 0}
 					pageLabel={viewStats.pageLabel || ''}
