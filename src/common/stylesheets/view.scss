@@ -10,10 +10,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: rgba(0, 0, 0, 0.3);
+	background-color: rgba(0, 0, 0, 0.3) !important;
 	border-radius: 4px !important;
-	border: 2px solid transparent;
-	background-clip: padding-box;
+	border: 2px solid transparent !important;
+	background-clip: padding-box !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -22,18 +22,19 @@ body {
 	background-clip: padding-box;
 }
 
+// Theme-aware track color
 ::-webkit-scrollbar-track {
-	background-color: transparent !important;
-	border-radius: 0;
+	background-color: var(--color-scrollbar-background) !important;
+	border-radius: 0 !important;
 }
 
 ::-webkit-scrollbar-track:hover {
-	background-color: transparent !important;
+	background-color: var(--color-scrollbar-background) !important;
 }
 
 * {
 	scrollbar-width: thin !important; // Force thin scrollbar in Firefox
-	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important; // Firefox thumb and track color
+	scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-background) !important; // Theme-aware scrollbar
 }
 
 // Ensure scrollbars are positioned at the rightmost edge
@@ -124,37 +125,19 @@ body {
 }
 
 #viewerContainer {
-	// Make scrollbar narrower
-	&::-webkit-scrollbar {
-		width: 8px !important;
-		height: 8px !important;
-	}
-
-	&::-webkit-scrollbar-thumb {
-		background-color: rgba(0, 0, 0, 0.3);
-		border-radius: 4px !important;
-		border: 2px solid transparent;
-		background-clip: padding-box;
-	}
-
-	&::-webkit-scrollbar-thumb:hover {
-		background-color: rgba(0, 0, 0, 0.3); // Same as non-hover state
-		border: 2px solid transparent;
-		background-clip: padding-box;
-	}
-
+	// Theme-aware track color
 	&::-webkit-scrollbar-track {
-		background-color: transparent !important;
-		border-radius: 0;
+		background-color: var(--color-scrollbar-background) !important;
+		border-radius: 0 !important;
 	}
 
 	&::-webkit-scrollbar-track:hover {
-		background-color: transparent !important;
+		background-color: var(--color-scrollbar-background) !important;
 	}
 
-	// Firefox scrollbar
+	// Theme-aware Firefox scrollbar
 	scrollbar-width: thin !important;
-	scrollbar-color: rgba(0, 0, 0, 0.3) transparent !important;
+	scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-background) !important;
 }
 
 // PDF.js Theme Customization

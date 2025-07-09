@@ -179,7 +179,10 @@
 
 				// 选中状态下的 hover 效果
 				&:hover {
-					background-color: var(--material-button-hover, var(--material-button));
+					background-color: var(
+						--material-button-hover,
+						var(--material-button)
+					);
 				}
 			}
 
@@ -204,7 +207,7 @@
 		}
 
 		.add-note-btn {
-			width: 32px;
+			position: relative;
 			height: 32px;
 			border-radius: 6px;
 			display: flex;
@@ -213,6 +216,7 @@
 			margin-left: auto;
 			background: var(--fill-quinary);
 			position: relative; // 为 tooltip 定位
+			padding: 0 8px; // Add padding for width flexibility
 
 			.button-content {
 				display: flex;
@@ -245,7 +249,7 @@
 
 				// 添加小三角形
 				&:after {
-					content: '';
+					content: "";
 					position: absolute;
 					bottom: -4px;
 					left: 50%;
@@ -293,6 +297,7 @@
 			box-sizing: border-box;
 
 			.translation-content {
+				width: 100%;
 				font-size: 13px;
 				line-height: 1.5;
 				padding: 0;
@@ -300,6 +305,10 @@
 				box-sizing: border-box;
 				min-height: 100px;
 				max-height: 200px;
+				border: none;
+				resize: none;
+				outline: none;
+				color: var(--material-text);
 
 				&.selectable-text {
 					user-select: text !important;
@@ -339,7 +348,10 @@
 				}
 
 				&:hover {
-					background: var(--material-button-hover, var(--material-button));
+					background: var(
+						--material-button-hover,
+						var(--material-button)
+					);
 					transform: translateY(-1px);
 				}
 
@@ -419,7 +431,10 @@
 				}
 
 				&:hover {
-					background: var(--material-button-hover, var(--material-button));
+					background: var(
+						--material-button-hover,
+						var(--material-button)
+					);
 					transform: translateY(-1px);
 				}
 
@@ -507,8 +522,7 @@
 
 	.content {
 		min-height: calc(
-			2 * #{nem(4)}
-			+ 3 * var(--note-font-size) * calc(4 / 3)
+			2 * #{nem(4)} + 3 * var(--note-font-size) * calc(4 / 3)
 		);
 		max-height: 10 * 16px + 8px;
 		overflow-y: auto;
@@ -571,8 +585,10 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		&, &.show {
-			&, & img {
+		&,
+		&.show {
+			&,
+			& img {
 				transition: none;
 			}
 		}
@@ -606,7 +622,8 @@
 		transform: translateX(-50%);
 		width: calc(100% - 32px);
 
-		&.with-translation, &.with-ai {
+		&.with-translation,
+		&.with-ai {
 			max-width: 450px; // 增加10px宽度
 		}
 	}
@@ -614,87 +631,87 @@
 
 // 确保所有子元素都使用border-box
 .selection-popup * {
-    box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 .tools-group {
-    display: flex;
-    gap: 4px;
+	display: flex;
+	gap: 4px;
 
-    .tool-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--fill-quinary);
-        border: none;
-        position: relative; // 为 tooltip 定位
-        cursor: pointer;
+	.tool-btn {
+		width: 32px;
+		height: 32px;
+		border-radius: 6px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--fill-quinary);
+		border: none;
+		position: relative; // 为 tooltip 定位
+		cursor: pointer;
 
-        .button-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-        }
+		.button-content {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 100%;
+			height: 100%;
+		}
 
-        // Tooltip 基础样式
-        .tooltip {
-            position: absolute;
-            top: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--material-background);
-            color: var(--material-text);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            z-index: 1000;
+		// Tooltip 基础样式
+		.tooltip {
+			position: absolute;
+			top: -30px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: var(--material-background);
+			color: var(--material-text);
+			padding: 4px 8px;
+			border-radius: 4px;
+			font-size: 12px;
+			white-space: nowrap;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity 0.2s ease;
+			z-index: 1000;
 
-            // 添加小三角形
-            &:after {
-                content: '';
-                position: absolute;
-                bottom: -4px;
-                left: 50%;
-                transform: translateX(-50%);
-                border-left: 4px solid transparent;
-                border-right: 4px solid transparent;
-                border-top: 4px solid var(--material-background);
-            }
-        }
+			// 添加小三角形
+			&:after {
+				content: "";
+				position: absolute;
+				bottom: -4px;
+				left: 50%;
+				transform: translateX(-50%);
+				border-left: 4px solid transparent;
+				border-right: 4px solid transparent;
+				border-top: 4px solid var(--material-background);
+			}
+		}
 
-        // 悬停时显示 tooltip
-        &:hover {
-            .tooltip {
-                opacity: 1;
-            }
-            background: var(--fill-quaternary);
-        }
+		// 悬停时显示 tooltip
+		&:hover {
+			.tooltip {
+				opacity: 1;
+			}
+			background: var(--fill-quaternary);
+		}
 
-        &:active {
-            background: var(--fill-tertiary);
-        }
+		&:active {
+			background: var(--fill-tertiary);
+		}
 
-        &.active {
-            background: var(--fill-tertiary);
-            color: var(--color-primary);
-        }
-    }
+		&.active {
+			background: var(--fill-tertiary);
+			color: var(--color-primary);
+		}
+	}
 }
 
 // 确保颜色按钮组的样式不受影响
 .colors-group {
-    display: flex;
-    gap: 4px;
-    margin-left: 8px;
-    // ... 其他颜色按钮样式保持不变
+	display: flex;
+	gap: 4px;
+	margin-left: 8px;
+	// ... 其他颜色按钮样式保持不变
 }
