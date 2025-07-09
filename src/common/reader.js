@@ -1,6 +1,5 @@
 import { createRoot } from 'react-dom/client';
 import React, { createContext } from 'react';
-import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import ReaderUI from './components/reader-ui';
 import PDFView from '../pdf/pdf-view';
 import EPUBView from '../dom/epub/epub-view';
@@ -25,7 +24,7 @@ import {
 } from './lib/utilities';
 import { debounce } from './lib/debounce';
 import { flushSync } from 'react-dom';
-import { bundle, getLocalizedString } from '../fluent';
+import { addFTL, getLocalizedString } from '../fluent';
 
 // Compute style values for usage in views (CSS variables aren't sufficient for that)
 // Font family is necessary for text annotations
@@ -70,19 +69,15 @@ class Reader {
 		this._onSaveCustomThemes = options.onSaveCustomThemes;
 		this._onSetLightTheme = options.onSetLightTheme;
 		this._onSetDarkTheme = options.onSetDarkTheme;
+		// Only used on Zotero client, sets text/plain and text/html values from Note Markdown and Note HTML translators
 		this._onSetDataTransferAnnotations = options.onSetDataTransferAnnotations;
 		this._onSetZoom = options.onSetZoom;
-		this._onMenuButtonClick = options.onMenuButtonClick;
-		this._onTranslate = options.onTranslate;
-		this._onAskAI = options.onAskAI;
-		this._onClickClose = options.onClickClose;
-		this._onClickSplit = options.onClickSplit;
-		this._onClickVerticalSplit = options.onClickVerticalSplit;
-		this._onToggleToolbar = options.onToggleToolbar;
-		this._onClick = options.onClick;
-		this._onScreenshot = options.onScreenshot;
 
-		this._localizedStrings = options.localizedStrings;
+		if (Array.isArray(options.ftl)) {
+			for (let ftl of options.ftl) {
+				addFTL(ftl);
+			}
+		}
 
 		this._readerRef = React.createRef();
 		this._primaryView = null;
@@ -120,10 +115,6 @@ class Reader {
 			},
 			image: {
 				type: 'image',
-				color: ANNOTATION_COLORS[0][1],
-			},
-			screenshot: {
-				type: 'screenshot',
 				color: ANNOTATION_COLORS[0][1],
 			},
 			text: {
@@ -182,7 +173,7 @@ class Reader {
 			outline: null, // null — loading, [] — empty
 			outlineQuery: '',
 			pageLabels: [],
-			sidebarOpen: options.sidebarOpen !== undefined ? options.sidebarOpen : false,
+			sidebarOpen: options.sidebarOpen !== undefined ? options.sidebarOpen : true,
 			sidebarWidth: options.sidebarWidth !== undefined ? options.sidebarWidth : 240,
 			sidebarView: 'annotations',
 			contextPaneOpen: options.contextPaneOpen !== undefined ? options.contextPaneOpen : false,
@@ -210,7 +201,6 @@ class Reader {
 				entireWord: false,
 				result: null,
 			},
-			toolbarVisible: options.toolbarVisible !== undefined ? options.toolbarVisible : true,
 			secondaryViewState: null,
 			secondaryViewStats: {},
 			secondaryViewAnnotationPopup: null,
@@ -265,6 +255,9 @@ class Reader {
 			},
 			onChangeFilter: (filter) => {
 				this._updateState({ filter });
+			},
+			adjustTextAnnotationPosition: (annotation, option) => {
+				return this._primaryView.adjustTextAnnotationPosition(annotation, option);
 			}
 		});
 
@@ -288,139 +281,132 @@ class Reader {
 		}
 
 		if (!this._preview) {
-			const l10n = new ReactLocalization([bundle]);
 			createRoot(document.getElementById('reader-ui')).render(
-				<LocalizationProvider l10n={l10n}>
-					<ReaderContext.Provider value={this._readerContext}>
-						<ReaderUI
-							type={this._type}
-							state={this._state}
-							ref={this._readerRef}
-							tools={this._tools}
-							onSelectAnnotations={this.setSelectedAnnotations.bind(this)}
-							onZoomIn={this.zoomIn.bind(this)}
-							onZoomOut={this.zoomOut.bind(this)}
-							onZoomReset={this.zoomReset.bind(this)}
-							onNavigateBack={this.navigateBack.bind(this)}
-							onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
-							onNavigateToNextPage={this.navigateToNextPage.bind(this)}
-							onChangePageNumber={pageNumber => this.navigate({ pageNumber })}
-							onChangeTool={this.setTool.bind(this)}
-							onToggleAppearancePopup={this.toggleAppearancePopup.bind(this)}
-							onToggleFind={this.toggleFindPopup.bind(this)}
-							onChangeFilter={this.setFilter.bind(this)}
-							onChangeSidebarView={this.setSidebarView.bind(this)}
-							onToggleSidebar={(open) => {
-								this.toggleSidebar(open);
-								this._onToggleSidebar(open);
-							}}
-							onResizeSidebar={(width) => {
-								this.setSidebarWidth(width);
-								this._onChangeSidebarWidth(width);
-							}}
-							onChangeTheme={(theme) => {
-								if (getCurrentColorScheme(this._state.colorScheme) === 'dark') {
-									// For Zotero client use prefs to change theme
-									if (this._onSetDarkTheme) {
-										this._onSetDarkTheme(theme);
-									}
-									else {
-										this.setDarkTheme(theme);
-									}
+				<ReaderContext.Provider value={this._readerContext}>
+					<ReaderUI
+						type={this._type}
+						state={this._state}
+						ref={this._readerRef}
+						tools={this._tools}
+						onSelectAnnotations={this.setSelectedAnnotations.bind(this)}
+						onZoomIn={this.zoomIn.bind(this)}
+						onZoomOut={this.zoomOut.bind(this)}
+						onZoomReset={this.zoomReset.bind(this)}
+						onNavigateBack={this.navigateBack.bind(this)}
+						onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
+						onNavigateToNextPage={this.navigateToNextPage.bind(this)}
+						onChangePageNumber={pageNumber => this._lastView.navigate({ pageNumber })}
+						onChangeTool={this.setTool.bind(this)}
+						onToggleAppearancePopup={this.toggleAppearancePopup.bind(this)}
+						onToggleFind={this.toggleFindPopup.bind(this)}
+						onChangeFilter={this.setFilter.bind(this)}
+						onChangeSidebarView={this.setSidebarView.bind(this)}
+						onToggleSidebar={(open) => {
+							this.toggleSidebar(open);
+							this._onToggleSidebar(open);
+						}}
+						onResizeSidebar={(width) => {
+							this.setSidebarWidth(width);
+							this._onChangeSidebarWidth(width);
+						}}
+						onChangeTheme={(theme) => {
+							if (getCurrentColorScheme(this._state.colorScheme) === 'dark') {
+								// For Zotero client use prefs to change theme
+								if (this._onSetDarkTheme) {
+									this._onSetDarkTheme(theme);
 								}
 								else {
-									if (this._onSetLightTheme) {
-										this._onSetLightTheme(theme);
-									}
-									else {
-										this.setLightTheme(theme);
-									}
+									this.setDarkTheme(theme);
 								}
-							}}
-							onResizeSplitView={this.setSplitViewSize.bind(this)}
-							onAddAnnotation={(annotation, select) => {
-								annotation = this._annotationManager.addAnnotation(annotation);
-								// Tell screen readers the annotation was added after focus is settled
-								setTimeout(async () => {
-									// Temporary until web library supports fluent
-									if (!document.l10n) return;
-									let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-									let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
-									this.setA11yMessage(msg);
-								}, 100);
-								if (select) {
-									this.setSelectedAnnotations([annotation.id]);
-								} else {
-									this.setSelectedAnnotations([]);
+							}
+							else {
+								if (this._onSetLightTheme) {
+									this._onSetLightTheme(theme);
 								}
-							}}
-							onUpdateAnnotations={(annotations) => {
-								this._annotationManager.updateAnnotations(annotations);
-								this._enableAnnotationDeletionFromComment = false;
-							}}
-							onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
-							onOpenTagsPopup={this._onOpenTagsPopup}
-							onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
-							onOpenColorContextMenu={params => this._onOpenContextMenu(createColorContextMenu(this, params))}
-							onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
-							onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
-							onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}
-							onCloseContextMenu={this.closeContextMenu.bind(this)}
-							onCloseLabelPopup={this._handleLabelPopupClose.bind(this)}
-							onEnterPassword={this.enterPassword.bind(this)}
-							onAddToNote={(annotations) => {
-								this._onAddToNote(annotations);
+								else {
+									this.setLightTheme(theme);
+								}
+							}
+						}}
+						onResizeSplitView={this.setSplitViewSize.bind(this)}
+						onAddAnnotation={(annotation, select) => {
+							annotation = this._annotationManager.addAnnotation(annotation);
+							// Tell screen readers the annotation was added after focus is settled
+							setTimeout(() => {
+								let annotationType = getLocalizedString(`reader-${annotation.type}-annotation`);
+								let msg = getLocalizedString('reader-a11y-annotation-created', { type: annotationType });
+								this.setA11yMessage(msg);
+							}, 100);
+							if (select) {
+								this.setSelectedAnnotations([annotation.id]);
+							} else {
 								this.setSelectedAnnotations([]);
-							}}
-							onNavigate={this.navigate.bind(this)}
-							onUpdateOutline={outline => this._updateState({ outline })}
-							onUpdateOutlineQuery={outlineQuery => this._updateState({ outlineQuery })}
-							onRenderThumbnails={(pageIndexes) => this._primaryView._pdfThumbnails.render(pageIndexes)}
-							onSetDataTransferAnnotations={this._handleSetDataTransferAnnotations.bind(this)}
-							onOpenLink={this._onOpenLink}
-							onChangeAppearance={this._handleAppearanceChange.bind(this)}
-							onChangeFindState={this._handleFindStateChange.bind(this)}
-							onFindNext={this.findNext.bind(this)}
-							onFindPrevious={this.findPrevious.bind(this)}
-							onToggleContextPane={this._onToggleContextPane}
-							onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
-							onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
-							onChangeSplitType={(type) => {
-								if (type === 'horizontal') {
-									this.toggleHorizontalSplit(true);
-								}
-								else if (type === 'vertical') {
-									this.toggleVerticalSplit(true);
-								}
-								else {
-									this.disableSplitView();
-								}
-							}}
-							onChangeScrollMode={(mode) => this.scrollMode = mode}
-							onChangeSpreadMode={(mode) => this.spreadMode = mode}
-							onChangeFlowMode={(mode) => this.flowMode = mode}
-							onAddTheme={() => this._updateState({ themePopup: {} })}
-							onOpenThemeContextMenu={params => this._onOpenContextMenu(createThemeContextMenu(this, params))}
-							onCloseThemePopup={() => this._updateState({ themePopup: null })}
-							onSaveCustomThemes={(customThemes) => {
-								this._onSaveCustomThemes(customThemes);
-								let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
-								let map = new Map(themes.map(theme => [theme.id, theme]));
-								let { lightTheme, darkTheme } = this._state;
-								if (lightTheme && !map.has(lightTheme.id)) {
-									lightTheme = null;
-								}
-								if (darkTheme && !map.has(darkTheme.id)) {
-									darkTheme = null;
-								}
-								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
-							}}
-							onMenuButtonClick={this._handleMenuButtonClick}
-							onAskAI={this._onAskAI}
-							onTranslate={this._onTranslate}
-						/>
-					</ReaderContext.Provider>
-				</LocalizationProvider>
+							}
+						}}
+						onUpdateAnnotations={(annotations) => {
+							this._annotationManager.updateAnnotations(annotations);
+							this._enableAnnotationDeletionFromComment = false;
+						}}
+						onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
+						onOpenTagsPopup={this._onOpenTagsPopup}
+						onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
+						onOpenColorContextMenu={params => this._onOpenContextMenu(createColorContextMenu(this, params))}
+						onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
+						onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
+						onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}
+						onCloseContextMenu={this.closeContextMenu.bind(this)}
+						onCloseLabelPopup={this._handleLabelPopupClose.bind(this)}
+						onEnterPassword={this.enterPassword.bind(this)}
+						onAddToNote={(annotations) => {
+							this._onAddToNote(annotations);
+							this.setSelectedAnnotations([]);
+						}}
+						onNavigate={this.navigate.bind(this)}
+						onUpdateOutline={outline => this._updateState({ outline })}
+						onUpdateOutlineQuery={outlineQuery => this._updateState({ outlineQuery })}
+						onRenderThumbnails={(pageIndexes) => this._primaryView._pdfThumbnails.render(pageIndexes)}
+						onSetDataTransferAnnotations={this._handleSetDataTransferAnnotations.bind(this)}
+						onOpenLink={this._onOpenLink}
+						onChangeAppearance={this._handleAppearanceChange.bind(this)}
+						onChangeFocusModeEnabled={this._handleFocusModeEnabledChange.bind(this)}
+						onChangeFindState={this._handleFindStateChange.bind(this)}
+						onFindNext={this.findNext.bind(this)}
+						onFindPrevious={this.findPrevious.bind(this)}
+						onToggleContextPane={this._onToggleContextPane}
+						onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
+						onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
+						onChangeSplitType={(type) => {
+							if (type === 'horizontal') {
+								this.toggleHorizontalSplit(true);
+							}
+							else if (type === 'vertical') {
+								this.toggleVerticalSplit(true);
+							}
+							else {
+								this.disableSplitView();
+							}
+						}}
+						onChangeScrollMode={(mode) => this.scrollMode = mode}
+						onChangeSpreadMode={(mode) => this.spreadMode = mode}
+						onChangeFlowMode={(mode) => this.flowMode = mode}
+						onAddTheme={() => this._updateState({ themePopup: {} })}
+						onOpenThemeContextMenu={params => this._onOpenContextMenu(createThemeContextMenu(this, params))}
+						onCloseThemePopup={() => this._updateState({ themePopup: null })}
+						onSaveCustomThemes={(customThemes) => {
+							this._onSaveCustomThemes(customThemes);
+							let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
+							let map = new Map(themes.map(theme => [theme.id, theme]));
+							let { lightTheme, darkTheme } = this._state;
+							if (lightTheme && !map.has(lightTheme.id)) {
+								lightTheme = null;
+							}
+							if (darkTheme && !map.has(darkTheme.id)) {
+								darkTheme = null;
+							}
+							this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
+						}}
+					/>
+				</ReaderContext.Provider>
 			);
 		}
 
@@ -504,8 +490,10 @@ class Reader {
 			else {
 				delete document.documentElement.dataset.colorScheme;
 			}
-			this._primaryView?.setColorScheme(this._state.colorScheme);
-			this._secondaryView?.setColorScheme(this._state.colorScheme);
+			if (!init) {
+				this._primaryView?.setColorScheme(this._state.colorScheme);
+				this._secondaryView?.setColorScheme(this._state.colorScheme);
+			}
 		}
 
 		if (this._state.readOnly !== previousState.readOnly) {
@@ -872,8 +860,8 @@ class Reader {
 		this._readerRef.current.sidebarEditAnnotationText(id);
 	}
 
-	_getString(name) {
-		return getLocalizedString(name);
+	_getString(name, args) {
+		return getLocalizedString(name, args);
 	}
 
 	_createView(primary, location) {
@@ -909,11 +897,9 @@ class Reader {
 		let onAddAnnotation = (annotation, select) => {
 			annotation = this._annotationManager.addAnnotation(annotation);
 			// Tell screen readers the annotation was added after focus is settled
-			setTimeout(async () => {
-				// Temporary until web library supports fluent
-				if (!document.l10n) return;
-				let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-				let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
+			setTimeout(() => {
+				let annotationType = getLocalizedString(`reader-${annotation.type}-annotation`);
+				let msg = getLocalizedString('reader-a11y-annotation-created', { type: annotationType });
 				this.setA11yMessage(msg);
 			}, 100);
 			if (select) {
@@ -1025,32 +1011,6 @@ class Reader {
 			this._annotationManager.setFilter({ hiddenIDs: ids });
 		};
 
-		// 添加翻译回调函数
-		let onTranslate = this._onTranslate
-			? (text) => {
-				console.log('Reader中的onTranslate被调用，text:', text);
-				return this._onTranslate(text);
-			}
-			: null;
-
-		// 添加AI回调函数
-		let onAskAI = this._onAskAI
-			? (text) => {
-				console.log('Reader中的onAskAI被调用，text:', text);
-				return this._onAskAI(text);
-			}
-			: null;
-
-		// 打印检查onTranslate和onAskAI
-		console.log('Reader中准备传递的onTranslate:', onTranslate);
-		if (onTranslate) {
-			console.log('onTranslate是函数:', typeof onTranslate === 'function');
-		}
-		console.log('Reader中准备传递的onAskAI:', onAskAI);
-		if (onAskAI) {
-			console.log('onAskAI是函数:', typeof onAskAI === 'function');
-		}
-
 		let data;
 		if (this._type === 'pdf') {
 			data = this._data;
@@ -1102,12 +1062,7 @@ class Reader {
 			onKeyUp,
 			onFocusAnnotation,
 			onSetHiddenAnnotations,
-			getLocalizedString,
-			onTranslate,
-			onAskAI,
-			onClick: this._onClick,
-			onScreenshot: this._onScreenshot,
-			onChangeTool: this.setTool.bind(this)
+			getLocalizedString
 		};
 
 		if (this._type === 'pdf') {
@@ -1171,11 +1126,11 @@ class Reader {
 	deleteAnnotations(ids) {
 		if (ids.length > 1) {
 			if (!this._onConfirm(
-				'',
-				this._getString('reader-delete-annotation', { count: ids.length }),
+				this._getString('reader-prompt-delete-annotations-title'),
+				this._getString('reader-prompt-delete-annotations-text', { count: ids.length }),
 				this._getString('general-delete')
 			)) {
-				return;
+				return 0;
 			}
 		}
 		let selectedAnnotationIDs = this._state.selectedAnnotationIDs.filter(id => !ids.includes(id));
@@ -1184,7 +1139,7 @@ class Reader {
 			primaryViewAnnotationPopup: null,
 			secondaryViewAnnotationPopup: null,
 		});
-		this._annotationManager.deleteAnnotations(ids);
+		return this._annotationManager.deleteAnnotations(ids);
 	}
 
 	convertAnnotations(ids, type) {
@@ -1267,76 +1222,6 @@ class Reader {
 	zoomPageHeight() {
 		this._ensureType('pdf');
 		this._lastView.zoomPageHeight();
-	}
-
-	/**
-	 * 截取当前视图的截图
-	 * 这不是真正的截图，而是获取当前视图的图像数据并通过回调函数传递
-	 */
-	takeScreenshot() {
-		if (this._type === 'pdf') {
-			// 获取当前页面的canvas元素
-			const pageIndex = this._lastView._iframeWindow.PDFViewerApplication.pdfViewer.currentPageNumber - 1;
-			const originalPage = this._lastView._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex];
-			const canvas = originalPage.canvas;
-
-			if (canvas) {
-				// 创建一个新的canvas来绘制页面内容和注释
-				const tempCanvas = document.createElement('canvas');
-				tempCanvas.width = canvas.width;
-				tempCanvas.height = canvas.height;
-
-				// 绘制页面内容
-				const ctx = tempCanvas.getContext('2d');
-				ctx.drawImage(canvas, 0, 0);
-
-				// 绘制注释
-				this._lastView.renderPageAnnotationsOnCanvas(tempCanvas, originalPage.viewport, pageIndex);
-
-				// 获取图像数据
-				const imageData = tempCanvas.toDataURL('image/png');
-
-				// 如果有回调函数，则调用它
-				if (this._onScreenshot) {
-					this._onScreenshot(imageData, pageIndex);
-				}
-
-				return imageData;
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * 切换工具栏的显示/隐藏状态
-	 * 纯粹的 toggle 功能，不接受参数
-	 */
-	toggleToolbar() {
-		const visible = !this._state.toolbarVisible;
-		this._updateState({ toolbarVisible: visible });
-
-		// Notify host (if any)
-		this._onToggleToolbar?.(visible);
-	}
-
-	/**
-	 * 显示工具栏
-	 */
-	showToolbar() {
-		if (!this._state.toolbarVisible) {
-			this._updateState({ toolbarVisible: true });
-			this._onToggleToolbar?.(true);
-		}
-	}
-
-	/**
-	 * 隐藏工具栏
-	 */
-	hideToolbar() {
-		if (this._state.toolbarVisible) {
-			this._updateState({ toolbarVisible: false });
-			this._onToggleToolbar?.(false);
-		}
 	}
 
 	async navigate(location, options) {
@@ -1507,11 +1392,9 @@ class Reader {
 					}
 					// After a small delay for focus to settle, announce to screen readers that annotation
 					// is selected and how one can manipulate it
-					setTimeout(async () => {
-						// Temporary until web library supports fluent
-						if (!document.l10n) return;
-						let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-						let a11yAnnouncement = await document.l10n.formatValue('pdfReader-a11yAnnotationSelected', { type: annotationType });
+					setTimeout(() => {
+						let annotationType = getLocalizedString(`reader-${annotation.type}-annotation`);
+						let a11yAnnouncement = getLocalizedString('reader-a11y-annotation-selected', { type: annotationType });
 						// Announce if there is a popup.
 						if (document.querySelector('.annotation-popup')) {
 							a11yAnnouncement += ' ' + getLocalizedString('reader-a11y-annotation-popup-appeared');
@@ -1719,7 +1602,7 @@ class Reader {
 			let formatted = '';
 			if (annotation.text) {
 				let text = annotation.text.trim();
-				formatted = fromText ? text : '"' + text + '"';
+				formatted = fromText ? text : '“' + text + '”';
 			}
 			let comment = annotation.comment?.trim();
 			if (comment) {
@@ -1938,27 +1821,6 @@ class Reader {
 	set flowMode(value) {
 		this._ensureType('epub');
 		this._lastView.setFlowMode(value);
-	}
-
-	get annotationManager() {
-		return this._annotationManager;
-	}
-
-	/**
-	 * Jump to a specific annotation by its ID
-	 * @param {string} annotationId The ID of the annotation to jump to
-	 */
-	jumpToAnnotation(annotationId) {
-		let annotation = this._annotationManager._annotations.find(x => x.id === annotationId);
-		if (annotation) {
-			this._lastView.navigate({ annotationID: annotation.id });
-		}
-	}
-
-	_handleMenuButtonClick = (event) => {
-		if (this._onMenuButtonClick) {
-			this._onMenuButtonClick(event);
-		}
 	}
 }
 

@@ -5,7 +5,6 @@ import {
 	INK_ANNOTATION_WIDTH_STEPS,
 	TEXT_ANNOTATION_FONT_SIZE_STEPS
 } from './defines';
-import { measureTextAnnotationDimensions } from '../pdf/lib/text-annotation';
 
 function appendCustomItemGroups(name, reader, params) {
 	let itemGroups = [];
@@ -103,7 +102,7 @@ export function createViewContextMenu(reader, params) {
 			],
 			[
 				{
-					label: reader._getString('reader-copy-tex'),
+					label: reader._getString('general-copy'),
 					disabled: !(params.overlay && params.overlay.type === 'math' && !reader.canCopy),
 					onCommand: () => {
 						navigator.clipboard.writeText(params.overlay.tex);
@@ -234,7 +233,7 @@ export function createAnnotationContextMenu(reader, params) {
 					steps: TEXT_ANNOTATION_FONT_SIZE_STEPS,
 					onCommand: (fontSize) => {
 						reader._annotationManager.updateAnnotations(annotations.map(({ id, sortIndex, comment, position }) => {
-							position = measureTextAnnotationDimensions({
+							position = reader._primaryView.adjustTextAnnotationPosition({
 								comment,
 								position: { ...position, fontSize }
 							});

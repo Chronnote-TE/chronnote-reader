@@ -61,7 +61,7 @@ import {
 import PDFRenderer from './pdf-renderer';
 import { drawAnnotationsOnCanvas } from './lib/render';
 import PopupDelayer from '../common/lib/popup-delayer';
-import { measureTextAnnotationDimensions } from './lib/text-annotation';
+import { adjustTextAnnotationPosition } from './lib/text-annotation';
 import {
 	applyTransformationMatrixToInkPosition,
 	eraseInk,
@@ -104,11 +104,6 @@ class PDFView {
 		this._onKeyUp = options.onKeyUp;
 		this._onKeyDown = options.onKeyDown;
 		this._onFocusAnnotation = options.onFocusAnnotation;
-		this._onClick = options.onClick; // Add onClick handler
-		this._onScreenshot = options.onScreenshot; // Add onScreenshot handler
-		this._onChangeTool = options.onChangeTool; // Add onChangeTool handler
-		this._onTranslate = options.onTranslate; // Add onTranslate handler
-		this._onAskAI = options.onAskAI; // Add onAskAI handler
 
 		this._onTabOut = options.onTabOut;
 
@@ -210,13 +205,6 @@ class PDFView {
 				catch (e) {
 				}
 				setOptions();
-
-				// Ensure _iframeWindow is available before setting properties
-				if (!this._iframeWindow) {
-					console.error("_iframeWindow is null, cannot initialize PDF viewer");
-					return;
-				}
-
 				this._iframeWindow.onAttachPage = this._attachPage.bind(this);
 				this._iframeWindow.onDetachPage = this._detachPage.bind(this);
 				if (this._preview) {
@@ -233,16 +221,6 @@ class PDFView {
 				}
 				window.PDFViewerApplication = this._iframeWindow.PDFViewerApplication;
 				window.if = this._iframeWindow;
-
-				// Add click event listener
-				// this._iframeWindow.document.addEventListener('click', this._handleClick.bind(this));
-				if (this._iframeWindow.document && this._iframeWindow.document.querySelector(".pdfViewer")) {
-					this._iframeWindow.document.querySelector(".pdfViewer").addEventListener("click", () => {
-						if (typeof this._onClick === 'function') {
-							this._onClick();
-						}
-					});
-				}
 
 				this._iframeWindow.document.getElementById('viewerContainer').addEventListener('scroll', (event) => {
 					this._scrolling = true;
@@ -578,6 +556,12 @@ class PDFView {
 
 		this._detachPage(originalPage, true);
 
+		// When actively changing zoom sometimes the PageView that was just attached no longer has canvas
+		// which probably means that it is being destroyed
+		if (!originalPage.canvas) {
+			return;
+		}
+
 		originalPage.textLayerPromise.then(() => {
 			// Text layer may no longer exist if it was detached in the meantime
 			let textLayer = originalPage.div.querySelector('.textLayer');
@@ -653,7 +637,7 @@ class PDFView {
 			let overlays = [];
 			let pdfPage = this._pdfPages[pageIndex];
 			if (pdfPage) {
-				overlays = pdfPage.overlays;
+				overlays = pdfPage.overlays.filter(x => x.type !== 'reference');
 			}
 
 			let objects = [];
@@ -807,30 +791,6 @@ class PDFView {
 	}
 
 	setTool(tool) {
-		// 如果之前的工具是截图工具，移除所有选择框和容器
-		if (this._tool && this._tool.type === 'screenshot') {
-			// 移除所有页面上的选择框和容器
-			const selectionRects = this._iframeWindow.document.querySelectorAll('.screenshot-selection-rect');
-			selectionRects.forEach(rect => rect.remove());
-
-			// 移除所有页面上的选择容器（包含选择框和控制按钮）
-			const selectionContainers = this._iframeWindow.document.querySelectorAll('.screenshot-selection-container');
-			selectionContainers.forEach(container => {
-				// 添加淡出效果
-				container.style.opacity = '0';
-				container.style.transform = 'scale(0.95)';
-
-				// 等待动画完成后移除
-				setTimeout(() => {
-					container.remove();
-				}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
-			});
-
-			// 移除所有控制按钮容器
-			const controlsContainers = this._iframeWindow.document.querySelectorAll('.screenshot-controls');
-			controlsContainers.forEach(controls => controls.remove());
-		}
-
 		if (tool.type === 'hand') {
 			this._iframeWindow.PDFViewerApplication.pdfCursorTools.switchTool(1);
 		}
@@ -981,7 +941,7 @@ class PDFView {
 		// pick node corresponding to the range that actually contains the query
 		let node = endNode.textContent.includes(this._findState.query) ? endNode : startNode;
 		this._a11yVirtualCursorTarget = node.parentNode;
-	}, A11Y_VIRT_CURSOR_DEBOUNCE_LENGTH);
+	  }, A11Y_VIRT_CURSOR_DEBOUNCE_LENGTH);
 
 	// Record the current page that the virtual cursor enter when focus enters the content.
 	// Debounce to not run this on every view stats update.
@@ -1146,11 +1106,11 @@ class PDFView {
 	}
 
 	navigateToFirstPage() {
-		this._iframeWindow.eventBus.dispatch('firstpage');
+		this._iframeWindow.PDFViewerApplication.eventBus.dispatch('firstpage');
 	}
 
 	navigateToLastPage() {
-		this._iframeWindow.eventBus.dispatch('lastpage');
+		this._iframeWindow.PDFViewerApplication.eventBus.dispatch('lastpage');
 	}
 
 	rotateLeft() {
@@ -1568,6 +1528,9 @@ class PDFView {
 		}
 		let selectableOverlays = [];
 		for (let overlay of pdfPage.overlays) {
+			if (overlay.type === 'reference') {
+				continue;
+			}
 			if (intersectAnnotationWithPoint(overlay.position, position)) {
 				selectableOverlays.push(overlay);
 			}
@@ -1599,7 +1562,7 @@ class PDFView {
 	_getPageAnnotations(pageIndex) {
 		return this._annotations.filter(
 			x => x.position.pageIndex === pageIndex
-				|| x.position.nextPageRects && x.position.pageIndex + 1 === pageIndex
+			|| x.position.nextPageRects && x.position.pageIndex + 1 === pageIndex
 		);
 	}
 
@@ -1629,7 +1592,7 @@ class PDFView {
 
 		let selectedTextAnnotation = selectableAnnotations.find(
 			x => x.type === 'text'
-				&& x.id === this._selectedAnnotationIDs[0]
+			&& x.id === this._selectedAnnotationIDs[0]
 		);
 		if (selectedTextAnnotation) {
 			return [selectedTextAnnotation];
@@ -1745,9 +1708,6 @@ class PDFView {
 			else if (this._tool.type === 'image') {
 				action = { type: 'image' };
 			}
-			else if (this._tool.type === 'screenshot') {
-				action = { type: 'screenshot' };
-			}
 			else if (this._tool.type === 'text') {
 				action = { type: 'text' };
 			}
@@ -1811,9 +1771,6 @@ class PDFView {
 				cursor = 'move';
 			}
 			else if (action.type === 'ink') {
-				cursor = 'crosshair';
-			}
-			else if (action.type === 'image' || action.type === 'screenshot') {
 				cursor = 'crosshair';
 			}
 			else if (action.type === 'erase') {
@@ -1883,48 +1840,8 @@ class PDFView {
 		let shift = event.shiftKey;
 		let position = this.pointerEventToPosition(event);
 
-		if (this._options.platform !== 'web' && event.button === 2) {
-			// Clear pointer down because pointer up event won't be received in this iframe
-			// when opening a native context menu
-			this._pointerDownTriggered = false;
-			let br = this._iframe.getBoundingClientRect();
-			let selectableAnnotation;
-			if (position) {
-				selectableAnnotation = (this.getSelectableAnnotations(position) || [])[0];
-			}
-			let selectedAnnotations = this.getSelectedAnnotations();
-			if (!selectableAnnotation) {
-				if (this._selectedAnnotationIDs.length !== 0) {
-					this._onSelectAnnotations([], event);
-				}
-				let overlay;
-				if (position) {
-					overlay = this._getSelectableOverlay(position);
-				}
-				// If this is a keyboard contextmenu event, its position won't take our
-				// text selection into account since we don't use browser selection APIs.
-				// Position the menu manually.
-				if (event.mozInputSource === 6 && this._selectionRanges.length) {
-					const EXTRA_VERTICAL_PADDING = 10;
-					let selectionBoundingRect = this.getClientRectForPopup(this._selectionRanges[0].position);
-					this._onOpenViewContextMenu({
-						x: br.x + selectionBoundingRect[0],
-						y: br.y + selectionBoundingRect[3] + EXTRA_VERTICAL_PADDING,
-						overlay
-					});
-				}
-				else {
-					this._onOpenViewContextMenu({ x: br.x + event.clientX, y: br.y + event.clientY, overlay });
-				}
-			}
-			else if (!selectedAnnotations.includes(selectableAnnotation) && !this._textAnnotationFocused()) {
-				this._onSelectAnnotations([selectableAnnotation.id], event);
-				this._onOpenAnnotationContextMenu({ ids: [selectableAnnotation.id], x: br.x + event.clientX, y: br.y + event.clientY, view: true });
-			}
-			else if (!this._textAnnotationFocused()) {
-				this._onOpenAnnotationContextMenu({ ids: selectedAnnotations.map(x => x.id), x: br.x + event.clientX, y: br.y + event.clientY, view: true });
-			}
-			this._render();
+		if (event.button === 2) {
+			// Right click will be handled in the contextmenu event
 			return;
 		}
 
@@ -2109,76 +2026,6 @@ class PDFView {
 		this._pointerDownTriggered = false;
 	}
 
-	// 使用requestAnimationFrame优化截图选择框的渲染
-	_updateScreenshotSelectionFrame = null;
-	_lastScreenshotUpdateTime = 0;
-
-	// 自定义截图选择框更新函数，使用requestAnimationFrame来优化性能
-	_updateScreenshotSelection(pageDiv, viewport, rect, action) {
-		// 取消之前的动画帧请求（如果有）
-		if (this._updateScreenshotSelectionFrame) {
-			cancelAnimationFrame(this._updateScreenshotSelectionFrame);
-		}
-
-		// 使用requestAnimationFrame来更新选择框，提高性能
-		this._updateScreenshotSelectionFrame = requestAnimationFrame(() => {
-			// 获取或创建选择容器
-			let selectionContainer = pageDiv.querySelector('.screenshot-selection-container');
-			if (!selectionContainer) {
-				// 创建一个包含选择框的容器
-				selectionContainer = document.createElement('div');
-				selectionContainer.className = 'screenshot-selection-container';
-				selectionContainer.style.position = 'absolute';
-				selectionContainer.style.zIndex = '1000';
-				// 移除过渡效果，确保实时更新
-				selectionContainer.style.opacity = '1';
-				selectionContainer.style.willChange = 'left, top, width, height'; // 优化性能
-				selectionContainer.style.pointerEvents = 'none'; // 避免干扰交互
-
-				// 创建选择框 - 作为容器的一部分
-				const selectionBox = document.createElement('div');
-				selectionBox.className = 'screenshot-selection-box';
-				selectionBox.style.position = 'absolute';
-				selectionBox.style.left = '0';
-				selectionBox.style.top = '0';
-				selectionBox.style.width = '100%';
-				selectionBox.style.height = '100%';
-				selectionBox.style.border = '2px solid #6c5ce7';
-				selectionBox.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
-				selectionBox.style.backgroundColor = 'transparent';
-				selectionBox.style.boxSizing = 'border-box';
-
-				// 添加选择框到容器
-				selectionContainer.appendChild(selectionBox);
-
-				// 添加容器到页面
-				pageDiv.appendChild(selectionContainer);
-			}
-
-			// 计算选择框的位置和大小
-			const [x1, y1] = viewport.convertToViewportPoint(rect[0], rect[1]);
-			const [x2, y2] = viewport.convertToViewportPoint(rect[2], rect[3]);
-
-			// 计算新的位置和大小
-			const left = Math.min(x1, x2);
-			const top = Math.min(y1, y2);
-			const width = Math.abs(x2 - x1);
-			const height = Math.abs(y2 - y1);
-
-			// 直接更新位置和大小，不使用transform
-			selectionContainer.style.left = `${left}px`;
-			selectionContainer.style.top = `${top}px`;
-			selectionContainer.style.width = `${width}px`;
-			selectionContainer.style.height = `${height}px`;
-			selectionContainer.style.display = 'block';
-			selectionContainer.style.visibility = 'visible';
-
-			// 清除引用
-			this._updateScreenshotSelectionFrame = null;
-		});
-	}
-
-	// 优化后的指针移动处理函数 - 使用更低的延迟来处理截图工具
 	_handlePointerMove = throttle((event) => {
 		if (this._scrolling) {
 			return;
@@ -2405,7 +2252,7 @@ class PDFView {
 					action.position.fontSize = fontSize;
 				}
 				if (action.dir.length !== 2) {
-					action.position = measureTextAnnotationDimensions({
+					action.position = this.adjustTextAnnotationPosition({
 						...action.annotation,
 						position: action.position
 					});
@@ -2490,12 +2337,12 @@ class PDFView {
 		else if (action.type === 'drag' && dragging) {
 			action.triggered = true;
 		}
-		else if (action.type === 'image' || action.type === 'screenshot') {
+		else if (action.type === 'image') {
 			let r1 = this.pointerDownPosition.rects[0];
 			let r2 = originalPagePosition.rects[0];
 			let [left, bottom, right, top] = page.originalPage.viewport.viewBox;
 			action.annotation = {
-				type: action.type,
+				type: 'image',
 				color: this._tool.color,
 				pageLabel: this._getPageLabel(this.pointerDownPosition.pageIndex, true),
 				position: {
@@ -2508,15 +2355,6 @@ class PDFView {
 					]]
 				}
 			};
-
-			// 优化截图选择框的渲染 - 直接更新DOM以确保在拖动过程中可见
-			if (action.type === 'screenshot') {
-				// 获取当前页面的div元素
-				const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[this.pointerDownPosition.pageIndex].div;
-				const viewport = page.originalPage.viewport;
-				this._updateScreenshotSelection(pageDiv, viewport, action.annotation.position.rects[0], action);
-			}
-
 			action.triggered = true;
 		}
 		else if (action.type === 'ink') {
@@ -2550,16 +2388,7 @@ class PDFView {
 			this._onSetSelectionPopup();
 		}
 		this._render();
-	}, () => {
-		// 对于截图工具使用更低的延迟，使选择更流畅
-		if (this.action && this.action.type === 'screenshot') {
-			return 0; // 对截图工具不使用节流，实时更新
-		}
-		else if (['ink', 'eraser'].includes(this._tool.type)) {
-			return 0;
-		}
-		return 16; // 约60fps的更新频率，比原来的50ms更流畅
-	});
+	}, () => ['ink', 'eraser'].includes(this._tool.type) ? 0 : 50);
 
 	_getAnnotationFromSelectionRanges(selectionRanges, type, color) {
 		if (selectionRanges[0].collapsed) {
@@ -2626,7 +2455,7 @@ class PDFView {
 					}
 					else if (action.type === 'resize') {
 						if (action.annotation.type === 'text' && action.dir.length !== 2) {
-							action.position = measureTextAnnotationDimensions({ ...action.annotation, position: action.position }, { adjustSingleLineWidth: true });
+							action.position = this.adjustTextAnnotationPosition({ ...action.annotation, position: action.position }, { adjustSingleLineWidth: true });
 						}
 
 						let sortIndex = getSortIndex(this._pdfPages, action.position);
@@ -2647,292 +2476,6 @@ class PDFView {
 						if (width >= MIN_IMAGE_ANNOTATION_SIZE && height >= MIN_IMAGE_ANNOTATION_SIZE) {
 							action.annotation.sortIndex = getSortIndex(this._pdfPages, action.annotation.position);
 							this._onAddAnnotation(action.annotation);
-						}
-					}
-					else if (action.type === 'screenshot' && action.annotation) {
-						let rect = action.annotation.position.rects[0];
-						let width = rect[2] - rect[0];
-						let height = rect[3] - rect[1];
-						if (width >= MIN_IMAGE_ANNOTATION_SIZE && height >= MIN_IMAGE_ANNOTATION_SIZE) {
-							// 获取当前页面的div元素
-							const pageIndex = action.annotation.position.pageIndex;
-							const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex].div;
-							const originalPage = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex];
-							const canvas = originalPage.canvas;
-
-							if (canvas) {
-								// 计算选中区域在canvas中的位置
-								const viewport = originalPage.viewport;
-								const [x1, y1, x2, y2] = action.annotation.position.rects[0];
-								const [viewX1, viewY1] = viewport.convertToViewportPoint(x1, y1);
-								const [viewX2, viewY2] = viewport.convertToViewportPoint(x2, y2);
-
-								// 计算选中区域的宽高
-								const viewWidth = Math.abs(viewX2 - viewX1);
-								const viewHeight = Math.abs(viewY2 - viewY1);
-
-								// 获取选择框 - 确保选择框存在
-								let selectionRect = pageDiv.querySelector('.screenshot-selection-rect');
-								if (!selectionRect) {
-									// 如果选择框不存在，创建一个新的
-									selectionRect = document.createElement('div');
-									selectionRect.className = 'screenshot-selection-rect';
-
-									// 设置选择框的样式
-									selectionRect.style.position = 'absolute';
-									selectionRect.style.left = `${Math.min(viewX1, viewX2)}px`;
-									selectionRect.style.top = `${Math.min(viewY1, viewY2)}px`;
-									selectionRect.style.width = `${viewWidth}px`;
-									selectionRect.style.height = `${viewHeight}px`;
-									selectionRect.style.border = '2px solid #6c5ce7';
-									selectionRect.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
-									selectionRect.style.backgroundColor = 'transparent';
-									selectionRect.style.pointerEvents = 'none';
-									selectionRect.style.zIndex = '1000';
-
-									// 添加选择框到页面
-									pageDiv.appendChild(selectionRect);
-								}
-
-								// 移除已存在的控制按钮（如果有）
-								const existingControls = pageDiv.querySelector('.screenshot-controls');
-								if (existingControls) {
-									existingControls.remove();
-								}
-
-								// 创建一个包含选择框和控制按钮的容器
-								const selectionContainer = document.createElement('div');
-								selectionContainer.className = 'screenshot-selection-container';
-								selectionContainer.style.position = 'absolute';
-								selectionContainer.style.left = `${Math.min(viewX1, viewX2)}px`;
-								selectionContainer.style.top = `${Math.min(viewY1, viewY2)}px`;
-								selectionContainer.style.width = `${viewWidth}px`;
-								selectionContainer.style.height = `${viewHeight}px`;
-								selectionContainer.style.zIndex = '1000';
-								selectionContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-								selectionContainer.style.opacity = '1';
-								selectionContainer.style.transform = 'scale(1)';
-
-								// 创建选择框 - 作为容器的一部分
-								const selectionBox = document.createElement('div');
-								selectionBox.className = 'screenshot-selection-box';
-								selectionBox.style.position = 'absolute';
-								selectionBox.style.left = '0';
-								selectionBox.style.top = '0';
-								selectionBox.style.width = '100%';
-								selectionBox.style.height = '100%';
-								selectionBox.style.border = '2px solid #6c5ce7';
-								selectionBox.style.boxShadow = '0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 8px rgba(108, 92, 231, 0.3)';
-								selectionBox.style.backgroundColor = 'transparent';
-								selectionBox.style.boxSizing = 'border-box';
-
-								// 创建控制按钮容器 - 作为容器的一部分
-								const controlsContainer = document.createElement('div');
-								controlsContainer.className = 'screenshot-controls';
-								controlsContainer.style.position = 'absolute';
-								controlsContainer.style.left = '50%';
-								controlsContainer.style.bottom = '-40px';
-								controlsContainer.style.transform = 'translateX(-50%)';
-								controlsContainer.style.display = 'flex';
-								controlsContainer.style.gap = '8px';
-								controlsContainer.style.padding = '8px';
-								controlsContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-								controlsContainer.style.borderRadius = '8px';
-								controlsContainer.style.boxShadow = '0 3px 10px rgba(0, 0, 0, 0.2)';
-								controlsContainer.style.backdropFilter = 'blur(5px)';
-								controlsContainer.style.border = '1px solid rgba(0, 0, 0, 0.05)';
-								controlsContainer.style.zIndex = '1001';
-
-								// 创建确认按钮
-								const confirmButton = document.createElement('button');
-								confirmButton.className = 'confirm';
-
-								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
-								// 尝试从Reader实例获取本地化字符串
-								if (window._reader && typeof window._reader._getString === 'function') {
-									confirmButton.textContent = window._reader._getString('general-ok') || 'Confirm';
-								} else {
-									confirmButton.textContent = 'Confirm';
-								}
-
-								confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 0.9)';
-								confirmButton.style.color = 'white';
-								confirmButton.style.border = 'none';
-								confirmButton.style.padding = '0 14px';
-								confirmButton.style.height = '30px';
-								confirmButton.style.borderRadius = '6px';
-								confirmButton.style.cursor = 'pointer';
-								confirmButton.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-								confirmButton.style.fontSize = '13px';
-								confirmButton.style.marginRight = '8px';
-								confirmButton.style.fontWeight = '500';
-								confirmButton.style.transition = 'all 0.2s ease';
-								confirmButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-
-								// 添加悬停效果
-								confirmButton.addEventListener('mouseover', () => {
-									confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 1)';
-									confirmButton.style.boxShadow = '0 2px 5px rgba(108, 92, 231, 0.3)';
-								});
-
-								confirmButton.addEventListener('mouseout', () => {
-									confirmButton.style.backgroundColor = 'rgba(108, 92, 231, 0.9)';
-									confirmButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
-								});
-
-								confirmButton.addEventListener('click', () => {
-									// 添加淡出效果
-									selectionContainer.style.opacity = '0';
-									selectionContainer.style.transform = 'scale(0.95)';
-
-									// 使用setTimeout来允许UI更新，显示淡出效果
-									setTimeout(() => {
-										// 创建一个临时canvas来绘制选中区域的内容
-										const tempCanvas = document.createElement('canvas');
-
-										// 设置临时canvas的大小
-										tempCanvas.width = viewWidth * window.devicePixelRatio;
-										tempCanvas.height = viewHeight * window.devicePixelRatio;
-
-										// 获取原始canvas的上下文
-										const ctx = tempCanvas.getContext('2d');
-
-										// 计算在原始canvas中的位置
-										const scale = originalPage.outputScale.sx;
-										const canvasX = Math.min(viewX1, viewX2) * scale;
-										const canvasY = Math.min(viewY1, viewY2) * scale;
-										const canvasWidth = viewWidth * scale;
-										const canvasHeight = viewHeight * scale;
-
-										// 绘制选中区域到临时canvas
-										ctx.drawImage(
-											canvas,
-											canvasX, canvasY, canvasWidth, canvasHeight,
-											0, 0, tempCanvas.width, tempCanvas.height
-										);
-
-										// 绘制注释
-										this.renderPageAnnotationsOnCanvas(tempCanvas, viewport, pageIndex);
-
-										// 获取图像数据
-										const imageData = tempCanvas.toDataURL('image/png');
-
-										// 如果有回调函数，则调用它
-										if (this._onScreenshot) {
-											this._onScreenshot(imageData, pageIndex, rect);
-										}
-
-										// 移除选择容器
-										selectionContainer.remove();
-
-										// 重置工具为指针工具
-										if (this._onChangeTool) {
-											this._onChangeTool({ type: 'pointer' });
-										}
-									}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
-								});
-
-								// 创建取消按钮
-								const cancelButton = document.createElement('button');
-								cancelButton.className = 'cancel';
-
-								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
-								// 尝试从Reader实例获取本地化字符串
-								if (window._reader && typeof window._reader._getString === 'function') {
-									cancelButton.textContent = window._reader._getString('general-cancel') || 'Cancel';
-								} else {
-									cancelButton.textContent = 'Cancel';
-								}
-
-								cancelButton.style.backgroundColor = 'rgba(245, 245, 245, 0.9)';
-								cancelButton.style.color = '#333';
-								cancelButton.style.border = '1px solid rgba(0, 0, 0, 0.1)';
-								cancelButton.style.padding = '0 14px';
-								cancelButton.style.height = '30px';
-								cancelButton.style.borderRadius = '6px';
-								cancelButton.style.cursor = 'pointer';
-								cancelButton.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
-								cancelButton.style.fontSize = '13px';
-								cancelButton.style.fontWeight = '500';
-								cancelButton.style.transition = 'all 0.2s ease';
-								cancelButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
-
-								// 添加悬停效果
-								cancelButton.addEventListener('mouseover', () => {
-									cancelButton.style.backgroundColor = 'rgba(235, 235, 235, 1)';
-									cancelButton.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
-								});
-
-								cancelButton.addEventListener('mouseout', () => {
-									cancelButton.style.backgroundColor = 'rgba(245, 245, 245, 0.9)';
-									cancelButton.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.05)';
-								});
-
-								cancelButton.addEventListener('click', () => {
-									// 添加淡出效果
-									selectionContainer.style.opacity = '0';
-									selectionContainer.style.transform = 'scale(0.95)';
-
-									// 等待动画完成后移除
-									setTimeout(() => {
-										// 移除选择容器
-										selectionContainer.remove();
-
-										// 重置工具为指针工具
-										if (this._onChangeTool) {
-											this._onChangeTool({ type: 'pointer' });
-										}
-									}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
-								});
-
-								// 添加按钮到控制容器
-								controlsContainer.appendChild(confirmButton);
-								controlsContainer.appendChild(cancelButton);
-
-								// 添加选择框和控制按钮到容器
-								selectionContainer.appendChild(selectionBox);
-								selectionContainer.appendChild(controlsContainer);
-
-								// 添加整个容器到页面
-								pageDiv.appendChild(selectionContainer);
-
-								// 添加点击事件监听器到文档，用于处理点击选择框外部的情况
-								const handleOutsideClick = (e) => {
-									// 检查点击是否在选择框或控制按钮之外
-									if (!selectionContainer.contains(e.target) &&
-										!e.target.closest('.screenshot-selection-container') &&
-										!e.target.closest('.screenshot-controls')) {
-										// 移除事件监听器
-										this._iframeWindow.document.removeEventListener('mousedown', handleOutsideClick);
-
-										// 添加淡出效果
-										selectionContainer.style.opacity = '0';
-										selectionContainer.style.transform = 'scale(0.95)';
-
-										// 等待动画完成后移除
-										setTimeout(() => {
-											// 移除选择容器
-											selectionContainer.remove();
-
-											// 重置工具为指针工具
-											if (this._onChangeTool) {
-												this._onChangeTool({ type: 'pointer' });
-											}
-										}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
-									}
-								};
-
-								// 添加事件监听器，延迟一点以避免立即触发
-								setTimeout(() => {
-									this._iframeWindow.document.addEventListener('mousedown', handleOutsideClick);
-								}, 100);
-
-								// 保存对选择容器的引用，以便在取消时移除
-								if (selectionRect) {
-									selectionRect.remove();
-								}
-								selectionRect = selectionContainer;
-							}
 						}
 					}
 					else if (action.type === 'ink' && action.annotation) {
@@ -2968,8 +2511,8 @@ class PDFView {
 					}
 					else if (action.type === 'erase' && action.triggered) {
 						let annotations = [...action.annotations.values()];
-						let updated = annotations.filter(x => x.position.paths.length);
-						let deleted = annotations.filter(x => !x.position.paths.length);
+						let updated = annotations.filter( x => x.position.paths.length);
+						let deleted = annotations.filter( x => !x.position.paths.length);
 						if (updated.length) {
 							this._onUpdateAnnotations(updated);
 						}
@@ -3050,11 +2593,6 @@ class PDFView {
 		else {
 			this.updateCursor();
 		}
-		// Clear collapsed selection range on pointer up. Otherwise, holding shift
-		// key for another selection anchor will start unexpected offset
-		if (this._selectionRanges.length === 1 && this._selectionRanges[0].collapsed) {
-			this._selectionRanges = [];
-		}
 		this._render();
 		this._updateViewStats();
 	}
@@ -3062,36 +2600,6 @@ class PDFView {
 	cancel() {
 		this.setSelection();
 		this._hover = null;
-
-		// 如果当前操作是截图，移除选择容器
-		if (this.action && this.action.type === 'screenshot' && this.pointerDownPosition) {
-			const pageDiv = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[this.pointerDownPosition.pageIndex].div;
-
-			// 移除选择容器（包含选择框和控制按钮）
-			const selectionContainer = pageDiv.querySelector('.screenshot-selection-container');
-			if (selectionContainer) {
-				// 添加淡出效果
-				selectionContainer.style.opacity = '0';
-				selectionContainer.style.transform = 'scale(0.95)';
-
-				// 等待动画完成后移除
-				setTimeout(() => {
-					selectionContainer.remove();
-				}, 200); // 200毫秒的延迟，与CSS过渡效果匹配
-			}
-
-			// 为了向后兼容，也检查旧的选择框和控制按钮
-			const selectionRect = pageDiv.querySelector('.screenshot-selection-rect');
-			if (selectionRect) {
-				selectionRect.remove();
-			}
-
-			const controlsContainer = pageDiv.querySelector('.screenshot-controls');
-			if (controlsContainer) {
-				controlsContainer.remove();
-			}
-		}
-
 		this.action = null;
 		this.updateCursor();
 		this._render();
@@ -3157,11 +2665,61 @@ class PDFView {
 	}
 
 	_handleContextMenu(event) {
+		if (this._options.platform === 'web') {
+			return;
+		}
+
+		let position = this.pointerEventToPosition(event);
+		if (this._options.platform !== 'web' && event.button === 2) {
+			// Clear pointer down because the pointer up event won't be received in this iframe
+			// when opening a native context menu
+			this._pointerDownTriggered = false;
+			let br = this._iframe.getBoundingClientRect();
+			let selectableAnnotation;
+			if (position) {
+				selectableAnnotation = (this.getSelectableAnnotations(position) || [])[0];
+			}
+			let selectedAnnotations = this.getSelectedAnnotations();
+			if (!selectableAnnotation) {
+				if (this._selectedAnnotationIDs.length !== 0) {
+					this._onSelectAnnotations([], event);
+				}
+				let overlay;
+				if (position) {
+					overlay = this._getSelectableOverlay(position);
+				}
+				// If this is a keyboard contextmenu event, its position won't take our
+				// text selection into account since we don't use browser selection APIs.
+				// Position the menu manually.
+				if (event.mozInputSource === 6 && this._selectionRanges.length) {
+					const EXTRA_VERTICAL_PADDING = 10;
+					let selectionBoundingRect = this.getClientRectForPopup(this._selectionRanges[0].position);
+					this._onOpenViewContextMenu({
+						x: br.x + selectionBoundingRect[0],
+						y: br.y + selectionBoundingRect[3] + EXTRA_VERTICAL_PADDING,
+						overlay
+					});
+				}
+				else {
+					this._onOpenViewContextMenu({ x: br.x + event.clientX, y: br.y + event.clientY, overlay });
+				}
+			}
+			else if (!selectedAnnotations.includes(selectableAnnotation) && !this._textAnnotationFocused()) {
+				this._onSelectAnnotations([selectableAnnotation.id], event);
+				this._onOpenAnnotationContextMenu({ ids: [selectableAnnotation.id], x: br.x + event.clientX, y: br.y + event.clientY, view: true });
+			}
+			else if (!this._textAnnotationFocused()) {
+				this._onOpenAnnotationContextMenu({ ids: selectedAnnotations.map(x => x.id), x: br.x + event.clientX, y: br.y + event.clientY, view: true });
+			}
+			this._render();
+		}
+
+
 		// Open context menu due to touchscreen long press or context menu key press
 		if (event.mozInputSource === 5 || event.mozInputSource === 6) {
 			this._handlePointerDown(event);
 		}
-		if (this._options.platform !== 'web' && !this._textAnnotationFocused()) {
+		if (!this._textAnnotationFocused()) {
 			event.preventDefault();
 		}
 	}
@@ -3494,7 +3052,7 @@ class PDFView {
 						}
 
 						if (dir.length !== 2) {
-							position = measureTextAnnotationDimensions({
+							position = this.adjustTextAnnotationPosition({
 								...annotation,
 								position
 							});
@@ -3884,6 +3442,7 @@ class PDFView {
 			let comment = target.value;
 			target.setAttribute('data-comment', comment);
 			this._onUpdateAnnotations([{ id, comment }]);
+
 		}
 	}
 
@@ -4049,13 +3608,11 @@ class PDFView {
 		};
 	}
 
-	_handleClick(event) {
-		if (this._onClick) {
-			const position = this.pointerEventToPosition(event);
-			if (position) {
-				this._onClick(position, event);
-			}
-		}
+	adjustTextAnnotationPosition(annotation, options) {
+		let { pageIndex } = annotation.position;
+		let originalPage = this._iframeWindow.PDFViewerApplication.pdfViewer._pages[pageIndex];
+		let { viewBox } = originalPage.viewport;
+		return adjustTextAnnotationPosition(annotation, viewBox, options);
 	}
 }
 
