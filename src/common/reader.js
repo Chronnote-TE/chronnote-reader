@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React, { createContext } from 'react';
+import { LocalizationProvider, ReactLocalization } from "@fluent/react";
 import ReaderUI from './components/reader-ui';
 import PDFView from '../pdf/pdf-view';
 import EPUBView from '../dom/epub/epub-view';
@@ -24,7 +25,7 @@ import {
 } from './lib/utilities';
 import { debounce } from './lib/debounce';
 import { flushSync } from 'react-dom';
-import { addFTL, getLocalizedString } from '../fluent';
+import { addFTL, getLocalizedString, bundle } from '../fluent';
 
 // Compute style values for usage in views (CSS variables aren't sufficient for that)
 // Font family is necessary for text annotations
@@ -282,8 +283,9 @@ class Reader {
 
 		if (!this._preview) {
 			createRoot(document.getElementById('reader-ui')).render(
-				<ReaderContext.Provider value={this._readerContext}>
-					<ReaderUI
+				<LocalizationProvider l10n={new ReactLocalization([bundle])}>
+					<ReaderContext.Provider value={this._readerContext}>
+						<ReaderUI
 						type={this._type}
 						state={this._state}
 						ref={this._readerRef}
@@ -407,6 +409,7 @@ class Reader {
 						}}
 					/>
 				</ReaderContext.Provider>
+			</LocalizationProvider>
 			);
 		}
 

@@ -2,6 +2,7 @@ import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import zoteroFTL from '../locales/en-US/zotero.ftl';
 import readerFTL from '../locales/en-US/reader.ftl';
+import pdfReaderFTL from '../locales/en-US/pdfReader.ftl';
 
 export let bundle = new FluentBundle('en-US', {
 	functions: {
@@ -11,6 +12,7 @@ export let bundle = new FluentBundle('en-US', {
 
 bundle.addResource(new FluentResource(zoteroFTL));
 bundle.addResource(new FluentResource(readerFTL));
+bundle.addResource(new FluentResource(pdfReaderFTL));
 
 export function getLocalizedString(key, args = {}) {
 	const message = bundle.getMessage(key);

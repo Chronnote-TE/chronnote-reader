@@ -340,7 +340,7 @@ export function SidebarPreview(props) {
 							onDoubleClick={handlePageLabelDoubleClick}
 							id={`page_${annotation.id}`}
 						>
-							<div><FormattedMessage id="pdfReader.page" /></div>
+							<div>{l10n.getString('pdfReader-page')}</div>
 							<div className="label">{annotation.pageLabel || '-'}</div>
 						</div>
 					)}
@@ -385,7 +385,7 @@ export function SidebarPreview(props) {
 						draggable={true}
 						onDragStart={handleDragStart}
 						aria-haspopup={true}
-						aria-description={intl.formatMessage({ id: 'pdfReader.manageTags' })}
+						aria-description={l10n.getString('pdfReader-manageTags')}
 					>{tags}</button>
 				)}
 		</div>
