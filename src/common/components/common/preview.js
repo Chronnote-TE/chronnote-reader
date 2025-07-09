@@ -80,7 +80,6 @@ export function PopupPreview(props) {
 					</div>
 					{(annotation.pageLabel || props.type === 'pdf') && (
 						<div className="page" onDoubleClick={handlePageLabelDoubleClick}>
-							<div><FormattedMessage id="pdfReader.page" /></div>
 							<div>{l10n.getString('reader-page')}</div>
 							<div className="label">{annotation.pageLabel || '-'}</div>
 						</div>
@@ -97,7 +96,7 @@ export function PopupPreview(props) {
 							data-tabstop={1}
 							tabIndex={-1}
 							className="delete"
-							title={intl.formatMessage({ id: 'pdfReader.deleteAnnotation' }) || "删除注释"}
+							title={l10n.getString('pdfReader-deleteAnnotation')}
 							onClick={handleDelete}
 						>
 							<Trash size={16} strokeWidth={1.5} />
@@ -144,7 +143,7 @@ export function PopupPreview(props) {
 						className="tag" key={index}
 						style={{ color: tag.color }}
 					>{tag.name}</span>
-				)) : <FormattedMessage id="pdfReader.addTags" />}</button>
+				)) : l10n.getString('pdfReader-addTags')}</button>
 			)}
 
 		</div>
@@ -296,7 +295,7 @@ export function SidebarPreview(props) {
 			className="tag" key={index}
 			style={{ color: tag.color }}
 		>{tag.name}</span>
-	)) : <FormattedMessage id="pdfReader.addTags" />;
+	)) : l10n.getString('pdfReader-addTags');
 
 	let expandedState = {};
 	expandedState['expanded' + props.state] = true;

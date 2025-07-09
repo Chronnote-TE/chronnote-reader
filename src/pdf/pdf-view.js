@@ -2750,7 +2750,7 @@ class PDFView {
 								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
 								// 尝试从Reader实例获取本地化字符串
 								if (window._reader && typeof window._reader._getString === 'function') {
-									confirmButton.textContent = window._reader._getString('general.ok') || 'Confirm';
+									confirmButton.textContent = window._reader._getString('general-ok') || 'Confirm';
 								} else {
 									confirmButton.textContent = 'Confirm';
 								}
@@ -2839,7 +2839,7 @@ class PDFView {
 								// 使用应用程序的本地化字符串而不是PDF.js的本地化系统
 								// 尝试从Reader实例获取本地化字符串
 								if (window._reader && typeof window._reader._getString === 'function') {
-									cancelButton.textContent = window._reader._getString('general.cancel') || 'Cancel';
+									cancelButton.textContent = window._reader._getString('general-cancel') || 'Cancel';
 								} else {
 									cancelButton.textContent = 'Cancel';
 								}

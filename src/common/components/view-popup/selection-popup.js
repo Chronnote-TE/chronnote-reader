@@ -10,7 +10,7 @@ import { IconColor16 } from '../common/icons';
 
 import IconHighlight from '../../../../res/icons/16/annotate-highlight.svg';
 import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
-import { Copy, Sparkles } from 'lucide-react';
+import { Copy, Sparkles, Languages } from 'lucide-react';
 
 function SelectionPopup(props) {
 	const { l10n } = useLocalization();
@@ -140,35 +140,93 @@ function SelectionPopup(props) {
 			})}
 			rect={props.params.rect}
 			uniqueRef={{}}
-			padding={12}
+			padding={0}
 		>
-			<div className="colors" data-tabstop={1}>
-				{ANNOTATION_COLORS.map((color, index) => (<button
-					key={index}
-					tabIndex={-1}
-					className="toolbar-button color-button"
-					title={intl.formatMessage({ id: color[0] })}
-					onClick={() => handleColorPick(color[1])}
-				><IconColor16 color={color[1]} /></button>))}
+			<div className="selection-popup-main">
+				<div className="toolbar-row">
+					<div className="tools-group">
+						<button
+							className="tool-btn"
+							onClick={handleCopy}
+							title={l10n.getString('pdfReader-copy')}
+							data-tabstop={1}
+						>
+							<Copy size={16} />
+						</button>
+						<button
+							className="tool-btn"
+							onClick={handleTranslate}
+							title={l10n.getString('pdfReader-translate')}
+							data-tabstop={1}
+						>
+							<Languages size={16} />
+						</button>
+					</div>
+
+					<div className="tools-group">
+						<button
+							tabIndex={-1}
+							className={cx('tool-btn', { active: props.textSelectionAnnotationMode === 'highlight' })}
+							title={l10n.getString('pdfReader-highlightText')}
+							onClick={() => props.onChangeTextSelectionAnnotationMode('highlight')}
+						>
+							<IconHighlight />
+						</button>
+						<button
+							tabIndex={-1}
+							className={cx('tool-btn', { active: props.textSelectionAnnotationMode === 'underline' })}
+							title={l10n.getString('pdfReader-underlineText')}
+							onClick={() => props.onChangeTextSelectionAnnotationMode('underline')}
+						>
+							<IconUnderline />
+						</button>
+					</div>
+					<div className="colors-group" data-tabstop={1}>
+						{ANNOTATION_COLORS.map((color, index) => (
+							<button
+								key={index}
+								tabIndex={-1}
+								className="color-btn"
+								title={l10n.getString(color[0])}
+								onClick={() => handleColorPick(color[1])}
+							>
+								<IconColor16 color={color[1]} />
+							</button>
+						))}
+					</div>
+					{props.onAskAI && (
+						<button className="add-note-btn" data-tabstop={1} onClick={handleAskAI} title={l10n.getString('pdfReader-askAI')}>
+							<Sparkles size={16} />
+							<div className="tooltip">{l10n.getString('pdfReader-askAI')}</div>
+						</button>
+					)}
+				</div>
+				{translationVisible && (
+					<div className="translation-panel" onClick={handleTranslationContentClick}>
+						<div className="translation-content-wrapper">
+							{translating ? (
+								<div className="translation-loading">{l10n.getString('pdfReader-loading')}</div>
+							) : (
+								<textarea
+									ref={textareaRef}
+									className="translation-content selectable-text"
+									value={translation}
+									readOnly
+									onMouseDown={handleTranslationContentMouseDown}
+								/>
+							)}
+						</div>
+						<div className="translation-actions">
+							<button className="copy-btn" onClick={handleCopyTranslation}>
+								<div className="button-content">
+									<Copy size={14} />
+									<span className="button-text">{l10n.getString('pdfReader-copy')}</span>
+								</div>
+							</button>
+						</div>
+					</div>
+				)}
 			</div>
-			<div className="tool-toggle" data-tabstop={1}>
-				<button
-					tabIndex={-1}
-					className={cx('highlight', { active: props.textSelectionAnnotationMode === 'highlight' })}
-					title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-					onClick={() => props.onChangeTextSelectionAnnotationMode('highlight')}
-				><IconHighlight /></button>
-				<button
-					tabIndex={-1}
-					className={cx('underline', { active: props.textSelectionAnnotationMode === 'underline' })}
-					title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-					onClick={() => props.onChangeTextSelectionAnnotationMode('underline')}
-				><IconUnderline /></button>
-			</div>
-			{props.enableAddToNote &&
-				<button className="toolbar-button wide-button" data-tabstop={1} onClick={handleAddToNote}>
-					<FormattedMessage id="pdfReader.addToNote" />
-				</button>}
 			<CustomSections type="TextSelectionPopup" annotation={props.params.annotation} />
 		</ViewPopup>
 	);
