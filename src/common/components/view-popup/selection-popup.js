@@ -1,6 +1,6 @@
 import cx from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { ANNOTATION_COLORS } from '../../defines';
 import CustomSections from '../common/custom-sections';
@@ -12,18 +12,27 @@ import IconHighlight from '../../../../res/icons/16/annotate-highlight.svg';
 import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
 import { Copy } from 'lucide-react';
 
-// 选中弹窗只展示一部分常用颜色，其余通过底部工具栏调整
-const QUICK_COLORS = ANNOTATION_COLORS.slice(0, 5);
-
 function SelectionPopup(props) {
 	const intl = useIntl();
 	const [translationVisible, setTranslationVisible] = useState(false);
 	const [translation, setTranslation] = useState('');
 	const [translating, setTranslating] = useState(false);
+	const [colorPaletteVisible, setColorPaletteVisible] = useState(false);
+	const [currentColor, setCurrentColor] = useState(
+		props.params.annotation?.color || ANNOTATION_COLORS[0][1]
+	);
+
+	useEffect(() => {
+		// 当新的选区弹窗打开时，重置当前颜色为注释颜色或默认颜色
+		setCurrentColor(props.params.annotation?.color || ANNOTATION_COLORS[0][1]);
+		setColorPaletteVisible(false);
+	}, [props.params.annotation]);
 
 	function handleColorPick(color) {
 		let type = props.textSelectionAnnotationMode;
 		props.onAddAnnotation({ ...props.params.annotation, type, color });
+		setCurrentColor(color);
+		setColorPaletteVisible(false);
 	}
 
 	function handleAddToNote() {
@@ -129,21 +138,34 @@ function SelectionPopup(props) {
 					</div>
 
 					<div className="colors-group">
-						{QUICK_COLORS.map((color, index) => (
-							<button
-								key={index}
-								tabIndex={-1}
-								className="color-btn"
-								onClick={() => handleColorPick(color[1])}
-							>
-								<IconColor16 color={color[1]} />
-							</button>
-						))}
+						<button
+							tabIndex={-1}
+							className="color-toggle"
+							onClick={() => setColorPaletteVisible(v => !v)}
+						>
+							<IconColor16 color={currentColor} />
+						</button>
 					</div>
 
 					{/* 添加到笔记功能暂时下线 */}
 				</div>
 			</div>
+
+			{/* 颜色选择面板：点击颜色入口后再展开 */}
+			{colorPaletteVisible && (
+				<div className="colors-palette">
+					{ANNOTATION_COLORS.map((color, index) => (
+						<button
+							key={index}
+							tabIndex={-1}
+							className="color-btn"
+							onClick={() => handleColorPick(color[1])}
+						>
+							<IconColor16 color={color[1]} />
+						</button>
+					))}
+				</div>
+			)}
 
 			{/* 翻译结果区域 */}
 			{translationVisible && (

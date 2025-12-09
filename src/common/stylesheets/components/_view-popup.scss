@@ -128,9 +128,20 @@
 
 		.colors-group {
 			display: flex;
-			gap: 6px;
-			flex-wrap: nowrap;
 			justify-content: center;
+
+			.color-toggle {
+				width: 26px;
+				height: 26px;
+				border-radius: 6px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				&:hover {
+					transform: scale(1.05);
+				}
+			}
 		}
 
 		.tool-btn {
@@ -172,19 +183,8 @@
 			}
 		}
 
-		.color-btn {
-			width: 26px;
-			height: 26px;
-			border-radius: 6px;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			
-			&:hover {
-				transform: scale(1.05);
-			}
-		}
-
+		// 颜色按钮现在只在展开的 colors-palette 中使用
+		
 		.add-note-btn {
 			width: 32px;
 			height: 32px;
@@ -332,6 +332,30 @@
 			text-align: center;
 			color: var(--fill-secondary);
 			padding: 8px;
+		}
+	}
+}
+
+// 颜色面板：点击颜色入口之后再展示整排色卡
+.selection-popup {
+	.colors-palette {
+		margin-top: 6px;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 6px;
+
+		.color-btn {
+			width: 26px;
+			height: 26px;
+			border-radius: 6px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+
+			&:hover {
+				transform: scale(1.05);
+			}
 		}
 	}
 }
