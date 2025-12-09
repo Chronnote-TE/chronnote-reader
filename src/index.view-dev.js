@@ -81,6 +81,9 @@ window.createView = (options) => {
 
 			// 返回模拟的翻译结果
 			return `Translated from API:\n${text}\n\n这是从翻译API返回的示例文本。\n实际应用中应替换为真实翻译API的结果。`;
+		},
+		onSendToAI: (text) => {
+			console.log('[View Dev] sendTextToAI:', text);
 		}
 	});
 

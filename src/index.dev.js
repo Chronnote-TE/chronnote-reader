@@ -108,6 +108,9 @@ async function createReader() {
 			// 立即返回一个字符串而不是使用异步
 			return `Translation:\n${text}\n\n这是选中文本的模拟翻译效果，在实际应用中应替换为真实翻译API。`;
 		},
+		onSendToAI(text) {
+			console.log('[Dev] sendTextToAI:', text);
+		},
 		onClickSplit() {
 			console.log('Split view button clicked');
 			// Here you can implement split view functionality

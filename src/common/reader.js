@@ -73,6 +73,7 @@ class Reader {
 		this._onSetZoom = options.onSetZoom;
 		this._onMenuButtonClick = options.onMenuButtonClick;
 		this._onTranslate = options.onTranslate;
+		this._onSendToAI = options.onSendToAI;
 		this._onClickClose = options.onClickClose;
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
@@ -385,8 +386,8 @@ class Reader {
 								onAddTheme={() => this._updateState({ themePopup: {} })}
 								onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
 								onCloseThemePopup={() => this._updateState({ themePopup: null })}
-								onSaveCustomThemes={(customThemes) => {
-									this._onSaveCustomThemes(customThemes);
+							onSaveCustomThemes={(customThemes) => {
+								this._onSaveCustomThemes(customThemes);
 									let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
 									let map = new Map(themes.map(theme => [theme.id, theme]));
 									let { lightTheme, darkTheme } = this._state;
@@ -400,6 +401,7 @@ class Reader {
 								}}
 								onMenuButtonClick={this._handleMenuButtonClick}
 								onTranslate={this._onTranslate}
+								onSendToAI={this._onSendToAI}
 								onClickClose={this._onClickClose}
 								onClickSplit={this._onClickSplit}
 								onClickVerticalSplit={this._onClickVerticalSplit}

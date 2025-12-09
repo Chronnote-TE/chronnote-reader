@@ -650,6 +650,7 @@ Toolbar.propTypes = {
 	onClickClose: PropTypes.func,
 	onClickSplit: PropTypes.func,
 	onClickVerticalSplit: PropTypes.func,
+	onSendToAI: PropTypes.func,
 	visible: PropTypes.bool
 };
 

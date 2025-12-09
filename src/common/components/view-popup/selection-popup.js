@@ -89,6 +89,16 @@ function SelectionPopup(props) {
 		}
 	}
 
+	function handleSendToAI() {
+		const text = props.params.annotation?.text || '';
+		if (!text.trim()) {
+			return;
+		}
+		if (props.onSendToAI) {
+			props.onSendToAI(text);
+		}
+	}
+
 	return (
 		<ViewPopup
 			className={cx("selection-popup", { "with-translation": translationVisible })}
@@ -133,6 +143,16 @@ function SelectionPopup(props) {
 						>
 							<span className="translate-label">
 								<FormattedMessage id="pdfReader.translate" defaultMessage="译" />
+							</span>
+						</button>
+						<button
+							tabIndex={-1}
+							className="tool-btn"
+							onClick={handleSendToAI}
+							disabled={!props.onSendToAI}
+						>
+							<span className="translate-label">
+								AI
 							</span>
 						</button>
 					</div>
@@ -218,6 +238,7 @@ SelectionPopup.propTypes = {
 	onAddToNote: PropTypes.func,
 	onChangeTextSelectionAnnotationMode: PropTypes.func,
 	onTranslate: PropTypes.func,
+	onSendToAI: PropTypes.func,
 	onDeleteAnnotation: PropTypes.func
 };
 

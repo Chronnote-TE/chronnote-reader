@@ -72,6 +72,10 @@ window.createView = options => {
 			// 这里仅作为示例，返回固定结果
 			await new Promise(resolve => setTimeout(resolve, 800));
 			return `[iOS Translation]\n${text}\n\n中文翻译示例`;
+		},
+		onSendToAI: text => {
+			// 发送选中文本给 iOS 侧的 AI 处理
+			postMessage('onSendToAIRequest', { text });
 		}
 	});
 }

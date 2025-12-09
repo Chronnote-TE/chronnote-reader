@@ -57,6 +57,7 @@ function View(props) {
 					onAddAnnotation={props.onAddAnnotation}
 					onChangeTextSelectionAnnotationMode={props.onChangeTextSelectionAnnotationMode}
 					onTranslate={props.onTranslate}
+					onSendToAI={props.onSendToAI}
 					onDeleteAnnotation={props.onDeleteAnnotations}
 				/>
 			}
@@ -210,6 +211,7 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onToggleAppearancePopup={props.onToggleAppearancePopup}
 				onToggleFind={props.onToggleFind}
 				onMenuButtonClick={props.onMenuButtonClick}
+				onSendToAI={props.onSendToAI}
 			/>
 			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
 			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}
