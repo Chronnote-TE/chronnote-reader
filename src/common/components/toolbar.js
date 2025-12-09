@@ -2,6 +2,7 @@ import cx from 'classnames';
 import {
 	ChevronDown,
 	ChevronLeft,
+	ChevronRight,
 	ChevronUp,
 	FileText,
 	Highlighter,
@@ -192,7 +193,79 @@ function Toolbar({ visible = true, ...props }) {
 			role="application"
 			ref={toolbarRef}
 		>
-			{/* 工具栏主容器 */}
+			{/* 左侧：导航区域 */}
+			<div className="start toolbar-group">
+				{['pdf', 'epub'].includes(props.type) && (
+					<Fragment>
+						{props.enableNavigateBack && (
+							<button
+								tabIndex={-1}
+								className="toolbar-button navigate-back"
+								title={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
+								disabled={!props.enableNavigateBack}
+								onClick={props.onNavigateBack}
+							>
+								<ChevronLeft size={18} strokeWidth={1.5} />
+							</button>
+						)}
+						<button
+							tabIndex={-1}
+							className="toolbar-button previous-page"
+							title={intl.formatMessage({ id: 'pdfReader.previousPage' })}
+							disabled={!props.enableNavigateToPreviousPage}
+							onClick={props.onNavigateToPreviousPage}
+						>
+							<ChevronLeft size={18} strokeWidth={1.5} />
+						</button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button next-page"
+							title={intl.formatMessage({ id: 'pdfReader.nextPage' })}
+							disabled={!props.enableNavigateToNextPage}
+							onClick={props.onNavigateToNextPage}
+						>
+							<ChevronRight size={18} strokeWidth={1.5} />
+						</button>
+					</Fragment>
+				)}
+			</div>
+
+			{/* 中间：页码信息区域（超小屏隐藏） */}
+			{!isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
+				<div className="center toolbar-group">
+					<div className="page-controls">
+						<input
+							ref={pageInputRef}
+							type="input"
+							id="pageNumber"
+							className="toolbar-text-input"
+							title={intl.formatMessage({
+								id: props.type === 'pdf' || props.usePhysicalPageNumbers
+									? 'pdfReader.page'
+									: 'pdfReader.location'
+							})}
+							defaultValue=""
+							size="4"
+							min="1"
+							tabIndex={-1}
+							autoComplete="off"
+							onKeyDown={handlePageNumberKeydown}
+							onBlur={handlePageNumberBlur}
+						/>
+						{props.pageLabel && (
+							<span id="numPages">
+								&nbsp;
+								<div>
+									{!(props.type === 'pdf' && props.pageIndex + 1 == props.pageLabel)
+										&& (props.pageIndex + 1)} / {props.pagesCount}
+								</div>
+							</span>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* 右侧：工具区域 */}
 			<div className="end toolbar-group">
 				{/* 高亮、下划线和笔记工具 - 仅在较大屏幕和中等屏幕显示 */}
 				{!shouldShowAnnotationToolsInMoreMenu && (
@@ -223,36 +296,6 @@ function Toolbar({ visible = true, ...props }) {
 							onClick={() => handleToolClick('note')}
 							data-l10n-id="pdfReader-toolbar-note"
 						><StickyNote size={18} strokeWidth={1.5} /></button>
-					</div>
-				)}
-
-				{/* 中间区域 - 页码 - 隐藏在很小的屏幕上 */}
-				{!isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
-					<div className="center toolbar-group">
-						<div className="page-controls">
-							<input
-								ref={pageInputRef}
-								type="input"
-								id="pageNumber"
-								className="toolbar-text-input"
-								title={intl.formatMessage({
-									id: props.type === 'pdf' || props.usePhysicalPageNumbers
-										? 'pdfReader.page'
-										: 'pdfReader.location'
-								})}
-								defaultValue=""
-								size="4"
-								min="1"
-								tabIndex={-1}
-								autoComplete="off"
-								onKeyDown={handlePageNumberKeydown}
-								onBlur={handlePageNumberBlur}
-							/>
-							{props.pageLabel && (
-								<span id="numPages">&nbsp;<div>{!(props.type === 'pdf' && props.pageIndex + 1 == props.pageLabel)
-									&& (props.pageIndex + 1)} / {props.pagesCount}</div></span>
-							)}
-						</div>
 					</div>
 				)}
 

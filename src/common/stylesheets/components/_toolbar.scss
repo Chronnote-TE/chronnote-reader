@@ -1,11 +1,13 @@
 .toolbar {
-	position: absolute;
-	left: 50%;
-	bottom: 20px;
-	transform: translateX(-50%);
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	transform: none;
 	z-index: $z-index-toolbar;
 	cursor: default;
 	display: flex;
+	align-items: center;
 	justify-content: space-between;
 	-moz-window-dragging: drag;
 	user-select: none;
@@ -14,12 +16,12 @@
 	height: $height-toolbar !important;
 	min-height: 41px;
 	margin: 0;
-	padding: 0px 6px;
-	min-width: 1px;
+	padding: 4px 12px;
+	min-width: 0;
 	background: var(--material-toolbar);
-	border-bottom: var(--material-panedivider);
-	border-radius: 6px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	border-top: var(--material-panedivider);
+	border-radius: 0;
+	box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.15);
 
 	.toolbar-group {
 		display: flex;
@@ -28,21 +30,22 @@
 
 	.start {
 		flex: 0 0 auto;
-		gap: 2px;
+		gap: 4px;
 	}
 	
 	.center {
-		flex: 1;
+		flex: 0 0 auto;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		padding: 0 8px;
 	}
 
 	.end {
-		flex: 2;
-		justify-content: flex-start;
+		flex: 1;
+		justify-content: flex-end;
 		padding-inline-end: var(--toolbar-placeholder-width);
-		gap: 2px;
+		gap: 4px;
 	}
 
 	.custom-sections {
