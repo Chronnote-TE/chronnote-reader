@@ -42,7 +42,9 @@ body {
 	flex-direction: column;
 	align-items: safe center;
 	gap: 10px;
-	padding: 18px;
+	/* Remove extra top padding so the first page sits flush
+	   against the top of the viewer container. */
+	padding: 0 18px 18px;
 }
 
 #outerContainer {
@@ -442,7 +444,9 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 }
 
 body, #viewerContainer {
-	background-color: white; /* --color-toolbar */
+	/* Match Chronnote reader background so gutters and the
+	   outer chrome use the same color. */
+	background-color: #ffffff;
 }
 
 .pdfViewer .page {
@@ -452,7 +456,9 @@ body, #viewerContainer {
 :root[data-color-scheme=dark] body,
 :root[data-color-scheme=dark] body #viewerContainer {
 	color-scheme: dark;
-	background-color: oklch(25.33% 0.016 252.42);
+	/* Same dark background as the host reader
+	   (see color-background in _dark.scss). */
+	background-color: #1e1e1e;
 }
 
 :root[data-color-scheme=dark] .pdfViewer .page {
