@@ -12,6 +12,9 @@ import IconHighlight from '../../../../res/icons/16/annotate-highlight.svg';
 import IconUnderline from '../../../../res/icons/16/annotate-underline.svg';
 import { Copy } from 'lucide-react';
 
+// 选中弹窗只展示一部分常用颜色，其余通过底部工具栏调整
+const QUICK_COLORS = ANNOTATION_COLORS.slice(0, 5);
+
 function SelectionPopup(props) {
 	const intl = useIntl();
 	const [translationVisible, setTranslationVisible] = useState(false);
@@ -85,7 +88,7 @@ function SelectionPopup(props) {
 			padding={12}
 		>
 			<div className="selection-popup-main">
-				{/* 工具栏 */}
+				{/* 工具栏：高亮 / 下划线 / 翻译 */}
 				<div className="toolbar-row">
 					<div className="tools-group">
 						<button
@@ -98,12 +101,7 @@ function SelectionPopup(props) {
 								props.onChangeTextSelectionAnnotationMode('highlight');
 							}}
 						>
-							<span className="button-content">
-								<IconHighlight />
-								<span className="tooltip">
-									<FormattedMessage id="pdfReader.highlightText" />
-								</span>
-							</span>
+							<IconHighlight />
 						</button>
 						<button
 							tabIndex={-1}
@@ -115,12 +113,7 @@ function SelectionPopup(props) {
 								props.onChangeTextSelectionAnnotationMode('underline');
 							}}
 						>
-							<span className="button-content">
-								<IconUnderline />
-								<span className="tooltip">
-									<FormattedMessage id="pdfReader.underlineText" />
-								</span>
-							</span>
+							<IconUnderline />
 						</button>
 						<button
 							tabIndex={-1}
@@ -129,17 +122,14 @@ function SelectionPopup(props) {
 							})}
 							onClick={handleTranslate}
 						>
-							<span className="button-content">
-								<span>译</span>
-								<span className="tooltip">
-									<FormattedMessage id="pdfReader.translate" defaultMessage="Translate" />
-								</span>
+							<span className="translate-label">
+								<FormattedMessage id="pdfReader.translate" defaultMessage="译" />
 							</span>
 						</button>
 					</div>
 
 					<div className="colors-group">
-						{ANNOTATION_COLORS.map((color, index) => (
+						{QUICK_COLORS.map((color, index) => (
 							<button
 								key={index}
 								tabIndex={-1}

@@ -104,8 +104,8 @@
 	background: var(--material-background);
 	border-radius: 8px;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-	min-width: 240px;
-	width: 320px;
+	min-width: 220px;
+	max-width: 360px;
 	box-sizing: border-box; // 确保padding计入总宽度
 	
 	.selection-popup-main {
@@ -117,20 +117,20 @@
 	.toolbar-row {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		justify-content: space-between;
+		gap: 12px;
 		
 		.tools-group {
 			display: flex;
-			gap: 4px;
-			padding-right: 8px;
-			border-right: 1px solid var(--color-panedivider);
+			gap: 8px;
+			align-items: center;
 		}
 
 		.colors-group {
 			display: flex;
-			gap: 4px;
-			flex-wrap: wrap;
-			max-width: 120px;
+			gap: 6px;
+			flex-wrap: nowrap;
+			justify-content: center;
 		}
 
 		.tool-btn {
@@ -143,47 +143,45 @@
 			justify-content: center;
 			transition: background-color 0.2s ease;
 			
-			// 默认状态
 			background-color: transparent;
 			color: var(--fill-secondary);
-			
-			// Hover 效果 - 确保在任何状态下都生效
-			&:hover {
-				background-color: var(--fill-quinary);
-			}
 			
 			// 选中状态
 			&.active {
 				background-color: var(--material-button);
 				color: var(--material-button-text);
-				
+
 				svg {
 					fill: var(--material-button-text);
-				}
-				
-				// 选中状态下的 hover 效果
-				&:hover {
-					background-color: var(--material-button-hover, var(--material-button));
 				}
 			}
 
 			svg {
-				width: 16px;
-				height: 16px;
+				width: 18px;
+				height: 18px;
 				transition: fill 0.2s ease;
+			}
+
+			.translate-label {
+				font-size: 14px;
+				font-weight: 500;
+			}
+
+			&:hover {
+				background-color: var(--fill-quinary);
 			}
 		}
 
 		.color-btn {
-			width: 24px;
-			height: 24px;
-			border-radius: 4px;
+			width: 26px;
+			height: 26px;
+			border-radius: 6px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			
 			&:hover {
-				transform: scale(1.1);
+				transform: scale(1.05);
 			}
 		}
 
@@ -260,32 +258,32 @@
 
 	// 翻译面板
 	.translation-panel {
-		margin-top: 8px;
-		padding: 12px;
+		margin-top: 6px;
+		padding: 10px 12px 12px;
 		border-top: 1px solid var(--color-panedivider);
 		box-sizing: border-box;
 		
 		.translation-content {
 			font-size: 13px;
 			line-height: 1.5;
-			max-height: 150px;
+			max-height: 140px;
 			overflow-y: auto;
-			margin-bottom: 8px;
-			padding: 4px;
+			margin-bottom: 6px;
+			padding: 4px 6px;
 			background: var(--fill-quinary);
 			border-radius: 4px;
 			box-sizing: border-box;
 		}
 
-		.translation-actions {
-			display: flex;
-			gap: 8px;
+			.translation-actions {
+				display: flex;
+				justify-content: flex-end;
+				gap: 8px;
 			
 			.copy-btn {
-				flex: 1;
-				padding: 6px 12px;
+				padding: 4px 10px;
 				border-radius: 4px;
-				font-size: 13px;
+				font-size: 12px;
 				transition: all 0.2s ease;
 				cursor: pointer;
 				background: var(--material-button);
