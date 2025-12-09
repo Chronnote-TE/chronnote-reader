@@ -75,8 +75,13 @@ export function IconNoteLarge() {
 export function IconColor20({ color }) {
 	return (
 		<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-			<rect x="2" y="2" width="16" height="16" rx="2" fill={color}/>
-			<rect x="2.5" y="2.5" width="15" height="15" rx="1.5" stroke="currentColor" strokeOpacity="0.1"/>
+			{/* Outer subtle ring */}
+			<circle cx="10" cy="10" r="8.5" fill="var(--material-background)" />
+			<circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeOpacity="0.12" />
+			{/* Main color swatch */}
+			<circle cx="10" cy="10" r="6" fill={color} />
+			{/* Small highlight to make it feel glossy */}
+			<circle cx="7" cy="7" r="2.5" fill="rgba(255,255,255,0.3)" />
 		</svg>
 	);
 }

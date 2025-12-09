@@ -82,8 +82,11 @@ export class FocusManager {
 	_handlePointerDown(event) {
 		if ('closest' in event.target) {
 			if (!event.target.closest('input, textarea, [contenteditable="true"], .annotation, .thumbnails-view, .outline-view, .error-bar, .reference-row, .preview-popup, .appearance-popup, #selector')) {
-				// Note: Doing event.preventDefault() also prevents :active class on Firefox
-				event.preventDefault();
+				// 允许在自定义 context-menu 内正常交互（颜色选择等）
+				if (!event.target.closest('.context-menu, .context-menu-overlay')) {
+					// Note: Doing event.preventDefault() also prevents :active class on Firefox
+					event.preventDefault();
+				}
 			}
 			else if (event.target.closest('.annotation') && event.target.closest('.more, .page, .tags')) {
 				event.preventDefault();

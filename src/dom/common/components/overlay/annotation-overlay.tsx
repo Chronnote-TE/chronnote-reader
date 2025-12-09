@@ -787,7 +787,7 @@ type ResizerProps = {
 	onResize: (annotation: DisplayedAnnotation, range: Range) => void;
 };
 
-let CommentIcon = React.forwardRef<SVGSVGElement, CommentIconProps>((props, ref) => {
+const CommentIcon = React.forwardRef<SVGSVGElement, CommentIconProps>((props, ref) => {
 	let size = props.large ? 24 : 14;
 	let x = props.x - size / 2;
 	let y = props.y - size / 2;
@@ -833,7 +833,6 @@ let CommentIcon = React.forwardRef<SVGSVGElement, CommentIconProps>((props, ref)
 	</>;
 });
 CommentIcon.displayName = 'CommentIcon';
-CommentIcon = memo(CommentIcon);
 type CommentIconProps = {
 	annotation?: { id?: string },
 	x: number;

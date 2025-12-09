@@ -151,22 +151,7 @@ function SelectionPopup(props) {
 						))}
 					</div>
 
-					{props.enableAddToNote && (
-						<button
-							className="add-note-btn"
-							data-tabstop={1}
-							onClick={handleAddToNote}
-							title={intl.formatMessage({ id: 'pdfReader.addToNote' })}
-							aria-label={intl.formatMessage({ id: 'pdfReader.addToNote' })}
-						>
-							<span className="button-content">
-								<span>+</span>
-								<span className="tooltip">
-									<FormattedMessage id="pdfReader.addToNote" />
-								</span>
-							</span>
-						</button>
-					)}
+					{/* 添加到笔记功能暂时下线 */}
 				</div>
 			</div>
 

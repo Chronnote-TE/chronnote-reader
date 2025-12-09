@@ -192,4 +192,3 @@ function ContextMenu({ params, onClose }) {
 }
 
 export default ContextMenu;
-

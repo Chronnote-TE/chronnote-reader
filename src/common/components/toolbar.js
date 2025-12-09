@@ -1,35 +1,30 @@
 import cx from 'classnames';
 import {
-	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
-	ChevronUp,
-	FileText,
 	Highlighter,
-	ImagePlus,
 	Maximize,
 	PanelRightClose,
-	Pencil,
-	StickyNote,
-	Type,
+	PenLine,
 	Underline,
 	ZoomIn,
 	ZoomOut,
 	Eraser,
-	Search,
-	ChevronDown as ChevronDownSmall,
-	X,
-	Columns2,
-	Rows2,
-	MoreHorizontal
+	MoreHorizontal,
+	Undo2
 } from 'lucide-react';
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { ReaderContext } from '../reader';
 import CustomSections from './common/custom-sections';
 import { IconColor20 } from './common/icons';
 import './toolbar.css';
+
+// 统一控制 toolbar 图标的视觉风格
+const ICON_SIZE = 18;
+const ICON_STROKE = 1.6;
 
 function Toolbar({ visible = true, ...props }) {
 	const intl = useIntl();
@@ -96,11 +91,21 @@ function Toolbar({ visible = true, ...props }) {
 	}
 
 	function handleToolColorClick(event) {
+		// 如果当前工具不支持颜色，给出提示
+		if (!props.tool.color) {
+			const message = intl.formatMessage({
+				id: 'pdfReader.pickColorNoTool',
+				defaultMessage: '请先选择高亮、下划线或画笔工具，再调整颜色。'
+			});
+			// 使用轻量级 toast 提示，而不是阻塞式 alert
+			toast(message, {
+				icon: 'ℹ️'
+			});
+			return;
+		}
+
 		let br = event.currentTarget.getBoundingClientRect();
 		props.onOpenColorContextMenu({ x: br.left, y: br.bottom });
-		console.log(br.left, br.bottom);
-		console.log(props.onOpenColorContextMenu);
-		console.log('handleToolColorClick', event.currentTarget);
 	}
 
 	function handleFindClick(_event) {
@@ -138,45 +143,28 @@ function Toolbar({ visible = true, ...props }) {
 		return null;
 	}
 
-	// Define tools that will be moved to "more" menu on small screens
+	// PDF 工具：画笔 + 单独的橡皮擦按钮
 	const pdfTools = (
 		<div className="pdf-tools">
 			<button
 				tabIndex={-1}
-				className={cx('toolbar-button text', { active: props.tool.type === 'text' })}
-				title={intl.formatMessage({ id: 'pdfReader.addText' })}
-				disabled={props.readOnly}
-				onClick={() => handleToolClick('text')}
-				data-l10n-id="pdfReader-toolbar-text"
-			><FileText size={18} strokeWidth={1.5} /></button>
-			<button
-				tabIndex={-1}
-				className={cx('toolbar-button area', { active: props.tool.type === 'image' })}
-				title={intl.formatMessage({ id: 'pdfReader.selectArea' })}
-				disabled={props.readOnly}
-				onClick={() => handleToolClick('image')}
-				data-l10n-id="pdfReader-toolbar-area"
-			><ImagePlus size={18} strokeWidth={1.5} /></button>
-			<button
-				tabIndex={-1}
-				className={cx('toolbar-button ink', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+				className={cx('toolbar-button ink', { active: props.tool.type === 'ink' })}
 				title={intl.formatMessage({ id: 'pdfReader.draw' })}
 				disabled={props.readOnly}
 				onClick={() => handleToolClick('ink')}
 				data-l10n-id="pdfReader-toolbar-draw"
-			><Pencil size={18} strokeWidth={1.5} /></button>
+			><PenLine size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
+			<button
+				tabIndex={-1}
+				className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
+				title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+				disabled={props.readOnly}
+				onClick={() => handleToolClick('eraser')}
+				data-l10n-id="pdfReader-toolbar-eraser"
+			>
+				<Eraser size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+			</button>
 		</div>
-	);
-
-	const eraserTool = props.type === 'pdf' && props.tool.type === 'ink' && (
-		<button
-			tabIndex={-1}
-			className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
-			title={intl.formatMessage({ id: 'pdfReader.eraser' })}
-			disabled={props.readOnly}
-			onClick={() => handleToolClick('eraser')}
-			data-l10n-id="pdfReader-toolbar-eraser"
-		><Eraser size={18} strokeWidth={1.5} /></button>
 	);
 
 	// 决定是否需要显示更多菜单按钮 - 大屏幕时不显示
@@ -197,34 +185,34 @@ function Toolbar({ visible = true, ...props }) {
 			<div className="start toolbar-group">
 				{['pdf', 'epub'].includes(props.type) && (
 					<Fragment>
-						{props.enableNavigateBack && (
-							<button
-								tabIndex={-1}
-								className="toolbar-button navigate-back"
-								title={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
-								disabled={!props.enableNavigateBack}
-								onClick={props.onNavigateBack}
-							>
-								<ChevronLeft size={18} strokeWidth={1.5} />
-							</button>
-						)}
+							{props.enableNavigateBack && (
+								<button
+									tabIndex={-1}
+									className="toolbar-button navigate-back"
+									title={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
+									disabled={!props.enableNavigateBack}
+									onClick={props.onNavigateBack}
+								>
+									<Undo2 size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+								</button>
+							)}
 						<button
 							tabIndex={-1}
 							className="toolbar-button previous-page"
-							title={intl.formatMessage({ id: 'pdfReader.previousPage' })}
-							disabled={!props.enableNavigateToPreviousPage}
-							onClick={props.onNavigateToPreviousPage}
-						>
-							<ChevronLeft size={18} strokeWidth={1.5} />
+								title={intl.formatMessage({ id: 'pdfReader.previousPage' })}
+								disabled={!props.enableNavigateToPreviousPage}
+								onClick={props.onNavigateToPreviousPage}
+							>
+								<ChevronLeft size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 						</button>
 						<button
 							tabIndex={-1}
 							className="toolbar-button next-page"
-							title={intl.formatMessage({ id: 'pdfReader.nextPage' })}
-							disabled={!props.enableNavigateToNextPage}
-							onClick={props.onNavigateToNextPage}
-						>
-							<ChevronRight size={18} strokeWidth={1.5} />
+								title={intl.formatMessage({ id: 'pdfReader.nextPage' })}
+								disabled={!props.enableNavigateToNextPage}
+								onClick={props.onNavigateToNextPage}
+							>
+								<ChevronRight size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 						</button>
 					</Fragment>
 				)}
@@ -267,37 +255,38 @@ function Toolbar({ visible = true, ...props }) {
 
 			{/* 右侧：工具区域 */}
 			<div className="end toolbar-group">
-				{/* 高亮、下划线和笔记工具 - 仅在较大屏幕和中等屏幕显示 */}
+				{/* 高亮、下划线工具 - 仅在较大屏幕和中等屏幕显示 */}
 				{!shouldShowAnnotationToolsInMoreMenu && (
 					<div className="annotation-tools">
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-							title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('highlight')}
-							data-l10n-id="pdfReader-toolbar-highlight"
-						><Highlighter size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-							title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('underline')}
-							data-l10n-id="pdfReader-toolbar-underline"
-						><Underline size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button note', {
-								active: props.tool.type === 'note'
-							})}
-							title={intl.formatMessage({ id: 'pdfReader.addNote' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('note')}
-							data-l10n-id="pdfReader-toolbar-note"
-						><StickyNote size={18} strokeWidth={1.5} /></button>
+							<button
+								tabIndex={-1}
+								className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
+								title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+								disabled={props.readOnly}
+								onClick={() => handleToolClick('highlight')}
+								data-l10n-id="pdfReader-toolbar-highlight"
+							><Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
+							<button
+								tabIndex={-1}
+								className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+								title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+								disabled={props.readOnly}
+								onClick={() => handleToolClick('underline')}
+								data-l10n-id="pdfReader-toolbar-underline"
+							><Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
 					</div>
 				)}
+
+				{/* 当前颜色预览 / 颜色选择器 */}
+				<button
+					tabIndex={-1}
+					className="toolbar-button color-picker"
+					title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
+					disabled={props.readOnly}
+					onClick={handleToolColorClick}
+				>
+					<IconColor20 color={props.tool.color || '#ffeb3b'} />
+				</button>
 
 				{/* PDF工具区域 - 仅在大屏幕上显示 */}
 				{props.type === 'pdf' && !shouldShowPdfToolsInMoreMenu && (
@@ -313,29 +302,29 @@ function Toolbar({ visible = true, ...props }) {
 				{/* Utility tools with zoom controls - only show on larger screens */}
 				{!shouldShowPdfToolsInMoreMenu && !isVerySmallScreen && (
 					<div className="utility-tools">
-						<button
-							tabIndex={-1}
-							className="toolbar-button zoom-out"
-							title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-							disabled={!props.enableZoomOut}
-							onClick={props.onZoomOut}
-							data-l10n-id="pdfReader-toolbar-zoom-out"
-						><ZoomOut size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className="toolbar-button zoom-in"
-							title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-							disabled={!props.enableZoomIn}
-							onClick={props.onZoomIn}
-							data-l10n-id="pdfReader-toolbar-zoom-in"
-						><ZoomIn size={18} strokeWidth={1.5} /></button>
-						<button
-							tabIndex={-1}
-							className="toolbar-button fit-to-width"
-							title={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
-							onClick={props.onFitToWidth}
-							data-l10n-id="pdfReader-toolbar-fit-to-width"
-						><Maximize size={18} strokeWidth={1.5} /></button>
+							<button
+								tabIndex={-1}
+								className="toolbar-button zoom-out"
+								title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
+								disabled={!props.enableZoomOut}
+								onClick={props.onZoomOut}
+								data-l10n-id="pdfReader-toolbar-zoom-out"
+							><ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
+							<button
+								tabIndex={-1}
+								className="toolbar-button zoom-in"
+								title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
+								disabled={!props.enableZoomIn}
+								onClick={props.onZoomIn}
+								data-l10n-id="pdfReader-toolbar-zoom-in"
+							><ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
+							<button
+								tabIndex={-1}
+								className="toolbar-button fit-to-width"
+								title={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
+								onClick={props.onFitToWidth}
+								data-l10n-id="pdfReader-toolbar-fit-to-width"
+							><Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} /></button>
 					</div>
 				)}
 
@@ -345,20 +334,20 @@ function Toolbar({ visible = true, ...props }) {
 				{platform === 'zotero' && props.showContextPaneToggle && !isVerySmallScreen && (
 					<>
 						<div className="divider" />
-						<button
-							className={cx('toolbar-button context-pane-toggle',
-								{ 'active-pseudo-class-fix': props.contextPaneOpen })}
+							<button
+								className={cx('toolbar-button context-pane-toggle',
+									{ 'active-pseudo-class-fix': props.contextPaneOpen })}
 							title={intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
 							tabIndex={-1}
-							onClick={() => props.onToggleContextPane(!props.contextPaneOpen)}
-						>
-							<div className={cx(
-								{ 'standard-view': props.contextPaneType === 'note-editor' },
-								{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
-							)}>
-								<PanelRightClose size={18} strokeWidth={1.5} />
-							</div>
-						</button>
+								onClick={() => props.onToggleContextPane(!props.contextPaneOpen)}
+							>
+								<div className={cx(
+									{ 'standard-view': props.contextPaneType === 'note-editor' },
+									{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
+								)}>
+									<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+								</div>
+							</button>
 					</>
 				)}
 
@@ -371,7 +360,7 @@ function Toolbar({ visible = true, ...props }) {
 							title={intl.formatMessage({ id: 'pdfReader.moreTools' })}
 							onClick={toggleMoreMenu}
 						>
-							<MoreHorizontal size={isVerySmallScreen ? 20 : 18} strokeWidth={1.5} />
+							<MoreHorizontal size={isVerySmallScreen ? ICON_SIZE + 2 : ICON_SIZE} strokeWidth={ICON_STROKE} />
 						</button>
 
 						{showMoreMenu && (
@@ -391,7 +380,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<ZoomOut size={16} strokeWidth={1.5} />
+											<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
 										</button>
 										<button
@@ -403,7 +392,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<ZoomIn size={16} strokeWidth={1.5} />
+											<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
 										</button>
 										<button
@@ -414,7 +403,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<Maximize size={16} strokeWidth={1.5} />
+											<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
 										</button>
 									</div>
@@ -457,7 +446,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<Highlighter size={16} strokeWidth={1.5} />
+											<Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.highlightText' })}</span>
 										</button>
 										<button
@@ -468,19 +457,8 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<Underline size={16} strokeWidth={1.5} />
+											<Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.underlineText' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'note' })}
-											onClick={() => {
-												handleToolClick('note');
-												setShowMoreMenu(false);
-											}}
-										>
-											<StickyNote size={16} strokeWidth={1.5} />
-											<span>{intl.formatMessage({ id: 'pdfReader.addNote' })}</span>
 										</button>
 									</div>
 								)}
@@ -490,50 +468,26 @@ function Toolbar({ visible = true, ...props }) {
 										<div className="more-menu-header">PDF Tools</div>
 										<button
 											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'text' })}
-											onClick={() => {
-												handleToolClick('text');
-												setShowMoreMenu(false);
-											}}
-										>
-											<FileText size={16} strokeWidth={1.5} />
-											<span>{intl.formatMessage({ id: 'pdfReader.addText' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'image' })}
-											onClick={() => {
-												handleToolClick('image');
-												setShowMoreMenu(false);
-											}}
-										>
-											<ImagePlus size={16} strokeWidth={1.5} />
-											<span>{intl.formatMessage({ id: 'pdfReader.selectArea' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: ['ink', 'eraser'].includes(props.tool.type) })}
+											className={cx('more-menu-button', { active: props.tool.type === 'ink' })}
 											onClick={() => {
 												handleToolClick('ink');
 												setShowMoreMenu(false);
 											}}
 										>
-											<Pencil size={16} strokeWidth={1.5} />
+											<PenLine size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.draw' })}</span>
 										</button>
-										{props.type === 'pdf' && props.tool.type === 'ink' && (
-											<button
-												tabIndex={-1}
-												className={cx('more-menu-button', { active: props.tool.type === 'eraser' })}
-												onClick={() => {
-													handleToolClick('eraser');
-													setShowMoreMenu(false);
-												}}
-											>
-												<Eraser size={16} strokeWidth={1.5} />
-												<span>{intl.formatMessage({ id: 'pdfReader.eraser' })}</span>
-											</button>
-										)}
+										<button
+											tabIndex={-1}
+											className={cx('more-menu-button', { active: props.tool.type === 'eraser' })}
+											onClick={() => {
+												handleToolClick('eraser');
+												setShowMoreMenu(false);
+											}}
+										>
+											<Eraser size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+											<span>{intl.formatMessage({ id: 'pdfReader.eraser' })}</span>
+										</button>
 									</div>
 								)}
 
@@ -548,7 +502,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<PanelRightClose size={16} strokeWidth={1.5} />
+											<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}</span>
 										</button>
 									</div>
@@ -567,7 +521,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<ZoomOut size={16} strokeWidth={1.5} />
+											<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
 										</button>
 										<button
@@ -579,7 +533,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<ZoomIn size={16} strokeWidth={1.5} />
+											<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
 										</button>
 										<button
@@ -590,7 +544,7 @@ function Toolbar({ visible = true, ...props }) {
 												setShowMoreMenu(false);
 											}}
 										>
-											<Maximize size={16} strokeWidth={1.5} />
+											<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
 										</button>
 									</div>

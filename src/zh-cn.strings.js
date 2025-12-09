@@ -42,6 +42,7 @@ export default {
     'pdfReader.draw': '绘图',
     'pdfReader.eraser': '橡皮擦',
     'pdfReader.pickColor': '选择颜色',
+    'pdfReader.pickColorNoTool': '请先选择高亮、下划线或画笔工具，再调整颜色',
     'pdfReader.addToNote': '添加到笔记',
     'pdfReader.zoomIn': '放大',
     'pdfReader.zoomOut': '缩小',

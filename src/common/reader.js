@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React, { createContext } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { IntlProvider } from 'react-intl';
 import ReaderUI from './components/reader-ui';
 import PDFView from '../pdf/pdf-view';
@@ -268,140 +269,149 @@ class Reader {
 					})}
 				>
 					<ReaderContext.Provider value={this._readerContext}>
-						<ReaderUI
-							type={this._type}
-							state={this._state}
-							ref={this._readerRef}
-							tools={this._tools}
-							onSelectAnnotations={this.setSelectedAnnotations.bind(this)}
-							onZoomIn={this.zoomIn.bind(this)}
-							onZoomOut={this.zoomOut.bind(this)}
-							onZoomReset={this.zoomReset.bind(this)}
-							onZoomPageWidth={this.zoomPageWidth.bind(this)}
-							onNavigateBack={this.navigateBack.bind(this)}
-							onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
-							onNavigateToNextPage={this.navigateToNextPage.bind(this)}
-							onChangePageNumber={pageNumber => this.navigate({ pageNumber })}
-							onChangeTool={this.setTool.bind(this)}
-							onToggleAppearancePopup={this.toggleAppearancePopup.bind(this)}
-							onToggleFind={this.toggleFindPopup.bind(this)}
-							onChangeFilter={this.setFilter.bind(this)}
-							onChangeSidebarView={this.setSidebarView.bind(this)}
-							onToggleSidebar={(open) => {
-								this.toggleSidebar(open);
-								this._onToggleSidebar(open);
-							}}
-							onResizeSidebar={(width) => {
-								this.setSidebarWidth(width);
-								this._onChangeSidebarWidth(width);
-							}}
-							onChangeTheme={(theme) => {
-								if (getCurrentColorScheme(this._state.colorScheme) === 'dark') {
-									// For Zotero client use prefs to change theme
-									if (this._onSetDarkTheme) {
-										this._onSetDarkTheme(theme);
+						<>
+							<ReaderUI
+								type={this._type}
+								state={this._state}
+								ref={this._readerRef}
+								tools={this._tools}
+								onSelectAnnotations={this.setSelectedAnnotations.bind(this)}
+								onZoomIn={this.zoomIn.bind(this)}
+								onZoomOut={this.zoomOut.bind(this)}
+								onZoomReset={this.zoomReset.bind(this)}
+								onZoomPageWidth={this.zoomPageWidth.bind(this)}
+								onNavigateBack={this.navigateBack.bind(this)}
+								onNavigateToPreviousPage={this.navigateToPreviousPage.bind(this)}
+								onNavigateToNextPage={this.navigateToNextPage.bind(this)}
+								onChangePageNumber={pageNumber => this.navigate({ pageNumber })}
+								onChangeTool={this.setTool.bind(this)}
+								onToggleAppearancePopup={this.toggleAppearancePopup.bind(this)}
+								onToggleFind={this.toggleFindPopup.bind(this)}
+								onChangeFilter={this.setFilter.bind(this)}
+								onChangeSidebarView={this.setSidebarView.bind(this)}
+								onToggleSidebar={(open) => {
+									this.toggleSidebar(open);
+									this._onToggleSidebar(open);
+								}}
+								onResizeSidebar={(width) => {
+									this.setSidebarWidth(width);
+									this._onChangeSidebarWidth(width);
+								}}
+								onChangeTheme={(theme) => {
+									if (getCurrentColorScheme(this._state.colorScheme) === 'dark') {
+										// For Zotero client use prefs to change theme
+										if (this._onSetDarkTheme) {
+											this._onSetDarkTheme(theme);
+										}
+										else {
+											this.setDarkTheme(theme);
+										}
 									}
 									else {
-										this.setDarkTheme(theme);
+										if (this._onSetLightTheme) {
+											this._onSetLightTheme(theme);
+										}
+										else {
+											this.setLightTheme(theme);
+										}
 									}
-								}
-								else {
-									if (this._onSetLightTheme) {
-										this._onSetLightTheme(theme);
+								}}
+								onResizeSplitView={this.setSplitViewSize.bind(this)}
+								onAddAnnotation={(annotation, select) => {
+									annotation = this._annotationManager.addAnnotation(annotation);
+									// Tell screen readers the annotation was added after focus is settled
+									setTimeout(async () => {
+										// Temporary until web library supports fluent
+										if (!document.l10n) return;
+										let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
+										let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
+										this.setA11yMessage(msg);
+									}, 100);
+									if (select) {
+										this.setSelectedAnnotations([annotation.id]);
+									} else {
+										this.setSelectedAnnotations([]);
 									}
-									else {
-										this.setLightTheme(theme);
+								}}
+								onUpdateAnnotations={(annotations) => {
+									this._annotationManager.updateAnnotations(annotations);
+									this._enableAnnotationDeletionFromComment = false;
+								}}
+								onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
+								onOpenTagsPopup={this._onOpenTagsPopup}
+								onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
+								onOpenColorContextMenu={params => {
+									if (this._state && this._tools) {
+										this._onOpenContextMenu(createColorContextMenu(this, params));
 									}
-								}
-							}}
-							onResizeSplitView={this.setSplitViewSize.bind(this)}
-							onAddAnnotation={(annotation, select) => {
-								annotation = this._annotationManager.addAnnotation(annotation);
-								// Tell screen readers the annotation was added after focus is settled
-								setTimeout(async () => {
-									// Temporary until web library supports fluent
-									if (!document.l10n) return;
-									let annotationType = await document.l10n.formatValue(`pdfReader-${annotation.type}Annotation`);
-									let msg = await document.l10n.formatValue('pdfReader-a11yAnnotationCreated', { type: annotationType });
-									this.setA11yMessage(msg);
-								}, 100);
-								if (select) {
-									this.setSelectedAnnotations([annotation.id]);
-								} else {
+								}}
+								onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
+								onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
+								onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}
+								onCloseContextMenu={this.closeContextMenu.bind(this)}
+								onCloseLabelPopup={this._handleLabelPopupClose.bind(this)}
+								onEnterPassword={this.enterPassword.bind(this)}
+								onAddToNote={(annotations) => {
+									this._onAddToNote(annotations);
 									this.setSelectedAnnotations([]);
-								}
-							}}
-							onUpdateAnnotations={(annotations) => {
-								this._annotationManager.updateAnnotations(annotations);
-								this._enableAnnotationDeletionFromComment = false;
-							}}
-							onDeleteAnnotations={this._annotationManager.deleteAnnotations.bind(this._annotationManager)}
-							onOpenTagsPopup={this._onOpenTagsPopup}
-							onOpenPageLabelPopup={this._handleOpenPageLabelPopup.bind(this)}
-							onOpenColorContextMenu={params => {
-								if (this._state && this._tools) {
-									this._onOpenContextMenu(createColorContextMenu(this, params));
-								}
-							}}
-							onOpenAnnotationContextMenu={params => this._onOpenContextMenu(createAnnotationContextMenu(this, params))}
-							onOpenSelectorContextMenu={params => this._onOpenContextMenu(createSelectorContextMenu(this, params))}
-							onOpenThumbnailContextMenu={params => this._onOpenContextMenu(createThumbnailContextMenu(this, params))}
-							onCloseContextMenu={this.closeContextMenu.bind(this)}
-							onCloseLabelPopup={this._handleLabelPopupClose.bind(this)}
-							onEnterPassword={this.enterPassword.bind(this)}
-							onAddToNote={(annotations) => {
-								this._onAddToNote(annotations);
-								this.setSelectedAnnotations([]);
-							}}
-							onNavigate={this.navigate.bind(this)}
-							onUpdateOutline={outline => this._updateState({ outline })}
-							onUpdateOutlineQuery={outlineQuery => this._updateState({ outlineQuery })}
-							onRenderThumbnails={(pageIndexes) => this._primaryView._pdfThumbnails.render(pageIndexes)}
-							onSetDataTransferAnnotations={this._handleSetDataTransferAnnotations.bind(this)}
-							onOpenLink={this._onOpenLink}
-							onChangeAppearance={this._handleAppearanceChange.bind(this)}
-							onChangeFindState={this._handleFindStateChange.bind(this)}
-							onFindNext={this.findNext.bind(this)}
-							onFindPrevious={this.findPrevious.bind(this)}
-							onToggleContextPane={this._onToggleContextPane}
-							onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
-							onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
-							onChangeSplitType={(type) => {
-								if (!type) {
-									this.disableSplitView();
-								}
-								else if (type === 'horizontal') {
-									this.toggleHorizontalSplit(true);
-								}
-								else if (type === 'vertical') {
-									this.toggleVerticalSplit(true);
-								}
-							}}
-							onChangeScrollMode={(mode) => this.scrollMode = mode}
-							onChangeSpreadMode={(mode) => this.spreadMode = mode}
-							onChangeFlowMode={(mode) => this.flowMode = mode}
-							onAddTheme={() => this._updateState({ themePopup: {} })}
-							onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
-							onCloseThemePopup={() => this._updateState({ themePopup: null })}
-							onSaveCustomThemes={(customThemes) => {
-								this._onSaveCustomThemes(customThemes);
-								let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
-								let map = new Map(themes.map(theme => [theme.id, theme]));
-								let { lightTheme, darkTheme } = this._state;
-								if (lightTheme && !map.has(lightTheme.id)) {
-									lightTheme = null;
-								}
-								if (darkTheme && !map.has(darkTheme.id)) {
-									darkTheme = null;
-								}
-								this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
-							}}
-							onMenuButtonClick={this._handleMenuButtonClick}
-							onTranslate={this._onTranslate}
-							onClickClose={this._onClickClose}
-							onClickSplit={this._onClickSplit}
-							onClickVerticalSplit={this._onClickVerticalSplit}
-						/>
+								}}
+								onNavigate={this.navigate.bind(this)}
+								onUpdateOutline={outline => this._updateState({ outline })}
+								onUpdateOutlineQuery={outlineQuery => this._updateState({ outlineQuery })}
+								onRenderThumbnails={(pageIndexes) => this._primaryView._pdfThumbnails.render(pageIndexes)}
+								onSetDataTransferAnnotations={this._handleSetDataTransferAnnotations.bind(this)}
+								onOpenLink={this._onOpenLink}
+								onChangeAppearance={this._handleAppearanceChange.bind(this)}
+								onChangeFindState={this._handleFindStateChange.bind(this)}
+								onFindNext={this.findNext.bind(this)}
+								onFindPrevious={this.findPrevious.bind(this)}
+								onToggleContextPane={this._onToggleContextPane}
+								onChangeTextSelectionAnnotationMode={this.setTextSelectionAnnotationMode.bind(this)}
+								onCloseOverlayPopup={this._handleOverlayPopupClose.bind(this)}
+								onChangeSplitType={(type) => {
+									if (!type) {
+										this.disableSplitView();
+									}
+									else if (type === 'horizontal') {
+										this.toggleHorizontalSplit(true);
+									}
+									else if (type === 'vertical') {
+										this.toggleVerticalSplit(true);
+									}
+								}}
+								onChangeScrollMode={(mode) => this.scrollMode = mode}
+								onChangeSpreadMode={(mode) => this.spreadMode = mode}
+								onChangeFlowMode={(mode) => this.flowMode = mode}
+								onAddTheme={() => this._updateState({ themePopup: {} })}
+								onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
+								onCloseThemePopup={() => this._updateState({ themePopup: null })}
+								onSaveCustomThemes={(customThemes) => {
+									this._onSaveCustomThemes(customThemes);
+									let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
+									let map = new Map(themes.map(theme => [theme.id, theme]));
+									let { lightTheme, darkTheme } = this._state;
+									if (lightTheme && !map.has(lightTheme.id)) {
+										lightTheme = null;
+									}
+									if (darkTheme && !map.has(darkTheme.id)) {
+										darkTheme = null;
+									}
+									this._updateState({ themePopup: null, customThemes, lightTheme, darkTheme });
+								}}
+								onMenuButtonClick={this._handleMenuButtonClick}
+								onTranslate={this._onTranslate}
+								onClickClose={this._onClickClose}
+								onClickSplit={this._onClickSplit}
+								onClickVerticalSplit={this._onClickVerticalSplit}
+							/>
+							<Toaster
+								position="bottom-center"
+								toastOptions={{
+									style: { fontSize: '13px' },
+									duration: 2500,
+								}}
+							/>
+						</>
 					</ReaderContext.Provider>
 				</IntlProvider>
 			);

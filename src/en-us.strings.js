@@ -128,6 +128,7 @@ export default {
 	'pdfReader.searchResultTotal': 'Total search results',
 	'pdfReader.eraser': 'Eraser',
 	'pdfReader.pickColor': 'Pick a Color',
+	'pdfReader.pickColorNoTool': 'Select highlight, underline or pen tool before changing color',
 	'pdfReader.addToNote': 'Add to Note',
 	'pdfReader.zoomIn': 'Zoom In',
 	'pdfReader.zoomOut': 'Zoom Out',

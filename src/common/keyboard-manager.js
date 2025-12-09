@@ -287,15 +287,8 @@ export class KeyboardManager {
 			else if (code === 'Alt-Digit2') {
 				this._reader.toggleTool('underline');
 			}
-			else if (code === 'Alt-Digit3') {
-				this._reader.toggleTool('note');
-			}
-			else if (this._reader._type === 'pdf' && code === 'Alt-Digit4') {
-				this._reader.toggleTool('text');
-			}
-			else if (this._reader._type === 'pdf' && code === 'Alt-Digit5') {
-				this._reader.toggleTool('image');
-			}
+			// Alt+3 之前用于切换便签工具，功能暂时下线
+			// Alt+4 / Alt+5 之前用于文本和区域工具，功能暂时下线
 			else if (this._reader._type === 'pdf' && code === 'Alt-Digit6') {
 				this._reader.toggleTool('ink');
 			}
@@ -350,4 +343,3 @@ export class KeyboardManager {
 		this._handleKeyUp(event, true);
 	}
 }
-

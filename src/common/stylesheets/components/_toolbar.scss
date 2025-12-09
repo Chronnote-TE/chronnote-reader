@@ -91,17 +91,27 @@
 		margin: 0 4px;
 	}
 
-	.annotation-tools, .pdf-tools, .utility-tools {
-		display: flex;
-		align-items: center;
-		gap: 2px;
-	}
-	
-	.zoom-controls {
-		display: flex;
-		align-items: center;
-		gap: 2px;
-	}
+		.annotation-tools, .pdf-tools, .utility-tools {
+			display: flex;
+			align-items: center;
+			gap: 2px;
+		}
+		
+		.zoom-controls {
+			display: flex;
+			align-items: center;
+			gap: 2px;
+		}
+
+		// 颜色选择按钮稍微突出一点
+		.toolbar-button.color-picker {
+			padding: 0;
+
+			svg {
+				width: 20px;
+				height: 20px;
+			}
+		}
 
 	@include macOS-inactive-opacity;
 }
@@ -120,8 +130,8 @@
 
 .toolbar-button {
 	color: var(--fill-secondary);
-	width: 28px;
-	height: 28px;
+	width: 32px;
+	height: 32px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -132,11 +142,16 @@
 	}
 
 	&:active, &.active, &.active-pseudo-class-fix {
-		background-color: var(--fill-quarternary);
+		background-color: color-mix(in srgb, var(--accent-blue) 16%, transparent);
+		color: var(--accent-blue);
 	}
 
 	&[disabled] {
 		pointer-events: none;
+	}
+
+	svg {
+		display: block;
 	}
 }
 
