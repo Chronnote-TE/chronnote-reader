@@ -78,6 +78,7 @@ class Reader {
 		this._onClickSplit = options.onClickSplit;
 		this._onClickVerticalSplit = options.onClickVerticalSplit;
 		this._onClick = options.onClick;
+		this._onSetOutline = options.onSetOutline;
 
 		this._localizedStrings = options.localizedStrings;
 
@@ -495,9 +496,13 @@ class Reader {
 		if (init || this._state.colorScheme !== previousState.colorScheme) {
 			if (this._state.colorScheme) {
 				document.documentElement.dataset.colorScheme = this._state.colorScheme;
+				// Mirror Chronnote's theming convention so global styles can reuse it
+				document.documentElement.dataset.theme = this._state.colorScheme;
 			}
 			else {
 				delete document.documentElement.dataset.colorScheme;
+				// When unset, let host/app decide data-theme via its own logic
+				// (do not forcibly remove data-theme here).
 			}
 			if (!init) {
 				this._primaryView?.setColorScheme(this._state.colorScheme);
@@ -718,7 +723,19 @@ class Reader {
 	}
 
 	setColorScheme(colorScheme) {
-		this._updateState({ colorScheme });
+		// Normalize external values (e.g. 'Light' / 'Dark' / 'auto')
+		let normalized = colorScheme;
+		if (typeof colorScheme === 'string') {
+			let lower = colorScheme.toLowerCase();
+			if (lower === 'light' || lower === 'dark') {
+				normalized = lower;
+			}
+			else {
+				// Treat any other string (e.g. 'auto', 'medium') as system default
+				normalized = null;
+			}
+		}
+		this._updateState({ colorScheme: normalized });
 	}
 
 	setReadOnly(readOnly) {
@@ -875,6 +892,9 @@ class Reader {
 
 		let onSetOutline = (outline) => {
 			this._updateState({ outline });
+			if (this._onSetOutline) {
+				this._onSetOutline(outline);
+			}
 		};
 
 		let onSetPageLabels = (pageLabels) => {
@@ -1234,10 +1254,22 @@ class Reader {
 		this._lastView.zoomPageWidth();
 	}
 
-	zoomPageHeight() {
-		this._ensureType('pdf');
-		this._lastView.zoomPageHeight();
-	}
+		zoomPageHeight() {
+			this._ensureType('pdf');
+			this._lastView.zoomPageHeight();
+		}
+
+		async getCurrentPageText() {
+			if (this._type !== 'pdf') {
+				return '';
+			}
+
+			if (!this._lastView || !this._lastView.getCurrentPageText) {
+				return '';
+			}
+
+			return this._lastView.getCurrentPageText();
+		}
 
 	async navigate(location, options) {
 		await this._lastView.initializedPromise;

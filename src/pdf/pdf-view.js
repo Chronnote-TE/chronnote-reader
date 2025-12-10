@@ -82,7 +82,20 @@ class PDFView {
 		this._outline = options.outline;
 		this._lightTheme = options.lightTheme;
 		this._darkTheme = options.darkTheme;
+		// Theme handling:
+		// - _forcedColorScheme: explicitly requested by the host ('light' | 'dark' | null)
+		// - _preferedColorTheme: fallback based on system preference when there's no forced value
+		this._forcedColorScheme = null;
 		this._preferedColorTheme = options.colorScheme;
+		if (typeof this._preferedColorTheme === 'string') {
+			let lower = this._preferedColorTheme.toLowerCase();
+			if (lower === 'light' || lower === 'dark') {
+				this._forcedColorScheme = lower;
+			}
+			else {
+				this._preferedColorTheme = null;
+			}
+		}
 		this._onRequestPassword = options.onRequestPassword;
 		this._onSetThumbnails = options.onSetThumbnails;
 		this._onSetOutline = options.onSetOutline;
@@ -129,14 +142,20 @@ class PDFView {
 		this._findState = options.findState;
 
 
-		// Create a MediaQueryList object
+		// Create a MediaQueryList object for system theme, used only when
+		// there's no forced color scheme from the host.
 		let darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-		// Initial check
-		this._preferedColorTheme = darkModeMediaQuery.matches ? 'dark' : 'light';
+		// Initial check: only use system preference when not forced.
+		if (!this._forcedColorScheme) {
+			this._preferedColorTheme = darkModeMediaQuery.matches ? 'dark' : 'light';
+		}
 
-		// Listen for changes
+		// Listen for changes, again only when not forced.
 		darkModeMediaQuery.addEventListener('change', event => {
+			if (this._forcedColorScheme) {
+				return;
+			}
 			this._preferedColorTheme = event.matches ? 'dark' : 'light';
 			this._updateColorScheme();
 		});
@@ -492,10 +511,20 @@ class PDFView {
 		}
 
 		if (this._iframeWindow) {
-			this._iframeWindow.document.documentElement.dataset.colorScheme = this._colorScheme;
-
 			let root = this._iframeWindow.document.documentElement;
 
+			// Sync with both pdf.js internal selector (data-color-scheme)
+			// and Chronnote global theme convention (data-theme)
+			if (this._colorScheme) {
+				root.dataset.colorScheme = this._colorScheme;
+				root.dataset.theme = this._colorScheme;
+			}
+			else {
+				delete root.dataset.colorScheme;
+				delete root.dataset.theme;
+			}
+
+			// Configure theme object and the CSS variable used in viewer.css
 			if (this._colorScheme === 'light' && this._lightTheme) {
 				this._iframeWindow.theme = this._lightTheme;
 				root.style.setProperty('--background-color', this._lightTheme.background);
@@ -843,7 +872,18 @@ class PDFView {
 	}
 
 	setColorScheme(colorScheme) {
-		this._forcedColorScheme = colorScheme;
+		if (typeof colorScheme === 'string') {
+			let lower = colorScheme.toLowerCase();
+			if (lower === 'light' || lower === 'dark') {
+				this._forcedColorScheme = lower;
+			}
+			else {
+				this._forcedColorScheme = null;
+			}
+		}
+		else {
+			this._forcedColorScheme = colorScheme;
+		}
 		this._updateColorScheme();
 	}
 
@@ -3528,6 +3568,48 @@ class PDFView {
 
 	setOutline(outline) {
 		this._outline = outline;
+	}
+
+	async getPageText(pageIndex) {
+		if (!this._iframeWindow || !this._iframeWindow.PDFViewerApplication) {
+			return '';
+		}
+
+		await this._iframeWindow.PDFViewerApplication.initializedPromise;
+
+		const pdfDocument = this._iframeWindow.PDFViewerApplication.pdfDocument;
+		if (!pdfDocument) {
+			return '';
+		}
+
+		// Clamp pageIndex to valid range
+		const pagesCount = this._iframeWindow.PDFViewerApplication.pdfViewer.pagesCount || 0;
+		if (pagesCount === 0) {
+			return '';
+		}
+		const safePageIndex = Math.min(Math.max(pageIndex, 0), pagesCount - 1);
+
+		const page = await pdfDocument.getPage(safePageIndex + 1);
+		const textContent = await page.getTextContent({
+			includeMarkedContent: true,
+			disableNormalization: false,
+		});
+
+		return textContent.items.map(item => item.str).join('');
+	}
+
+	async getCurrentPageText() {
+		if (!this._iframeWindow || !this._iframeWindow.PDFViewerApplication) {
+			return '';
+		}
+
+		const pdfViewer = this._iframeWindow.PDFViewerApplication.pdfViewer;
+		if (!pdfViewer) {
+			return '';
+		}
+
+		const currentPageNumber = pdfViewer.currentPageNumber || 1;
+		return this.getPageText(currentPageNumber - 1);
 	}
 
 	async _getPositionFromDestination(dest) {

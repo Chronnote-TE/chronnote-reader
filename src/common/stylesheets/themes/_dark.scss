@@ -23,9 +23,10 @@ $-colors: (
     fill-quarternary: #ffffff1f,
     fill-quinary: #ffffff0f,
     fill-senary: #ffffff08,
-    color-background: #1e1e1e,
-    color-background50: #1e1e1e80,
-    color-background70: #1e1e1eb2,
+    // Align reader background with Chronnote dark base color
+    color-background: #151515,
+    color-background50: #15151580,
+    color-background70: #151515b2,
     color-border: #ffffff2e,
     color-border50: #ffffff17,
     color-button: #404040,

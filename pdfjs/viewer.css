@@ -222,7 +222,6 @@ body.portal #viewerContainer::-webkit-scrollbar { /* WebKit */
 	overflow: hidden;
 	border: var(--page-border);
 	background-clip: content-box;
-	box-shadow: 0 0 2px 0 rgba(0,0,0,.14),0 2px 2px 0 rgba(0,0,0,.12),0 1px 3px 0 rgba(0,0,0,.12);
 }
 
 .pdfViewer .dummyPage {
@@ -454,13 +453,15 @@ body, #viewerContainer {
 }
 
 :root[data-color-scheme=dark] body,
-:root[data-color-scheme=dark] body #viewerContainer {
+:root[data-color-scheme=dark] body #viewerContainer,
+:root[data-theme=dark] body,
+:root[data-theme=dark] body #viewerContainer {
 	color-scheme: dark;
-	/* Same dark background as the host reader
-	   (see color-background in _dark.scss). */
-	background-color: #1e1e1e;
+	/* Dark background unified with Chronnote's dark theme. */
+	background-color: #151515;
 }
 
-:root[data-color-scheme=dark] .pdfViewer .page {
+:root[data-color-scheme=dark] .pdfViewer .page,
+:root[data-theme=dark] .pdfViewer .page {
 	background-color: var(--background-color);
 }
