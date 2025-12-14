@@ -171,6 +171,11 @@ class PDFView {
 
 		this._selectionRanges = [];
 
+		// Spacebar-to-pan (mouse-friendly): hold Space to temporarily enable hand tool,
+		// then drag with the mouse to pan. Releasing Space restores previous tool.
+		this._spacebarPanning = false;
+		this._spacebarPrevTool = null;
+
 		this._iframe = document.createElement('iframe');
 		this._iframe.addEventListener('load', () => this._iframe.classList.add('loaded'));
 		this._iframe.src = 'pdf/web/viewer.html';
@@ -300,6 +305,8 @@ class PDFView {
 		// this._iframeWindow.document.body.draggable = true;
 
 		this._iframeWindow.addEventListener('contextmenu', this._handleContextMenu.bind(this));
+		// Capture keyup so we can reliably restore tool when Space is released
+		this._iframeWindow.addEventListener('keyup', this._handleKeyUp.bind(this), true);
 		this._iframeWindow.addEventListener('keyup', this._onKeyUp);
 		this._iframeWindow.addEventListener('keydown', this._handleKeyDown.bind(this), true);
 		this._iframeWindow.addEventListener('pointerdown', this._handlePointerDown.bind(this), true);
@@ -317,6 +324,8 @@ class PDFView {
 		this._iframeWindow.addEventListener('drop', this._handleDrop.bind(this), { capture: true });
 		this._iframeWindow.addEventListener('copy', this._handleCopy.bind(this), true);
 		this._iframeWindow.addEventListener('input', this._handleInput.bind(this));
+		// If the window loses focus while Space is held, ensure we don't get stuck in hand tool
+		this._iframeWindow.addEventListener('blur', this._handleWindowBlur.bind(this));
 
 		this._dragCanvas = this._iframeWindow.document.createElement('canvas');
 		this._dragCanvas.style.position = 'absolute';
@@ -2765,6 +2774,35 @@ class PDFView {
 		if (event.target.classList.contains('textAnnotation')) {
 			return;
 		}
+
+		// Mouse-friendly panning: hold Space to temporarily enable hand tool.
+		// We intentionally do NOT do this when an a11y-focused object exists, since Space is
+		// used as an activation key in that mode.
+		if (key === 'Space' && !event.metaKey && !event.ctrlKey && !event.altKey && !this._focusedObject) {
+			// Avoid hijacking Space in form fields / editable areas
+			let el = event.target;
+			let isEditable = false;
+			try {
+				isEditable = !!(el && (el.isContentEditable || el.closest?.('input,textarea,[contenteditable="true"]')));
+			}
+			catch (e) {
+			}
+			if (!isEditable) {
+				// Only switch once (keydown can repeat)
+				if (!this._spacebarPanning) {
+					this._spacebarPanning = true;
+					this._spacebarPrevTool = this._tool ? { ...this._tool } : { type: 'pointer' };
+					try {
+						this.setTool({ type: 'hand' });
+					}
+					catch (e) {
+					}
+				}
+				event.stopPropagation();
+				event.preventDefault();
+				return;
+			}
+		}
 		// Set text layer selection again, because previous press of Option-Escape
 		// clear the selection and focuses body (that happens in every text in inside
 		// Zotero client, but not on actual Firefox)
@@ -3358,6 +3396,44 @@ class PDFView {
 		}
 
 		this._onKeyDown(event);
+	}
+
+	_handleKeyUp(event) {
+		if (!this._spacebarPanning) {
+			return;
+		}
+		let key = getKeyCombination(event);
+		if (key !== 'Space') {
+			return;
+		}
+		this._spacebarPanning = false;
+		let prev = this._spacebarPrevTool;
+		this._spacebarPrevTool = null;
+		try {
+			if (prev) {
+				this.setTool(prev);
+			}
+		}
+		catch (e) {
+		}
+		event.stopPropagation();
+		event.preventDefault();
+	}
+
+	_handleWindowBlur() {
+		if (!this._spacebarPanning) {
+			return;
+		}
+		this._spacebarPanning = false;
+		let prev = this._spacebarPrevTool;
+		this._spacebarPrevTool = null;
+		try {
+			if (prev) {
+				this.setTool(prev);
+			}
+		}
+		catch (e) {
+		}
 	}
 
 	_handleDragStart(event) {
