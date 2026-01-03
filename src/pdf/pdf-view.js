@@ -130,6 +130,7 @@ class PDFView {
 
 		this._selectedAnnotationIDs = options.selectedAnnotationIDs;
 		this._annotations = options.annotations;
+		this._referencedAnnotationIDs = new Set();
 
 		this._pages = [];
 		this._pdfPages = {};
@@ -411,8 +412,8 @@ class PDFView {
 		this._pdfRenderer = new PDFRenderer({ pdfView: this });
 
 		if (this._primary && !this._preview) {
-			// let outline = await this._iframeWindow.PDFViewerApplication.pdfDocument.getOutline2({});
-			// this._onSetOutline(outline);
+			let outline = await this._iframeWindow.PDFViewerApplication.pdfDocument.getOutline2({});
+			this._onSetOutline(outline);
 			this._pdfRenderer?.start();
 		}
 
@@ -867,6 +868,29 @@ class PDFView {
 		if (this._primary && !this._preview) {
 			this._pdfThumbnails?.render(pageIndexes, true);
 			this._pdfRenderer?.start();
+		}
+	}
+
+	setReferencedAnnotationIDs(ids) {
+		try {
+			this._referencedAnnotationIDs = new Set((Array.isArray(ids) ? ids : []).map(x => String(x)));
+		} catch {
+			this._referencedAnnotationIDs = new Set();
+		}
+		this._render();
+	}
+
+	markAnnotationReferenced(annotationId) {
+		if (!annotationId) return;
+		let id = String(annotationId);
+		if (this._referencedAnnotationIDs.has(id)) return;
+		this._referencedAnnotationIDs.add(id);
+		try {
+			let ann = this._annotations?.find?.(x => x?.id === id);
+			let pageIndexes = ann ? getPageIndexesFromAnnotations([ann]) : null;
+			this._render(pageIndexes || undefined);
+		} catch {
+			this._render();
 		}
 	}
 

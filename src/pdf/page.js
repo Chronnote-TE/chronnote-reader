@@ -337,6 +337,61 @@ export default class Page {
 		}
 	}
 
+	drawReferenceMarkers(annotations) {
+		let refIds = this.layer?._referencedAnnotationIDs;
+		if (!refIds || !refIds.size) return;
+
+		let markers = [];
+		for (let annotation of annotations) {
+			if (!annotation?.id || !refIds.has(annotation.id)) continue;
+			let position = this.p2v(annotation.position);
+			let rects = position?.rects;
+			if (position?.nextPageRects && position.pageIndex + 1 === this.pageIndex) {
+				rects = position.nextPageRects;
+			}
+			if (!rects?.length) continue;
+			let rect = rects[0];
+			let y = (rect[1] + rect[3]) / 2;
+			if (Number.isFinite(y)) markers.push({ y });
+		}
+		if (!markers.length) return;
+
+		markers.sort((a, b) => a.y - b.y);
+
+		let ctx = this.actualContext;
+		let r = 3 * devicePixelRatio;
+		let padding = 4 * devicePixelRatio;
+		let minGap = 2 * r + 4 * devicePixelRatio;
+		let lastY = -Infinity;
+		for (let m of markers) {
+			if (m.y - lastY < minGap) {
+				m.y = lastY + minGap;
+			}
+			lastY = m.y;
+			m.y = Math.max(r + padding, Math.min(m.y, this.originalPage.canvas.height - r - padding));
+		}
+
+		let x = this.originalPage.canvas.width - (10 * devicePixelRatio);
+		let isDark = this.layer?._themeColorScheme === 'dark';
+		let fill = isDark ? '#cbd5e1' : '#475569';
+		let stroke = isDark ? 'rgba(15, 23, 42, 0.5)' : 'rgba(255, 255, 255, 0.85)';
+
+		ctx.save();
+		ctx.globalCompositeOperation = 'source-over';
+		ctx.globalAlpha = 0.9;
+		ctx.fillStyle = fill;
+		ctx.strokeStyle = stroke;
+		ctx.lineWidth = 1 * devicePixelRatio;
+
+		for (let m of markers) {
+			ctx.beginPath();
+			ctx.arc(x, m.y, r, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.stroke();
+		}
+		ctx.restore();
+	}
+
 	_renderHighlight(annotation) {
 		let color = annotation.color;
 
@@ -1039,6 +1094,8 @@ export default class Page {
 				this._renderInk(annotation);
 			}
 		}
+
+		this.drawReferenceMarkers(annotations);
 
 		this.actualContext.restore();
 	}

@@ -2,19 +2,21 @@ import cx from 'classnames';
 import {
 	ChevronLeft,
 	ChevronRight,
-	Highlighter,
-	Maximize,
-	PanelRightClose,
-	PenLine,
-	Underline,
-	ZoomIn,
-	ZoomOut,
-	Eraser,
 	MoreHorizontal,
-	Undo2,
-	RotateCcw,
-	RotateCw
+	Undo2
 } from 'lucide-react';
+import {
+	PiTextUnderline,
+	PiEraser,
+	PiMagnifyingGlassPlus,
+	PiMagnifyingGlassMinus,
+	PiArrowsOutSimple, // Fit Width
+	PiArrowCounterClockwise,
+	PiArrowClockwise
+} from 'react-icons/pi';
+import { FaHighlighter } from 'react-icons/fa';
+import { GoPencil } from 'react-icons/go';
+
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useIntl } from 'react-intl';
@@ -24,9 +26,8 @@ import CustomSections from './common/custom-sections';
 import { IconColor20 } from './common/icons';
 import './toolbar.css';
 
-// 统一控制 toolbar 图标的视觉风格
-const ICON_SIZE = 18;
-const ICON_STROKE = 1.6;
+// 统一控制 toolbar 图标的视觉风格 - Design Master Tuned
+const ICON_SIZE = 20; // Phosphor icons look best slightly larger (20px) 
 
 function Toolbar({ visible = true, ...props }) {
 	const intl = useIntl();
@@ -72,7 +73,7 @@ function Toolbar({ visible = true, ...props }) {
 		// Close more menu when clicking outside
 		const handleClickOutside = (event) => {
 			if (moreMenuRef.current && !moreMenuRef.current.contains(event.target) &&
-				!event.target.closest('.more-button')) {
+				!event.target.closest('.dock-button.mobile-more')) {
 				setShowMoreMenu(false);
 			}
 		};
@@ -83,11 +84,6 @@ function Toolbar({ visible = true, ...props }) {
 		};
 	}, []);
 
-	// 根据屏幕尺寸决定哪些工具应该显示在more菜单中
-	const shouldShowPdfToolsInMoreMenu = isSmallScreen;
-	const shouldShowAnnotationToolsInMoreMenu = isVerySmallScreen;
-	const shouldShowMoreButton = isSmallScreen || isVerySmallScreen;
-
 	function handleSidebarButtonClick(_event) {
 		props.onToggleSidebar(!props.sidebarOpen);
 	}
@@ -97,17 +93,15 @@ function Toolbar({ visible = true, ...props }) {
 		if (!props.tool.color) {
 			const message = intl.formatMessage({
 				id: 'pdfReader.pickColorNoTool',
-				defaultMessage: '请先选择高亮、下划线或画笔工具，再调整颜色。'
+				defaultMessage: 'Please select a tool first.'
 			});
-			// 使用轻量级 toast 提示，而不是阻塞式 alert
-			toast(message, {
-				icon: 'ℹ️'
-			});
+			toast(message, { icon: 'ℹ️' });
 			return;
 		}
 
 		let br = event.currentTarget.getBoundingClientRect();
-		props.onOpenColorContextMenu({ x: br.left, y: br.bottom });
+		// Adjusted for Floating Dock: Pop UP instead of Drop Down
+		props.onOpenColorContextMenu({ x: br.left, y: br.top - 8 });
 	}
 
 	function handleFindClick(_event) {
@@ -145,497 +139,184 @@ function Toolbar({ visible = true, ...props }) {
 		return null;
 	}
 
-	// PDF 工具：画笔 + 单独的橡皮擦按钮
-	const pdfTools = (
-		<div className="pdf-tools">
-			<button
-				tabIndex={-1}
-				className={cx('toolbar-button ink', { active: props.tool.type === 'ink' })}
-				aria-label={intl.formatMessage({ id: 'pdfReader.draw' })}
-				disabled={props.readOnly}
-				onClick={() => handleToolClick('ink')}
-				data-l10n-id="pdfReader-toolbar-draw"
-			>
-				<PenLine size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-				<span className="tooltip">
-					{intl.formatMessage({ id: 'pdfReader.draw' })}
-				</span>
-			</button>
-			<button
-				tabIndex={-1}
-				className={cx('toolbar-button eraser', { active: props.tool.type === 'eraser' })}
-				aria-label={intl.formatMessage({ id: 'pdfReader.eraser' })}
-				disabled={props.readOnly}
-				onClick={() => handleToolClick('eraser')}
-				data-l10n-id="pdfReader-toolbar-eraser"
-			>
-				<Eraser size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-				<span className="tooltip">
-					{intl.formatMessage({ id: 'pdfReader.eraser' })}
-				</span>
-			</button>
-		</div>
-	);
-
-	// 决定是否需要显示更多菜单按钮 - 大屏幕时不显示
-	const shouldShowMoreMenuButton = isSmallScreen || isVerySmallScreen;
-
+	// --------------------------------------------------------------------------
+	// Design Master Implementation: The Floating Dock
+	// --------------------------------------------------------------------------
 	return (
 		<div
-			className={cx(
-				"toolbar",
-				{ "very-small-screen": isVerySmallScreen },
-				{ "small-screen": isSmallScreen && !isVerySmallScreen }
-			)}
-			data-tabstop={1}
+			className={cx("toolbar-dock-container", { "mobile-mode": isVerySmallScreen })}
 			role="application"
 			ref={toolbarRef}
+			data-tabstop={1}
 		>
-			{/* 左侧：导航区域 */}
-			<div className="start toolbar-group">
+			{/* --- Island 1: Navigation --- */}
+			<div className="dock-island nav-island">
+				{/* Sidebar Toggle - REMOVED per design request */}
+
+				{/* Back Button (if enabled) */}
+				{props.enableNavigateBack && (
+					<button className="dock-button" onClick={props.onNavigateBack} title={intl.formatMessage({ id: 'pdfReader.navigateBack' })}>
+						<Undo2 size={18} strokeWidth={1.7} />
+					</button>
+				)}
+
+				<div className="dock-divider" />
+
 				{['pdf', 'epub'].includes(props.type) && (
-					<Fragment>
-						{props.enableNavigateBack && (
-							<button
-								tabIndex={-1}
-								className="toolbar-button navigate-back"
-								aria-label={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
-								disabled={!props.enableNavigateBack}
-								onClick={props.onNavigateBack}
-							>
-								<Undo2 size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.navigateBack' })}
-								</span>
-							</button>
-						)}
+					<>
 						<button
-							tabIndex={-1}
-							className="toolbar-button previous-page"
-							aria-label={intl.formatMessage({ id: 'pdfReader.previousPage' })}
+							className="dock-button"
 							disabled={!props.enableNavigateToPreviousPage}
 							onClick={props.onNavigateToPreviousPage}
+							title={intl.formatMessage({ id: 'pdfReader.previousPage' })}
 						>
-							<ChevronLeft size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.previousPage' })}
-							</span>
+							<ChevronLeft size={20} strokeWidth={1.7} />
 						</button>
+
+						<div className="page-info-pill">
+							<input
+								ref={pageInputRef}
+								className="dock-input"
+								defaultValue=""
+								onKeyDown={handlePageNumberKeydown}
+								onBlur={handlePageNumberBlur}
+								autoComplete="off"
+							/>
+							<span className="page-count">/ {props.pagesCount}</span>
+						</div>
+
 						<button
-							tabIndex={-1}
-							className="toolbar-button next-page"
-							aria-label={intl.formatMessage({ id: 'pdfReader.nextPage' })}
+							className="dock-button"
 							disabled={!props.enableNavigateToNextPage}
 							onClick={props.onNavigateToNextPage}
+							title={intl.formatMessage({ id: 'pdfReader.nextPage' })}
 						>
-							<ChevronRight size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.nextPage' })}
-							</span>
+							<ChevronRight size={20} strokeWidth={1.7} />
 						</button>
-					</Fragment>
+					</>
 				)}
 			</div>
 
-			{/* 中间：页码信息区域（超小屏隐藏） */}
-			{!isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
-				<div className="center toolbar-group">
-					<div className="page-controls">
-						<input
-							ref={pageInputRef}
-							type="input"
-							id="pageNumber"
-							className="toolbar-text-input"
-							title={intl.formatMessage({
-								id: props.type === 'pdf' || props.usePhysicalPageNumbers
-									? 'pdfReader.page'
-									: 'pdfReader.location'
-							})}
-							defaultValue=""
-							size="4"
-							min="1"
-							tabIndex={-1}
-							autoComplete="off"
-							onKeyDown={handlePageNumberKeydown}
-							onBlur={handlePageNumberBlur}
-						/>
-						{props.pageLabel && (
-							<span id="numPages">
-								&nbsp;
-								<div>
-									{!(props.type === 'pdf' && props.pageIndex + 1 == props.pageLabel)
-										&& (props.pageIndex + 1)} / {props.pagesCount}
-								</div>
-							</span>
-						)}
-					</div>
+			{/* --- Island 2: Tools (Hidden on very small screens) --- */}
+			{!isVerySmallScreen && (
+				<div className="dock-island tools-island">
+					<button
+						className={cx('dock-button', { active: props.tool.type === 'highlight' })}
+						onClick={() => handleToolClick('highlight')}
+						title={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+					>
+						<FaHighlighter size={18} />
+					</button>
+					<button
+						className={cx('dock-button', { active: props.tool.type === 'underline' })}
+						onClick={() => handleToolClick('underline')}
+						title={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+					>
+						<PiTextUnderline size={ICON_SIZE} />
+					</button>
+
+					{/* Color Picker triggers context menu */}
+					<button
+						className="dock-button color-trigger"
+						onClick={handleToolColorClick}
+						title={intl.formatMessage({ id: 'pdfReader.pickColor' })}
+					>
+						<IconColor20 color={props.tool.color || '#ffeb3b'} />
+					</button>
+
+					{props.type === 'pdf' && (
+						<>
+							<div className="dock-divider" />
+							<button
+								className={cx('dock-button', { active: props.tool.type === 'ink' })}
+								onClick={() => handleToolClick('ink')}
+								title={intl.formatMessage({ id: 'pdfReader.draw' })}
+							>
+								<GoPencil size={ICON_SIZE} />
+							</button>
+							<button
+								className={cx('dock-button', { active: props.tool.type === 'eraser' })}
+								onClick={() => handleToolClick('eraser')}
+								title={intl.formatMessage({ id: 'pdfReader.eraser' })}
+							>
+								<PiEraser size={ICON_SIZE} />
+							</button>
+						</>
+					)}
 				</div>
 			)}
 
-			{/* 右侧：工具区域 */}
-			<div className="end toolbar-group">
-				{/* 高亮、下划线工具 - 仅在较大屏幕和中等屏幕显示 */}
-				{!shouldShowAnnotationToolsInMoreMenu && (
-					<div className="annotation-tools">
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-							aria-label={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('highlight')}
-							data-l10n-id="pdfReader-toolbar-highlight"
-						>
-							<Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.highlightText' })}
-							</span>
-						</button>
-						<button
-							tabIndex={-1}
-							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-							aria-label={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-							disabled={props.readOnly}
-							onClick={() => handleToolClick('underline')}
-							data-l10n-id="pdfReader-toolbar-underline"
-						>
-							<Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.underlineText' })}
-							</span>
-						</button>
-					</div>
-				)}
+			{/* --- Island 3: View Controls (Hidden on small screens) --- */}
+			{!isSmallScreen && (
+				<div className="dock-island view-island">
+					<button className="dock-button" disabled={!props.enableZoomOut} onClick={props.onZoomOut} title={intl.formatMessage({ id: 'pdfReader.zoomOut' })}>
+						<PiMagnifyingGlassMinus size={ICON_SIZE} />
+					</button>
+					<button className="dock-button" disabled={!props.enableZoomIn} onClick={props.onZoomIn} title={intl.formatMessage({ id: 'pdfReader.zoomIn' })}>
+						<PiMagnifyingGlassPlus size={ICON_SIZE} />
+					</button>
+					<button className="dock-button" onClick={props.onFitToWidth} title={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}>
+						<PiArrowsOutSimple size={ICON_SIZE} />
+					</button>
 
-				{/* 当前颜色预览 / 颜色选择器 */}
-				<button
-					tabIndex={-1}
-					className="toolbar-button color-picker"
-					aria-label={intl.formatMessage({ id: 'pdfReader.pickColor' })}
-					disabled={props.readOnly}
-					onClick={handleToolColorClick}
-				>
-					<IconColor20 color={props.tool.color || '#ffeb3b'} />
-					<span className="tooltip">
-						{intl.formatMessage({ id: 'pdfReader.pickColor' })}
-					</span>
-				</button>
+					{props.type === 'pdf' && (
+						<>
+							<div className="dock-divider" />
+							<button className="dock-button" onClick={props.onRotatePageLeft} title={intl.formatMessage({ id: 'pdfReader.rotateLeft' })}>
+								<PiArrowCounterClockwise size={ICON_SIZE} />
+							</button>
+							<button className="dock-button" onClick={props.onRotatePageRight} title={intl.formatMessage({ id: 'pdfReader.rotateRight' })}>
+								<PiArrowClockwise size={ICON_SIZE} />
+							</button>
+						</>
+					)}
+				</div>
+			)}
 
-				{/* PDF工具区域 - 仅在大屏幕上显示 */}
-				{props.type === 'pdf' && !shouldShowPdfToolsInMoreMenu && (
-					<>
-						<div className="divider" />
-						{pdfTools}
-					</>
-				)}
+			<CustomSections type="Toolbar" />
 
-				{/* 分隔符和实用工具 */}
-				<div className="divider" />
-
-				{/* Utility tools with zoom controls - only show on larger screens */}
-				{!shouldShowPdfToolsInMoreMenu && !isVerySmallScreen && (
-					<div className="utility-tools">
-						<button
-							tabIndex={-1}
-							className="toolbar-button zoom-out"
-							aria-label={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-							disabled={!props.enableZoomOut}
-							onClick={props.onZoomOut}
-							data-l10n-id="pdfReader-toolbar-zoom-out"
-						>
-							<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-							</span>
-						</button>
-						<button
-							tabIndex={-1}
-							className="toolbar-button zoom-in"
-							aria-label={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-							disabled={!props.enableZoomIn}
-							onClick={props.onZoomIn}
-							data-l10n-id="pdfReader-toolbar-zoom-in"
-						>
-							<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-							</span>
-						</button>
-						<button
-							tabIndex={-1}
-							className="toolbar-button fit-to-width"
-							aria-label={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
-							onClick={props.onFitToWidth}
-							data-l10n-id="pdfReader-toolbar-fit-to-width"
-						>
-							<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
-							</span>
-						</button>
-						{/* PDF 页面旋转按钮 - 仅在 PDF 模式下显示 */}
-						{props.type === 'pdf' && (
-							<>
-								<button
-									tabIndex={-1}
-									className="toolbar-button rotate-left"
-									aria-label={intl.formatMessage({ id: 'pdfReader.rotateLeft' })}
-									onClick={props.onRotatePageLeft}
-									data-l10n-id="pdfReader-toolbar-rotate-left"
-								>
-									<RotateCcw size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-									<span className="tooltip">
-										{intl.formatMessage({ id: 'pdfReader.rotateLeft' })}
-									</span>
+			{/* Mobile / More Menu Button */}
+			{(isSmallScreen || isVerySmallScreen) && (
+				<div className="dock-island mobile-island">
+					<button className="dock-button mobile-more" onClick={toggleMoreMenu}>
+						<MoreHorizontal size={20} strokeWidth={1.7} />
+					</button>
+					{showMoreMenu && (
+						<div className="dock-popup-menu" ref={moreMenuRef}>
+							{/* Simplified Menu for Mobile */}
+							<div className="menu-header">View</div>
+							<div className="menu-row">
+								<button className="menu-item" onClick={props.onZoomIn}>
+									<PiMagnifyingGlassPlus size={16} /> <span>Zoom In</span>
 								</button>
-								<button
-									tabIndex={-1}
-									className="toolbar-button rotate-right"
-									aria-label={intl.formatMessage({ id: 'pdfReader.rotateRight' })}
-									onClick={props.onRotatePageRight}
-									data-l10n-id="pdfReader-toolbar-rotate-right"
-								>
-									<RotateCw size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-									<span className="tooltip">
-										{intl.formatMessage({ id: 'pdfReader.rotateRight' })}
-									</span>
+								<button className="menu-item" onClick={props.onZoomOut}>
+									<PiMagnifyingGlassMinus size={16} /> <span>Zoom Out</span>
 								</button>
-							</>
-						)}
-					</div>
-				)}
-
-				<CustomSections type="Toolbar" />
-
-				{/* Zotero上下文面板切换按钮 - 隐藏在很小的屏幕上 */}
-				{platform === 'zotero' && props.showContextPaneToggle && !isVerySmallScreen && (
-					<>
-						<div className="divider" />
-						<button
-							className={cx('toolbar-button context-pane-toggle',
-								{ 'active-pseudo-class-fix': props.contextPaneOpen })}
-							aria-label={intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
-							tabIndex={-1}
-							onClick={() => props.onToggleContextPane(!props.contextPaneOpen)}
-						>
-							<div className={cx(
-								{ 'standard-view': props.contextPaneType === 'note-editor' },
-								{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
-							)}>
-								<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
 							</div>
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
-							</span>
-						</button>
-					</>
-				)}
-
-				{/* More button and menu */}
-				{shouldShowMoreButton && (
-					<div className="more-menu-container">
-						<button
-							tabIndex={-1}
-							className="toolbar-button more-button"
-							aria-label={intl.formatMessage({ id: 'pdfReader.moreTools' })}
-							onClick={toggleMoreMenu}
-						>
-							<MoreHorizontal size={isVerySmallScreen ? ICON_SIZE + 2 : ICON_SIZE} strokeWidth={ICON_STROKE} />
-							<span className="tooltip">
-								{intl.formatMessage({ id: 'pdfReader.moreTools' })}
-							</span>
-						</button>
-
-						{showMoreMenu && (
-							<div className="more-menu" ref={moreMenuRef}>
-								{/* Add zoom controls at the beginning of the more menu when on very small screen */}
-								{isVerySmallScreen && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">
-											{intl.formatMessage({ id: 'pdfReader.zoomControls' })}
-										</div>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											disabled={!props.enableZoomOut}
-											onClick={() => {
-												props.onZoomOut();
-												setShowMoreMenu(false);
-											}}
-										>
-											<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											disabled={!props.enableZoomIn}
-											onClick={() => {
-												props.onZoomIn();
-												setShowMoreMenu(false);
-											}}
-										>
-											<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											onClick={() => {
-												props.onFitToWidth();
-												setShowMoreMenu(false);
-											}}
-										>
-											<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
-										</button>
-									</div>
-								)}
-								{/* Rest of the more menu content */}
-								{isVerySmallScreen && ['pdf', 'epub'].includes(props.type) && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">Page Navigation</div>
-										<div className="page-controls-in-menu">
-											<input
-												type="input"
-												className="toolbar-text-input"
-												defaultValue={props.pageLabel ?? (props.pageIndex + 1)}
-												size="3"
-												min="1"
-												onKeyDown={(e) => {
-													if (e.key === 'Enter') {
-														props.onChangePageNumber(e.target.value);
-														setShowMoreMenu(false);
-													}
-												}}
-												onBlur={(e) => {
-													if (e.target.value != (props.pageLabel ?? (props.pageIndex + 1))) {
-														props.onChangePageNumber(e.target.value);
-													}
-												}}
-											/>
-											<span>/ {props.pagesCount}</span>
-										</div>
-									</div>
-								)}
-								{shouldShowAnnotationToolsInMoreMenu && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">Annotation Tools</div>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'highlight' })}
-											onClick={() => {
-												handleToolClick('highlight');
-												setShowMoreMenu(false);
-											}}
-										>
-											<Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.highlightText' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'underline' })}
-											onClick={() => {
-												handleToolClick('underline');
-												setShowMoreMenu(false);
-											}}
-										>
-											<Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.underlineText' })}</span>
-										</button>
-									</div>
-								)}
-
-								{props.type === 'pdf' && shouldShowPdfToolsInMoreMenu && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">PDF Tools</div>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'ink' })}
-											onClick={() => {
-												handleToolClick('ink');
-												setShowMoreMenu(false);
-											}}
-										>
-											<PenLine size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.draw' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.tool.type === 'eraser' })}
-											onClick={() => {
-												handleToolClick('eraser');
-												setShowMoreMenu(false);
-											}}
-										>
-											<Eraser size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.eraser' })}</span>
-										</button>
-									</div>
-								)}
-
-								{platform === 'zotero' && props.showContextPaneToggle && isVerySmallScreen && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">View</div>
-										<button
-											tabIndex={-1}
-											className={cx('more-menu-button', { active: props.contextPaneOpen })}
-											onClick={() => {
-												props.onToggleContextPane(!props.contextPaneOpen);
-												setShowMoreMenu(false);
-											}}
-										>
-											<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}</span>
-										</button>
-									</div>
-								)}
-
-								{/* Zoom controls in more menu */}
-								{!isVerySmallScreen && (
-									<div className="more-menu-section">
-										<div className="more-menu-header">Zoom Controls</div>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											disabled={!props.enableZoomOut}
-											onClick={() => {
-												props.onZoomOut();
-												setShowMoreMenu(false);
-											}}
-										>
-											<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.zoomOut' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											disabled={!props.enableZoomIn}
-											onClick={() => {
-												props.onZoomIn();
-												setShowMoreMenu(false);
-											}}
-										>
-											<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.zoomIn' })}</span>
-										</button>
-										<button
-											tabIndex={-1}
-											className="more-menu-button"
-											onClick={() => {
-												props.onFitToWidth();
-												setShowMoreMenu(false);
-											}}
-										>
-											<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-											<span>{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}</span>
-										</button>
-									</div>
-								)}
+							<div className="menu-row">
+								<button className="menu-item" onClick={props.onFitToWidth}>
+									<PiArrowsOutSimple size={16} /> <span>Fit Width</span>
+								</button>
 							</div>
-						)}
-					</div>
-				)}
-			</div>
+
+							{props.type === 'pdf' && (
+								<>
+									<div className="menu-divider" />
+									<div className="menu-header">Actions</div>
+									<div className="menu-row">
+										<button className="menu-item" onClick={props.onRotatePageRight}>
+											<PiArrowClockwise size={16} /> <span>Rotate</span>
+										</button>
+										<button className="menu-item" onClick={() => handleToolClick('ink')}>
+											<GoPencil size={16} /> <span>Draw</span>
+										</button>
+									</div>
+								</>
+							)}
+						</div>
+					)}
+				</div>
+			)}
 		</div>
 	);
 }

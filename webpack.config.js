@@ -39,6 +39,8 @@ function generateReaderConfig(build) {
 					use: {
 						loader: 'babel-loader',
 						options: {
+							babelrc: false,
+							configFile: false,
 							presets: [
 								['@babel/preset-env', {
 									useBuiltIns: false,
@@ -46,6 +48,8 @@ function generateReaderConfig(build) {
 										? { firefox: 115, chrome: 128 }
 										: undefined
 								}],
+								'@babel/preset-react',
+								'@babel/preset-typescript'
 							],
 						},
 					},
@@ -193,8 +197,12 @@ function generateViewConfig(build) {
 					use: {
 						loader: 'babel-loader',
 						options: {
+							babelrc: false,
+							configFile: false,
 							presets: [
 								['@babel/preset-env', { useBuiltIns: false }],
+								'@babel/preset-react',
+								'@babel/preset-typescript'
 							],
 						},
 					},
