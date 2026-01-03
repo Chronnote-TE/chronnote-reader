@@ -11,7 +11,9 @@ import {
 	ZoomOut,
 	Eraser,
 	MoreHorizontal,
-	Undo2
+	Undo2,
+	RotateCcw,
+	RotateCw
 } from 'lucide-react';
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
@@ -193,43 +195,43 @@ function Toolbar({ visible = true, ...props }) {
 			<div className="start toolbar-group">
 				{['pdf', 'epub'].includes(props.type) && (
 					<Fragment>
-							{props.enableNavigateBack && (
-								<button
-									tabIndex={-1}
-									className="toolbar-button navigate-back"
-									aria-label={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
-									disabled={!props.enableNavigateBack}
-									onClick={props.onNavigateBack}
-								>
-									<Undo2 size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-									<span className="tooltip">
-										{intl.formatMessage({ id: 'pdfReader.navigateBack' })}
-									</span>
-								</button>
-							)}
+						{props.enableNavigateBack && (
+							<button
+								tabIndex={-1}
+								className="toolbar-button navigate-back"
+								aria-label={intl.formatMessage({ id: 'pdfReader.navigateBack' })}
+								disabled={!props.enableNavigateBack}
+								onClick={props.onNavigateBack}
+							>
+								<Undo2 size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+								<span className="tooltip">
+									{intl.formatMessage({ id: 'pdfReader.navigateBack' })}
+								</span>
+							</button>
+						)}
 						<button
 							tabIndex={-1}
 							className="toolbar-button previous-page"
-								aria-label={intl.formatMessage({ id: 'pdfReader.previousPage' })}
-								disabled={!props.enableNavigateToPreviousPage}
-								onClick={props.onNavigateToPreviousPage}
-							>
-								<ChevronLeft size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.previousPage' })}
-								</span>
+							aria-label={intl.formatMessage({ id: 'pdfReader.previousPage' })}
+							disabled={!props.enableNavigateToPreviousPage}
+							onClick={props.onNavigateToPreviousPage}
+						>
+							<ChevronLeft size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.previousPage' })}
+							</span>
 						</button>
 						<button
 							tabIndex={-1}
 							className="toolbar-button next-page"
-								aria-label={intl.formatMessage({ id: 'pdfReader.nextPage' })}
-								disabled={!props.enableNavigateToNextPage}
-								onClick={props.onNavigateToNextPage}
-							>
-								<ChevronRight size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.nextPage' })}
-								</span>
+							aria-label={intl.formatMessage({ id: 'pdfReader.nextPage' })}
+							disabled={!props.enableNavigateToNextPage}
+							onClick={props.onNavigateToNextPage}
+						>
+							<ChevronRight size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.nextPage' })}
+							</span>
 						</button>
 					</Fragment>
 				)}
@@ -275,32 +277,32 @@ function Toolbar({ visible = true, ...props }) {
 				{/* 高亮、下划线工具 - 仅在较大屏幕和中等屏幕显示 */}
 				{!shouldShowAnnotationToolsInMoreMenu && (
 					<div className="annotation-tools">
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
-								aria-label={intl.formatMessage({ id: 'pdfReader.highlightText' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('highlight')}
-								data-l10n-id="pdfReader-toolbar-highlight"
-							>
-								<Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.highlightText' })}
-								</span>
-							</button>
-							<button
-								tabIndex={-1}
-								className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
-								aria-label={intl.formatMessage({ id: 'pdfReader.underlineText' })}
-								disabled={props.readOnly}
-								onClick={() => handleToolClick('underline')}
-								data-l10n-id="pdfReader-toolbar-underline"
-							>
-								<Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.underlineText' })}
-								</span>
-							</button>
+						<button
+							tabIndex={-1}
+							className={cx('toolbar-button highlight', { active: props.tool.type === 'highlight' })}
+							aria-label={intl.formatMessage({ id: 'pdfReader.highlightText' })}
+							disabled={props.readOnly}
+							onClick={() => handleToolClick('highlight')}
+							data-l10n-id="pdfReader-toolbar-highlight"
+						>
+							<Highlighter size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.highlightText' })}
+							</span>
+						</button>
+						<button
+							tabIndex={-1}
+							className={cx('toolbar-button underline', { active: props.tool.type === 'underline' })}
+							aria-label={intl.formatMessage({ id: 'pdfReader.underlineText' })}
+							disabled={props.readOnly}
+							onClick={() => handleToolClick('underline')}
+							data-l10n-id="pdfReader-toolbar-underline"
+						>
+							<Underline size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.underlineText' })}
+							</span>
+						</button>
 					</div>
 				)}
 
@@ -332,44 +334,73 @@ function Toolbar({ visible = true, ...props }) {
 				{/* Utility tools with zoom controls - only show on larger screens */}
 				{!shouldShowPdfToolsInMoreMenu && !isVerySmallScreen && (
 					<div className="utility-tools">
-							<button
-								tabIndex={-1}
-								className="toolbar-button zoom-out"
-								aria-label={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-								disabled={!props.enableZoomOut}
-								onClick={props.onZoomOut}
-								data-l10n-id="pdfReader-toolbar-zoom-out"
-							>
-								<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.zoomOut' })}
-								</span>
-							</button>
-							<button
-								tabIndex={-1}
-								className="toolbar-button zoom-in"
-								aria-label={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-								disabled={!props.enableZoomIn}
-								onClick={props.onZoomIn}
-								data-l10n-id="pdfReader-toolbar-zoom-in"
-							>
-								<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.zoomIn' })}
-								</span>
-							</button>
-							<button
-								tabIndex={-1}
-								className="toolbar-button fit-to-width"
-								aria-label={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
-								onClick={props.onFitToWidth}
-								data-l10n-id="pdfReader-toolbar-fit-to-width"
-							>
-								<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
-								</span>
-							</button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button zoom-out"
+							aria-label={intl.formatMessage({ id: 'pdfReader.zoomOut' })}
+							disabled={!props.enableZoomOut}
+							onClick={props.onZoomOut}
+							data-l10n-id="pdfReader-toolbar-zoom-out"
+						>
+							<ZoomOut size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.zoomOut' })}
+							</span>
+						</button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button zoom-in"
+							aria-label={intl.formatMessage({ id: 'pdfReader.zoomIn' })}
+							disabled={!props.enableZoomIn}
+							onClick={props.onZoomIn}
+							data-l10n-id="pdfReader-toolbar-zoom-in"
+						>
+							<ZoomIn size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.zoomIn' })}
+							</span>
+						</button>
+						<button
+							tabIndex={-1}
+							className="toolbar-button fit-to-width"
+							aria-label={intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
+							onClick={props.onFitToWidth}
+							data-l10n-id="pdfReader-toolbar-fit-to-width"
+						>
+							<Maximize size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.fitToWidth' })}
+							</span>
+						</button>
+						{/* PDF 页面旋转按钮 - 仅在 PDF 模式下显示 */}
+						{props.type === 'pdf' && (
+							<>
+								<button
+									tabIndex={-1}
+									className="toolbar-button rotate-left"
+									aria-label={intl.formatMessage({ id: 'pdfReader.rotateLeft' })}
+									onClick={props.onRotatePageLeft}
+									data-l10n-id="pdfReader-toolbar-rotate-left"
+								>
+									<RotateCcw size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+									<span className="tooltip">
+										{intl.formatMessage({ id: 'pdfReader.rotateLeft' })}
+									</span>
+								</button>
+								<button
+									tabIndex={-1}
+									className="toolbar-button rotate-right"
+									aria-label={intl.formatMessage({ id: 'pdfReader.rotateRight' })}
+									onClick={props.onRotatePageRight}
+									data-l10n-id="pdfReader-toolbar-rotate-right"
+								>
+									<RotateCw size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+									<span className="tooltip">
+										{intl.formatMessage({ id: 'pdfReader.rotateRight' })}
+									</span>
+								</button>
+							</>
+						)}
 					</div>
 				)}
 
@@ -379,23 +410,23 @@ function Toolbar({ visible = true, ...props }) {
 				{platform === 'zotero' && props.showContextPaneToggle && !isVerySmallScreen && (
 					<>
 						<div className="divider" />
-							<button
-								className={cx('toolbar-button context-pane-toggle',
-									{ 'active-pseudo-class-fix': props.contextPaneOpen })}
+						<button
+							className={cx('toolbar-button context-pane-toggle',
+								{ 'active-pseudo-class-fix': props.contextPaneOpen })}
 							aria-label={intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
 							tabIndex={-1}
-								onClick={() => props.onToggleContextPane(!props.contextPaneOpen)}
-							>
-								<div className={cx(
-									{ 'standard-view': props.contextPaneType === 'note-editor' },
-									{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
-								)}>
-									<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
-								</div>
-								<span className="tooltip">
-									{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
-								</span>
-							</button>
+							onClick={() => props.onToggleContextPane(!props.contextPaneOpen)}
+						>
+							<div className={cx(
+								{ 'standard-view': props.contextPaneType === 'note-editor' },
+								{ 'standard-view-active': props.contextPaneType === 'note-editor' && props.contextPaneOpen }
+							)}>
+								<PanelRightClose size={ICON_SIZE} strokeWidth={ICON_STROKE} />
+							</div>
+							<span className="tooltip">
+								{intl.formatMessage({ id: 'pdfReader.toggleSecondaryView' })}
+							</span>
+						</button>
 					</>
 				)}
 
@@ -651,7 +682,9 @@ Toolbar.propTypes = {
 	onClickSplit: PropTypes.func,
 	onClickVerticalSplit: PropTypes.func,
 	onSendToAI: PropTypes.func,
-	visible: PropTypes.bool
+	visible: PropTypes.bool,
+	onRotatePageLeft: PropTypes.func,
+	onRotatePageRight: PropTypes.func
 };
 
 export default Toolbar;

@@ -212,6 +212,8 @@ const ReaderUI = React.forwardRef((props, ref) => {
 				onToggleFind={props.onToggleFind}
 				onMenuButtonClick={props.onMenuButtonClick}
 				onSendToAI={props.onSendToAI}
+				onRotatePageLeft={props.onRotatePageLeft}
+				onRotatePageRight={props.onRotatePageRight}
 			/>
 			{state.contextMenu && <ContextMenu params={state.contextMenu} onClose={props.onCloseContextMenu} />}
 			{state.labelPopup && <LabelPopup params={state.labelPopup} onUpdateAnnotations={props.onUpdateAnnotations} onClose={props.onCloseLabelPopup} />}

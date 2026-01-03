@@ -150,6 +150,7 @@ class Reader {
 			freeze: false,
 			errorMessage: '',
 			annotations: [],
+			referencedAnnotationIDs: [],
 			selectedAnnotationIDs: [],
 			filter: {
 				query: '',
@@ -227,6 +228,12 @@ class Reader {
 			delete state.splitSize;
 			this._state.secondaryViewState = state;
 		}
+
+		// Ensure externally-invoked host APIs are retained in minified builds.
+		try {
+			this.markAnnotationReferenced = this.markAnnotationReferenced.bind(this);
+			this.setReferencedAnnotationIDs = this.setReferencedAnnotationIDs.bind(this);
+		} catch { }
 
 		this._focusManager = new FocusManager({
 			reader: this,
@@ -387,8 +394,8 @@ class Reader {
 								onAddTheme={() => this._updateState({ themePopup: {} })}
 								onOpenThemeContextMenu={(params) => this._onOpenContextMenu(createThemeContextMenu(this, params))}
 								onCloseThemePopup={() => this._updateState({ themePopup: null })}
-							onSaveCustomThemes={(customThemes) => {
-								this._onSaveCustomThemes(customThemes);
+								onSaveCustomThemes={(customThemes) => {
+									this._onSaveCustomThemes(customThemes);
 									let themes = [...DEFAULT_THEMES, ...(customThemes || [])];
 									let map = new Map(themes.map(theme => [theme.id, theme]));
 									let { lightTheme, darkTheme } = this._state;
@@ -406,6 +413,8 @@ class Reader {
 								onClickClose={this._onClickClose}
 								onClickSplit={this._onClickSplit}
 								onClickVerticalSplit={this._onClickVerticalSplit}
+								onRotatePageLeft={this.rotatePageLeft.bind(this)}
+								onRotatePageRight={this.rotatePageRight.bind(this)}
 							/>
 							<Toaster
 								position="bottom-center"
@@ -457,6 +466,11 @@ class Reader {
 			let annotations = this._state.annotations.filter(x => !x._hidden);
 			this._primaryView?.setAnnotations(annotations);
 			this._secondaryView?.setAnnotations(annotations);
+		}
+
+		if (this._state.referencedAnnotationIDs !== previousState.referencedAnnotationIDs) {
+			try { this._primaryView?.setReferencedAnnotationIDs?.(this._state.referencedAnnotationIDs); } catch { }
+			try { this._secondaryView?.setReferencedAnnotationIDs?.(this._state.referencedAnnotationIDs); } catch { }
 		}
 
 		if (this._state.selectedAnnotationIDs !== previousState.selectedAnnotationIDs) {
@@ -756,6 +770,24 @@ class Reader {
 
 	enableAddToNote(enable) {
 		this._updateState({ enableAddToNote: enable });
+	}
+
+	setReferencedAnnotationIDs(ids) {
+		this._ensureType('pdf');
+		let next = Array.isArray(ids) ? ids.map(x => String(x)) : [];
+		// De-dup while preserving order
+		let seen = new Set();
+		next = next.filter(id => (id && !seen.has(id) && seen.add(id)));
+		this._updateState({ referencedAnnotationIDs: next });
+	}
+
+	markAnnotationReferenced(annotationId) {
+		this._ensureType('pdf');
+		let id = annotationId ? String(annotationId) : '';
+		if (!id) return;
+		let prev = Array.isArray(this._state.referencedAnnotationIDs) ? this._state.referencedAnnotationIDs : [];
+		if (prev.includes(id)) return;
+		this._updateState({ referencedAnnotationIDs: [...prev, id] });
 	}
 
 	setAnnotations(annotations) {
@@ -1254,22 +1286,22 @@ class Reader {
 		this._lastView.zoomPageWidth();
 	}
 
-		zoomPageHeight() {
-			this._ensureType('pdf');
-			this._lastView.zoomPageHeight();
+	zoomPageHeight() {
+		this._ensureType('pdf');
+		this._lastView.zoomPageHeight();
+	}
+
+	async getCurrentPageText() {
+		if (this._type !== 'pdf') {
+			return '';
 		}
 
-		async getCurrentPageText() {
-			if (this._type !== 'pdf') {
-				return '';
-			}
-
-			if (!this._lastView || !this._lastView.getCurrentPageText) {
-				return '';
-			}
-
-			return this._lastView.getCurrentPageText();
+		if (!this._lastView || !this._lastView.getCurrentPageText) {
+			return '';
 		}
+
+		return this._lastView.getCurrentPageText();
+	}
 
 	async navigate(location, options) {
 		await this._lastView.initializedPromise;
@@ -1718,14 +1750,18 @@ class Reader {
 
 	rotatePageLeft() {
 		this._ensureType('pdf');
-		let { pageIndex } = (this._state.primary ? this._state.primaryViewStats : this._state.secondaryViewStats);
-		this.rotatePages([pageIndex], 270);
+		let view = this._state.primary ? this._primaryView : this._secondaryView;
+		if (view && view.rotateLeft) {
+			view.rotateLeft();
+		}
 	}
 
 	rotatePageRight() {
 		this._ensureType('pdf');
-		let { pageIndex } = (this._state.primary ? this._state.primaryViewStats : this._state.secondaryViewStats);
-		this.rotatePages([pageIndex], 90);
+		let view = this._state.primary ? this._primaryView : this._secondaryView;
+		if (view && view.rotateRight) {
+			view.rotateRight();
+		}
 	}
 
 	rotatePages(pageIndexes, degrees) {
